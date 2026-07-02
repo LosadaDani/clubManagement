@@ -1,52 +1,39 @@
-package com.managementClub.managementClub.model.entity;
+package com.managementClub.managementClub.model.dto;
 
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.model.enums.MembershipType;
-import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "person")
-public class Person {
+public class PersonResponseDTO {
 
-    @Id
-    @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, length = 100)
     private String lastName;
 
-    @Column(length = 20)
     private String telephone;
 
-    @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(nullable = false)
     private LocalDate memberSince;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private MembershipStatus membershipStatus;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
     private MembershipType membershipType;
 
-    public Person() {
+    public PersonResponseDTO() {
     }
 
-    public Person(String name, String lastName, String telephone, String email, LocalDate memberSince, MembershipStatus membershipStatus, MembershipType membershipType) {
+    public PersonResponseDTO(Long id, String name, String lastName, String telephone, String email, LocalDate memberSince, MembershipStatus membershipStatus, MembershipType membershipType) {
+        this.id = id;
         this.name = name;
         this.lastName = lastName;
         this.telephone = telephone;
         this.email = email;
         this.memberSince = memberSince;
-        this.membershipStatus= membershipStatus;
+        this.membershipStatus = membershipStatus;
         this.membershipType = membershipType;
     }
 
