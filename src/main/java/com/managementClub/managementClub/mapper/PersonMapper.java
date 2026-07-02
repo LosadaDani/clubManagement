@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PersonMapper {
 
-    public Person requestDtoToToEntity (PersonRequestDTO dto) {
+    public Person toEntity (PersonRequestDTO dto) {
+
         Person person = new Person();
 
         person.setName(dto.getName());
@@ -22,7 +23,8 @@ public class PersonMapper {
         return person;
     }
 
-    public PersonResponseDTO entityToResponseDTO (Person person) {
+    public PersonResponseDTO toResponseDto (Person person) {
+
         return new PersonResponseDTO(
                 person.getId(),
                 person.getName(),
