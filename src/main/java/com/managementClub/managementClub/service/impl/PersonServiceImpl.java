@@ -1,5 +1,6 @@
 package com.managementClub.managementClub.service.impl;
 
+import com.managementClub.managementClub.exception.ResourceAlreadyExistsException;
 import com.managementClub.managementClub.mapper.PersonMapper;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;
 import com.managementClub.managementClub.model.dto.PersonResponseDTO;
@@ -27,7 +28,7 @@ public class PersonServiceImpl implements PersonService {
     public PersonResponseDTO createPerson(PersonRequestDTO dto) {
 
         if(personRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new RuntimeException("Ya existe una persona con ese mail");
+            throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
         }
 
         Person person = personMapper.toEntity(dto);
