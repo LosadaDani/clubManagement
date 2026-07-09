@@ -36,4 +36,13 @@ public class PersonMapper {
                 person.getMembershipType()
         );
     }
+
+    public void updateEntity (Person person, PersonRequestDTO dto) {
+        person.setName(dto.getName());
+        person.setLastName(dto.getLastName());
+        person.setTelephone(dto.getTelephone());
+        person.setEmail(dto.getEmail());
+        person.setMemberSince(dto.getMemberSince());
+        person.setMembershipType(dto.getMembershipType());
+    }
 }

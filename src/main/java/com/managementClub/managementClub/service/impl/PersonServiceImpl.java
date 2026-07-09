@@ -5,6 +5,7 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.PersonMapper;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;
 import com.managementClub.managementClub.model.dto.PersonResponseDTO;
+import com.managementClub.managementClub.model.dto.PersonStatusDTO;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.repository.PersonRepository;
@@ -51,9 +52,20 @@ public class PersonServiceImpl implements PersonService {
 
         Person person = personRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("No existe ninguna persona con el id" + id));
+                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
 
             return  personMapper.toResponseDto(person);
+    }
+
+    @Override
+    public List<PersonResponseDTO> searchPersons(String searchText) {
+
+        searchText = searchText.trim().replaceAll("\\s+", " ");
+
+        return personRepository.searchPersons(searchText)
+                .stream()
+                .map(personMapper::toResponseDto)
+                .toList();
     }
 
     @Override
@@ -63,5 +75,41 @@ public class PersonServiceImpl implements PersonService {
                 .stream()
                 .map(personMapper::toResponseDto)
                 .toList();
+    }
+
+    @Override
+    public PersonResponseDTO updatePerson(Long id, PersonRequestDTO personRequest) {
+
+        Person personDb = personRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+
+        if (!personDb.getEmail().equalsIgnoreCase(personRequest.getEmail())) {
+            if(personRepository.findByEmail(personRequest.getEmail()).isPresent()) {
+                throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
+            }
+        }
+
+        personMapper.updateEntity(personDb, personRequest);
+
+        Person updatedPerson = personRepository.save(personDb);
+
+        return personMapper.toResponseDto(updatedPerson);
+    }
+
+    @Override
+    public PersonResponseDTO changeMembershipStatus(Long id, PersonStatusDTO dto) {
+
+        Person personDb = personRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+
+        if (personDb.getMembershipStatus() == dto.getMembershipStatus()) {
+            return personMapper.toResponseDto(personDb);
+        }
+
+        personDb.setMembershipStatus(dto.getMembershipStatus());
+
+        return personMapper.toResponseDto(personRepository.save(personDb));
     }
 }
