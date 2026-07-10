@@ -1,10 +1,19 @@
 package com.managementClub.managementClub.model.dto;
 
 import com.managementClub.managementClub.model.enums.MembershipStatus;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
+@Schema(
+        description = "Tipo de vinculación de la persona con el club.",
+        example = "FULL_PARTNER"
+)
 public class PersonStatusDTO {
 
+    @Schema(
+            description = "Nuevo estado que se asignará a la persona.",
+            example = "INACTIVE"
+    )
     @NotNull(message = "El estado es obligatorio")
     private MembershipStatus membershipStatus;
 

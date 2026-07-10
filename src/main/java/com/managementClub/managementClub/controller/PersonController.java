@@ -1,5 +1,6 @@
 package com.managementClub.managementClub.controller;
 
+import com.managementClub.managementClub.controller.docs.PersonControllerDocs;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;
 import com.managementClub.managementClub.model.dto.PersonResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonStatusDTO;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/persons")
-public class PersonController {
+public class PersonController implements PersonControllerDocs {
 
     private final PersonService personService;
 

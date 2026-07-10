@@ -1,13 +1,37 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 
+@Schema(
+        description = "Información devuelta cuando se produce un error durante el procesamiento de la solicitud."
+)
 public class ErrorResponseDTO {
 
+    @Schema(
+            description = "Fecha y hora en la que se produjo el error."
+    )
     private LocalDateTime timestamp;
+
+    @Schema(
+            description = "Código de estado HTTP."
+    )
     private int status;
+
+    @Schema(
+            description = "Descripción breve del error HTTP."
+    )
     private String error;
+
+    @Schema(
+            description = "Mensaje detallado del error."
+    )
     private String message;
+
+    @Schema(
+            description = "Ruta del endpoint que provocó el error."
+    )
     private String path;
 
     public ErrorResponseDTO() {
