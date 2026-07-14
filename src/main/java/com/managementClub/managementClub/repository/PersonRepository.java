@@ -20,7 +20,7 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
             where lower(concat(p.name, ' ', p.lastName)) 
             like lower(concat('%', :searchText, '%'))
             """)
-    List<Person> searchPersons(@Param("searchText") String searchText);
+    List<Person> searchByFullName(@Param("searchText") String searchText);
 
 
 }

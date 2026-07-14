@@ -2,10 +2,7 @@ package com.managementClub.managementClub.model.dto;
 
 import com.managementClub.managementClub.model.enums.MembershipType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 
@@ -43,13 +40,14 @@ public class PersonRequestDTO {
     )
     @NotBlank(message =  "El email es obligatorio")
     @Email( message = "El email no tiene el formato necesario")
-    @Size(max = 100, message = "El nombre no puede exceder los 50 caracteres")
+    @Size(max = 100, message = "El email no puede exceder los 100 caracteres")
     private String email;
 
     @Schema(
             description = "Fecha de alta de la persona. Si no se informa, se asignará la fecha actual.",
             example = "2026-07-10"
     )
+    @PastOrPresent
     private LocalDate memberSince;
 
     @Schema(

@@ -1,4 +1,4 @@
-package com.managementClub.managementClub.controller.docs;
+package com.managementClub.managementClub.controller.documentation;
 
 import com.managementClub.managementClub.model.dto.ErrorResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;

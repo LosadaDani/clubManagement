@@ -1,6 +1,6 @@
 package com.managementClub.managementClub.controller;
 
-import com.managementClub.managementClub.controller.docs.PersonControllerDocs;
+import com.managementClub.managementClub.controller.documentation.PersonControllerDocs;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;
 import com.managementClub.managementClub.model.dto.PersonResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonStatusDTO;

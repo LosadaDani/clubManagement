@@ -5,8 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 @Schema(
-        description = "Tipo de vinculación de la persona con el club.",
-        example = "FULL_PARTNER"
+        description = "Datos necesarios para modificar el estado de una persona."
 )
 public class PersonStatusDTO {
 

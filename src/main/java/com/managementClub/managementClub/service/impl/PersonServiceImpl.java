@@ -52,7 +52,7 @@ public class PersonServiceImpl implements PersonService {
 
         Person person = personRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+                        new ResourceNotFoundException("Persona con identificador " + id + " no encontrada"));
 
             return  personMapper.toResponseDto(person);
     }
@@ -62,7 +62,7 @@ public class PersonServiceImpl implements PersonService {
 
         searchText = searchText.trim().replaceAll("\\s+", " ");
 
-        return personRepository.searchPersons(searchText)
+        return personRepository.searchByFullName(searchText)
                 .stream()
                 .map(personMapper::toResponseDto)
                 .toList();
