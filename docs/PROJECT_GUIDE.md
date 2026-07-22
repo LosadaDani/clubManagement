@@ -2,34 +2,32 @@
 
 ## 1. Objetivo del proyecto
 
-ManagementClub es una aplicación desarrollada con Java y Spring Boot cuyo objetivo es gestionar un club deportivo canino.
+ManagementClub es una aplicación desarrollada con Java y Spring Boot para la gestión de un club deportivo canino.
 
 El proyecto tiene un doble propósito:
 
-- Resolver un problema real de gestión del club.
-- Servir como proyecto de aprendizaje para profundizar en Java, Spring Boot y buenas prácticas de desarrollo.
+- Resolver una necesidad real de gestión del club.
+- Servir como proyecto de aprendizaje para aplicar buenas prácticas de desarrollo backend.
 
-Por este motivo se prioriza la comprensión del código frente al uso de herramientas que automaticen su generación.
+Durante el desarrollo se prioriza la comprensión del código, la mantenibilidad y la simplicidad frente al uso de herramientas que automaticen la implementación.
 
 ---
 
 # 2. Objetivos técnicos
 
-Este proyecto pretende servir como ejemplo de una aplicación Spring Boot desarrollada siguiendo buenas prácticas.
+El proyecto persigue los siguientes objetivos:
 
-Los principales objetivos son:
-
-- Código limpio y fácil de mantener.
-- Arquitectura sencilla y escalable.
-- Responsabilidad única de cada clase.
-- Uso de patrones habituales en proyectos profesionales.
-- Comprender el funcionamiento interno de Spring antes de utilizar herramientas automáticas.
+- Desarrollar una API REST siguiendo buenas prácticas.
+- Mantener una arquitectura limpia y sencilla.
+- Aplicar correctamente Spring Boot y Spring Data JPA.
+- Diseñar un modelo de dominio escalable.
+- Comprender el funcionamiento interno del framework antes de incorporar herramientas de automatización.
 
 ---
 
 # 3. Arquitectura
 
-El proyecto sigue una arquitectura clásica basada en capas.
+La aplicación sigue una arquitectura clásica por capas.
 
 ```
 Controller
@@ -55,140 +53,47 @@ Cada capa tiene una única responsabilidad.
 
 ---
 
-# 4. Convenciones del proyecto
-
-## Controllers
-
-Responsabilidades:
-
-- Recibir peticiones HTTP.
-- Validar RequestDTO mediante Bean Validation.
-- Invocar al Service.
-- Devolver ResponseEntity.
-
-No deben contener lógica de negocio.
-
----
-
-## Services
-
-Responsabilidades:
-
-- Implementar las reglas de negocio.
-- Validar condiciones funcionales.
-- Lanzar excepciones personalizadas.
-- Invocar Repositories.
-- Utilizar Mappers.
-
----
-
-## Repositories
-
-Responsabilidades:
-
-- Acceso a base de datos.
-- Consultas derivadas de Spring Data.
-- JPQL únicamente cuando aporte valor.
-
-No deben contener lógica de negocio.
-
----
-
-## Mappers
-
-Responsabilidades:
-
-- Conversión entre DTO y Entity.
-
-No deben acceder a repositorios.
-
-No deben contener reglas de negocio.
-
----
-
-## DTO
-
-Se utilizan DTO separados para Request y Response.
-
-No se exponen directamente las entidades JPA.
-
----
-
-# 5. Tecnologías utilizadas
+# 4. Tecnologías utilizadas
 
 - Java 21
 - Spring Boot
 - Spring Data JPA
 - Spring Validation
 - H2 Database
+- MySQL (futuro entorno de producción)
 - Swagger / OpenAPI
 
-Actualmente NO se utiliza:
-
-- Lombok
-- MapStruct
-- Flyway
-- Docker
-- JWT (pendiente)
-- MySQL (pendiente)
-
 ---
 
-# 6. Decisiones de diseño
+# 5. Filosofía del proyecto
 
-Se han tomado deliberadamente las siguientes decisiones:
-
-- Mappers implementados manualmente.
-- Constructores explícitos.
-- Inyección por constructor.
-- Excepciones personalizadas.
-- GlobalExceptionHandler.
-- DTO independientes.
-- Validaciones mediante Bean Validation.
-
-Estas decisiones buscan favorecer el aprendizaje y la comprensión del framework.
-
----
-
-# 7. Filosofía del proyecto
-
-Antes de introducir una nueva tecnología o patrón de diseño debe responderse:
+Antes de incorporar una nueva tecnología o patrón de diseño se valoran los siguientes aspectos:
 
 - ¿Resuelve un problema real?
-- ¿Reduce complejidad?
-- ¿Hace el código más legible?
+- ¿Reduce la complejidad?
+- ¿Hace el código más mantenible?
 - ¿Está justificado para el tamaño del proyecto?
 
 Se evita introducir complejidad innecesaria.
 
 ---
 
-# 8. Roadmap
+# 6. Roadmap
 
 ## Sprint 1
 
-✔ CRUD Persona
-
-✔ Swagger
-
-✔ DTO
-
-✔ Mapper
-
-✔ GlobalExceptionHandler
-
-✔ Validaciones
-
----
+- Gestión de Personas
+- Swagger
+- DTO
+- Mapper
+- Excepciones personalizadas
+- Validaciones
 
 ## Sprint 2
 
 - Gestión de Perros
-- Relación Persona → Perros
+- Relaciones JPA
 - CRUD Perro
-- Diseño de relaciones JPA
-
----
 
 ## Sprint 3
 
@@ -196,15 +101,11 @@ Se evita introducir complejidad innecesaria.
 - Competiciones
 - Históricos
 
----
-
 ## Sprint 4
 
 - Recibos
 - Pagos
 - Automatizaciones
-
----
 
 ## Sprint 5
 
@@ -215,69 +116,38 @@ Se evita introducir complejidad innecesaria.
 
 ---
 
-# 9. Guía para asistentes de IA
-
-Si una IA analiza este proyecto debe tener en cuenta las siguientes normas.
-
-## Prioridades
-
-- Explicar antes que generar código.
-- Justificar todas las recomendaciones.
-- Priorizar simplicidad.
-- Mantener la arquitectura existente.
-
-## No proponer automáticamente
-
-- Lombok
-- MapStruct
-- Clean Architecture
-- CQRS
-- Microservicios
-- Patrones complejos
-
-salvo que exista una justificación técnica clara.
-
-El objetivo principal del proyecto es aprender.
-
----
-
-# 10. Estado actual
+# 7. Estado actual
 
 El proyecto se encuentra en desarrollo activo.
 
-Cada Sprint debe finalizar con:
+Cada Sprint finaliza con:
 
-- Revisión completa del código.
-- Refactorización si aporta valor.
+- Revisión del código.
+- Refactorización cuando aporte valor.
+- Pruebas funcionales.
 - Actualización de Swagger.
-- Actualización de esta documentación.
+- Actualización de la documentación.
 
-# Sprint Review
+---
+
+# 8. Sprint Review
 
 ## Sprint 1
 
-### Objetivos alcanzados
+### Funcionalidades implementadas
 
-- CRUD completo de Persona.
-- Excepciones personalizadas.
-- Swagger.
-- Validaciones.
-- Búsqueda por nombre y apellidos.
+- CRUD completo de Personas.
 - Cambio de estado mediante PATCH.
-
-### Decisiones importantes
-
-- Uso de DTO separados.
-- Mapper manual.
+- Búsqueda por nombre y apellidos.
+- Validaciones con Bean Validation.
+- Swagger / OpenAPI.
 - GlobalExceptionHandler.
-- No utilizar Lombok.
-- No utilizar MapStruct.
 
 ### Lecciones aprendidas
 
-- Diferencia entre Entity y DTO.
-- Uso de Optional.
-- orElseThrow.
-- Bean Validation.
+- Arquitectura por capas.
+- DTO y Entity.
+- Optional.
 - JPQL.
+- Bean Validation.
 - Responsabilidad de cada capa.

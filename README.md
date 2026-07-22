@@ -93,11 +93,12 @@ http://localhost:8080/swagger-ui/index.html
 
 ## Documentación
 
-La documentación técnica del proyecto puede consultarse en:
+La documentación del proyecto se encuentra en la carpeta **docs**.
 
-```
-docs/PROJECT_GUIDE.md
-```
+- PROJECT_GUIDE.md
+- DEVELOPMENT_GUIDE.md
+- DOMAIN_RULES.md
+- ARCHITECTURE_DECISIONS.md
 
 ---
 
