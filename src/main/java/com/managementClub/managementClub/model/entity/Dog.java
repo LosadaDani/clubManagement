@@ -26,22 +26,27 @@ public class Dog {
     private String breed;
 
     @Column(nullable = false, unique = true, length = 15)
-    private Long microchip;
+    private String microchip;
 
     @Column(unique = true)
     private String pedigreeNumber;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "person_id", nullable = false)
+    private Person owner;
 
 
     public Dog() {
     }
 
-    public Dog(String name, LocalDate birthDate, DogSex sex, String breed, Long microchip, String pedigreeNumber) {
+    public Dog(String name, LocalDate birthDate, DogSex sex, String breed, String microchip, String pedigreeNumber, Person owner) {
         this.name = name;
         this.birthDate = birthDate;
         this.sex = sex;
         this.breed = breed;
         this.microchip = microchip;
         this.pedigreeNumber = pedigreeNumber;
+        this.owner = owner;
     }
 
     public Long getId() {
@@ -84,11 +89,11 @@ public class Dog {
         this.breed = breed;
     }
 
-    public Long getMicrochip() {
+    public String getMicrochip() {
         return microchip;
     }
 
-    public void setMicrochip(Long microchip) {
+    public void setMicrochip(String microchip) {
         this.microchip = microchip;
     }
 
@@ -98,5 +103,13 @@ public class Dog {
 
     public void setPedigreeNumber(String pedigreeNumber) {
         this.pedigreeNumber = pedigreeNumber;
+    }
+
+    public Person getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Person owner) {
+        this.owner = owner;
     }
 }

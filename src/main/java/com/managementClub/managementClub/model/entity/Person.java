@@ -5,6 +5,8 @@ import com.managementClub.managementClub.model.enums.MembershipType;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "person")
@@ -36,6 +38,9 @@ public class Person {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MembershipType membershipType;
+
+    @OneToMany(mappedBy = "owner")
+    private List<Dog> dogs = new ArrayList<>();
 
     public Person() {
     }
@@ -112,5 +117,13 @@ public class Person {
 
     public void setMembershipType(MembershipType membershipType) {
         this.membershipType = membershipType;
+    }
+
+    public List<Dog> getDogs() {
+        return dogs;
+    }
+
+    public void setDogs(List<Dog> dogs) {
+        this.dogs = dogs;
     }
 }
