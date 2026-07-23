@@ -54,6 +54,8 @@ Se utilizan DTO independientes para Request y Response.
 
 Nunca se exponen directamente las entidades JPA.
 
+Cuando un ResponseDTO necesite información de otra entidad relacionada, se utilizará un SummaryDTO en lugar del ResponseDTO completo.
+
 ---
 
 ## 2. Convenciones del proyecto

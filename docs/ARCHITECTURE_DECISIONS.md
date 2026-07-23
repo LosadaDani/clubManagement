@@ -2,6 +2,21 @@
 
 Este documento recoge las principales decisiones de arquitectura adoptadas durante el desarrollo del proyecto.
 
+| ADR | Decisión |
+|------|----------|
+| ADR-001 | DTO separados |
+| ADR-002 | Mapper manual |
+| ADR-003 | Sin Lombok |
+| ADR-004 | Validaciones en RequestDTO |
+| ADR-005 | Constructor injection |
+| ADR-006 | Excepciones personalizadas |
+| ADR-007 | GlobalExceptionHandler |
+| ADR-008 | Baja lógica de personas |
+| ADR-009 | Simplicidad sobre complejidad |
+| ADR-010 | SummaryDTO para relaciones |
+| ADR-011 | Relaciones JPA mediante objetos |
+| ADR-012 | Clasificación de DTO (Request/Response/Summary) |
+
 ---
 
 ## ADR-001 - DTO separados
@@ -111,3 +126,61 @@ Solo se incorporarán nuevas tecnologías cuando aporten un beneficio claro al p
 ### Motivo
 
 Mantener un proyecto comprensible, coherente y orientado al aprendizaje.
+
+---
+
+## ADR-010
+
+### DTO de resumen para relaciones
+
+Cuando una entidad deba devolver información de otra entidad relacionada, se utilizarán DTO específicos de resumen (Summary DTO) en lugar de devolver la entidad completa o únicamente su identificador.
+
+Ejemplos:
+
+- PersonSummaryDTO
+- DogSummaryDTO (futuro)
+- FederationSummaryDTO (futuro)
+
+### Motivo
+
+- Evita referencias circulares.
+- Reduce el tamaño de las respuestas.
+- Desacopla la API del modelo de persistencia.
+- Expone únicamente la información necesaria.
+- Facilita la evolución de la API.
+
+---
+
+## ADR-011
+
+### Relaciones JPA
+
+Las entidades se relacionarán mediante referencias a objetos, nunca mediante identificadores.
+
+Ejemplo:
+
+Correcto:
+
+Dog
+→ Person owner
+
+Incorrecto:
+
+Dog
+→ Long ownerId
+
+Los identificadores únicamente aparecerán en los DTO.
+
+---
+
+## ADR-012
+
+### Tipos de DTO
+
+El proyecto utiliza tres tipos de DTO:
+
+- RequestDTO
+- ResponseDTO
+- SummaryDTO
+
+Cada uno tiene una finalidad diferente.
