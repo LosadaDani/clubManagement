@@ -80,11 +80,12 @@ Cada nueva funcionalidad sigue el siguiente orden:
 4. Mapper
 5. Service
 6. Controller
-7. Swagger
-8. Pruebas con Postman
-9. Revisión de código
-10. Commit
-11. Cierre de la Issue
+7. Postman
+8. Swagger
+9. Pruebas con Postman
+10. Revisión de código
+11. Commit
+12. Cierre de la Issue
 
 ---
 
