@@ -25,7 +25,7 @@ public class DogMapper {
         return dog;
     }
 
-    public DogResponseDTO toDTO(Dog dog) {
+    public DogResponseDTO toResponseDto(Dog dog) {
 
         PersonSummaryDTO ownerSummary = new PersonSummaryDTO(
                 dog.getOwner().getId(),
