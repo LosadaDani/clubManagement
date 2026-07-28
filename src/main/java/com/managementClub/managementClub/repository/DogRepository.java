@@ -12,7 +12,7 @@ public interface DogRepository extends JpaRepository<Dog, Long> {
 
     Optional<Dog> findByMicrochip(String microchip);
 
-    List<Dog> findByOwner(Long ownerId);
+    List<Dog> findByOwnerId(Long ownerId);
 
     Optional<Dog> findByPedigreeNumber(String pedigreeNumber);
 }
