@@ -24,6 +24,7 @@ public class PersonController implements PersonControllerDocs {
     }
 
     @PostMapping
+    @Override
     public ResponseEntity<PersonResponseDTO> createPerson (@Valid @RequestBody PersonRequestDTO requestDto) {
 
         PersonResponseDTO responseDto = personService.createPerson(requestDto);
@@ -32,6 +33,7 @@ public class PersonController implements PersonControllerDocs {
     }
 
     @GetMapping("/{id}")
+    @Override
     public ResponseEntity<PersonResponseDTO> getPerson (@PathVariable Long id) {
 
         PersonResponseDTO responseDto = personService.getPersonById(id);
@@ -40,12 +42,14 @@ public class PersonController implements PersonControllerDocs {
     }
 
     @GetMapping("/search")
+    @Override
     public ResponseEntity<List<PersonResponseDTO>> searchPersons (@RequestParam String searchText) {
 
         return ResponseEntity.ok(personService.searchPersons(searchText));
     }
 
     @GetMapping()
+    @Override
     public ResponseEntity<List<PersonResponseDTO>> getAllPersons() {
         List<PersonResponseDTO> response = personService.getAllPersons();
 
@@ -53,6 +57,7 @@ public class PersonController implements PersonControllerDocs {
     }
 
     @PutMapping("/{id}")
+    @Override
     public ResponseEntity<PersonResponseDTO> updatePerson(@Valid @RequestBody PersonRequestDTO requestDto, @PathVariable Long id) {
 
         PersonResponseDTO responseDto = personService.updatePerson(id, requestDto);
@@ -60,6 +65,7 @@ public class PersonController implements PersonControllerDocs {
     }
 
     @PatchMapping("/{id}/status")
+    @Override
     public ResponseEntity<PersonResponseDTO> changeMembershipStatus(@PathVariable Long id, @Valid @RequestBody PersonStatusDTO dto) {
 
         PersonResponseDTO response = personService.changeMembershipStatus(id, dto);

@@ -22,6 +22,7 @@ public class DogController implements DogControllerDocs {
     }
 
     @PostMapping
+    @Override
     public ResponseEntity<DogResponseDTO> createDog(@Valid @RequestBody DogRequestDTO requestDto) {
 
         DogResponseDTO dog = dogService.createDog(requestDto);
@@ -30,6 +31,7 @@ public class DogController implements DogControllerDocs {
     }
 
     @GetMapping("/{id}")
+    @Override
     public ResponseEntity<DogResponseDTO> getDog(@PathVariable Long id) {
 
         DogResponseDTO dog = dogService.getDogById(id);
@@ -38,9 +40,18 @@ public class DogController implements DogControllerDocs {
     }
 
     @GetMapping
+    @Override
     public ResponseEntity<List<DogResponseDTO>> getAllDogs() {
 
         List<DogResponseDTO> response = dogService.getAllDogs();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/person/{personId}")
+    @Override
+    public ResponseEntity<List<DogResponseDTO>> getDogsByPersonId(@PathVariable Long personId) {
+        List<DogResponseDTO> response = dogService.getDogsByPersonId(personId);
 
         return ResponseEntity.ok(response);
     }

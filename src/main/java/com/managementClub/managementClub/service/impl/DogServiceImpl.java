@@ -37,7 +37,7 @@ public class DogServiceImpl implements DogService {
             throw new ResourceAlreadyExistsException("Microchip existente");
         }
 
-        if (dto.getPedigreeNumber() != null && dogRepository.findByPedigreeNumber(dto.getPedigreeNumber()).isPresent()) {
+        if (dto.getPedigreeNumber() != null && !dto.getPedigreeNumber().isBlank() && dogRepository.findByPedigreeNumber(dto.getPedigreeNumber()).isPresent()) {
             throw new ResourceAlreadyExistsException("Numero de pedigree existente");
         }
 
@@ -56,6 +56,19 @@ public class DogServiceImpl implements DogService {
 
         return dogMapper.toResponseDto(dog);
     }
+
+    @Override
+    public List<DogResponseDTO> getDogsByPersonId(Long personId) {
+        personRepository.findById(personId)
+                .orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + personId + " no encontrada."));
+
+        List<Dog> dogs = dogRepository.findByOwnerId(personId);
+
+        return dogs.stream()
+                .map(dog -> dogMapper.toResponseDto(dog))
+                .toList();
+    }
+
 
     @Override
     public List<DogResponseDTO> getAllDogs() {

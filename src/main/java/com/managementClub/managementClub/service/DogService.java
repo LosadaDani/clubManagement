@@ -11,5 +11,7 @@ public interface DogService {
 
     DogResponseDTO getDogById(Long id);
 
+    List<DogResponseDTO> getDogsByPersonId(Long personId);
+
     List<DogResponseDTO> getAllDogs();
 }

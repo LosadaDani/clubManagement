@@ -79,4 +79,21 @@ public interface DogControllerDocs {
             )
     })
     ResponseEntity<List<DogResponseDTO>> getAllDogs();
+
+    @Operation(
+            summary = "Obtener todos los perros de un propietario",
+            description = "Recupera el listado de perros registrados en el sistema por el identificador del propietario"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de perros obtenido correctamente. Puede devolver una lista vacía si no existen perros registrados para el propietario indicado."),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe ningun propietario con el identificador indicado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<List<DogResponseDTO>> getDogsByPersonId(@Parameter(description = "Identificador del propietario") Long personId);
 }
