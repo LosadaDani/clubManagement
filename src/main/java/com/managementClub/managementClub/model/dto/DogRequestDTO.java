@@ -21,7 +21,7 @@ public class DogRequestDTO {
     private String breed;
 
     @NotBlank(message = "El microchip es obligatorio")
-    @Pattern(regexp = "\\d{15}", message = "El microchip debe tener un máximo de 15 caracteres")
+    @Pattern(regexp = "\\d{15}", message = "El microchip debe tener exactamente 15 digitos")
     private String microchip;
 
     @Size(max = 50, message = "El número de pedigree debe tener un máximo de 50 caracteres")

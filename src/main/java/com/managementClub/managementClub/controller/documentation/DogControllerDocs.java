@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 @Tag(
         name = "Perros",
         description = "Operaciones para la gestión de perros asociados a los miembros del club"
@@ -49,4 +51,14 @@ public interface DogControllerDocs {
     })
     ResponseEntity<DogResponseDTO> createDog(DogRequestDTO requestDto);
 
+    @Operation(
+            summary = "Obtener todos los perros",
+            description = "Recupera el listado completo de los perros registrados en el sistema"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de perros obtenida correctamente. Puede devolver una lista vacía si no existen perros registrados."
+            )
+    })
+    ResponseEntity<List<DogResponseDTO>> getAllDogs();
 }

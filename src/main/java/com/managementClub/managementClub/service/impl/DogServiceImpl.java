@@ -12,6 +12,8 @@ import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.service.DogService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DogServiceImpl implements DogService {
 
@@ -45,4 +47,14 @@ public class DogServiceImpl implements DogService {
 
         return dogMapper.toResponseDto(savedDog);
     }
+
+    @Override
+    public List<DogResponseDTO> getAllDogs() {
+        return dogRepository.findAll()
+                .stream()
+                .map(dog -> dogMapper.toResponseDto(dog))
+                .toList();
+    }
+
+
 }
