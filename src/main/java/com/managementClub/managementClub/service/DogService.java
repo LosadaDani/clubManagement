@@ -9,5 +9,7 @@ public interface DogService {
 
     DogResponseDTO createDog(DogRequestDTO dto);
 
+    DogResponseDTO getDogById(Long id);
+
     List<DogResponseDTO> getAllDogs();
 }

@@ -4,6 +4,7 @@ import com.managementClub.managementClub.model.dto.DogRequestDTO;
 import com.managementClub.managementClub.model.dto.DogResponseDTO;
 import com.managementClub.managementClub.model.dto.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -50,6 +51,23 @@ public interface DogControllerDocs {
             )
     })
     ResponseEntity<DogResponseDTO> createDog(DogRequestDTO requestDto);
+
+    @Operation(
+            summary = "Obtener un perro por su ID",
+            description = "Recupera un perro registrado en el sistema por su identificador único"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                description = "Perro encontrado correctamente"),
+            @ApiResponse(responseCode = "404",
+                description = "No existe ningun perro con el identificador indicado",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+            )
+    })
+    ResponseEntity<DogResponseDTO> getDog (@Parameter(description = "Identificador del perro") Long id);
 
     @Operation(
             summary = "Obtener todos los perros",

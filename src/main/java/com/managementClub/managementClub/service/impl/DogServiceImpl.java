@@ -49,6 +49,15 @@ public class DogServiceImpl implements DogService {
     }
 
     @Override
+    public DogResponseDTO getDogById(Long id) {
+        Dog dog = dogRepository.findById(id)
+                .orElseThrow( () ->
+                        new ResourceNotFoundException("Perro con identificador " + id + " no encontrado."));
+
+        return dogMapper.toResponseDto(dog);
+    }
+
+    @Override
     public List<DogResponseDTO> getAllDogs() {
         return dogRepository.findAll()
                 .stream()

@@ -29,8 +29,17 @@ public class DogController implements DogControllerDocs {
         return ResponseEntity.status(HttpStatus.CREATED).body(dog);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<DogResponseDTO> getDog(@PathVariable Long id) {
+
+        DogResponseDTO dog = dogService.getDogById(id);
+
+        return ResponseEntity.ok(dog);
+    }
+
     @GetMapping
     public ResponseEntity<List<DogResponseDTO>> getAllDogs() {
+
         List<DogResponseDTO> response = dogService.getAllDogs();
 
         return ResponseEntity.ok(response);
