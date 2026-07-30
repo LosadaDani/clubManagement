@@ -70,17 +70,6 @@ public interface DogControllerDocs {
     ResponseEntity<DogResponseDTO> getDog (@Parameter(description = "Identificador del perro") Long id);
 
     @Operation(
-            summary = "Obtener todos los perros",
-            description = "Recupera el listado completo de los perros registrados en el sistema"
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200",
-                    description = "Listado de perros obtenida correctamente. Puede devolver una lista vacía si no existen perros registrados."
-            )
-    })
-    ResponseEntity<List<DogResponseDTO>> getAllDogs();
-
-    @Operation(
             summary = "Obtener todos los perros de un propietario",
             description = "Recupera el listado de perros registrados en el sistema por el identificador del propietario"
     )
@@ -96,4 +85,43 @@ public interface DogControllerDocs {
             )
     })
     ResponseEntity<List<DogResponseDTO>> getDogsByPersonId(@Parameter(description = "Identificador del propietario") Long personId);
+
+    @Operation(
+            summary = "Obtener un perro por su microchip",
+            description = "Recupera un perro registrado en el sistema por su microchip único"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Perro encontrado correctamente"),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe ningun perro con el microchip indicado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<DogResponseDTO> getDogByMicrochip(@Parameter(description = "Microchip del perro") String microchip);
+
+    @Operation(
+            summary = "Obtener todos los perros con un nombre",
+            description = "Recupera el listado de perros registrados en el sistema por el nombre indicado"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de perros obtenido correctamente. Puede devolver una lista vacía si no existen perros registrados por el nombre indicado.")
+    })
+    ResponseEntity<List<DogResponseDTO>> getDogByName(@Parameter(description = "Nombre del perro") String name);
+
+    @Operation(
+            summary = "Obtener todos los perros",
+            description = "Recupera el listado completo de los perros registrados en el sistema"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de perros obtenida correctamente. Puede devolver una lista vacía si no existen perros registrados."
+            )
+    })
+    ResponseEntity<List<DogResponseDTO>> getAllDogs();
+
 }

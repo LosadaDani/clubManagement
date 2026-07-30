@@ -69,6 +69,21 @@ public class DogServiceImpl implements DogService {
                 .toList();
     }
 
+    @Override
+    public DogResponseDTO getDogByMicrochip(String microchip) {
+        Dog dog = dogRepository.findByMicrochip(microchip)
+                .orElseThrow(() -> new ResourceNotFoundException("Perro con microchip " + microchip + " no encontrado"));
+        return dogMapper.toResponseDto(dog);
+    }
+
+    @Override
+    public List<DogResponseDTO> getDogByName(String name) {
+        return dogRepository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(dog -> dogMapper.toResponseDto(dog))
+                .toList();
+    }
+
 
     @Override
     public List<DogResponseDTO> getAllDogs() {

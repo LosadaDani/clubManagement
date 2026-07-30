@@ -15,4 +15,6 @@ public interface DogRepository extends JpaRepository<Dog, Long> {
     List<Dog> findByOwnerId(Long ownerId);
 
     Optional<Dog> findByPedigreeNumber(String pedigreeNumber);
+
+    List<Dog> findByNameContainingIgnoreCase(String name);
 }

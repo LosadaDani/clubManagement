@@ -13,5 +13,11 @@ public interface DogService {
 
     List<DogResponseDTO> getDogsByPersonId(Long personId);
 
+    DogResponseDTO getDogByMicrochip(String microchip);
+
+    List<DogResponseDTO> getDogByName(String name);
+
     List<DogResponseDTO> getAllDogs();
+
+
 }
