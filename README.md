@@ -21,7 +21,7 @@ Este proyecto nace con un doble objetivo:
 
 🚧 En desarrollo
 
-Actualmente se ha completado el Sprint 1.
+Actualmente se ha completado el Sprint 2.
 
 ### Funcionalidades implementadas
 
@@ -105,8 +105,8 @@ La documentación del proyecto se encuentra en la carpeta **docs**.
 ## Roadmap
 
 - ✅ Sprint 1 - Gestión de Personas
-- 🚧 Sprint 2 - Gestión de Perros
-- ⏳ Sprint 3 - Federaciones
+- ✅ Sprint 2 - Gestión de Perros
+- 🚧 Sprint 3 - Federaciones
 - ⏳ Sprint 4 - Recibos
 - ⏳ Sprint 5 - Seguridad (JWT)
 

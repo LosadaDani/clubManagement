@@ -56,6 +56,8 @@ Nunca se exponen directamente las entidades JPA.
 
 Cuando un ResponseDTO necesite información de otra entidad relacionada, se utilizará un SummaryDTO en lugar del ResponseDTO completo.
 
+Mientras los casos de uso de creación y actualización compartan el mismo contrato de entrada, se reutilizará el mismo RequestDTO. Solo se crearán DTO específicos cuando las necesidades funcionales sean diferentes.
+
 ---
 
 ## 2. Convenciones del proyecto
