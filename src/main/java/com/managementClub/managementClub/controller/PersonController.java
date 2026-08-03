@@ -58,7 +58,7 @@ public class PersonController implements PersonControllerDocs {
 
     @PutMapping("/{id}")
     @Override
-    public ResponseEntity<PersonResponseDTO> updatePerson(@Valid @RequestBody PersonRequestDTO requestDto, @PathVariable Long id) {
+    public ResponseEntity<PersonResponseDTO> updatePerson(@PathVariable Long id, @Valid @RequestBody PersonRequestDTO requestDto) {
 
         PersonResponseDTO responseDto = personService.updatePerson(id, requestDto);
         return ResponseEntity.ok(responseDto);

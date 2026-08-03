@@ -19,5 +19,5 @@ public interface DogService {
 
     List<DogResponseDTO> getAllDogs();
 
-
+    DogResponseDTO updateDog(Long id, DogRequestDTO dto);
 }

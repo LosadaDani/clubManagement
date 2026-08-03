@@ -76,4 +76,12 @@ public class DogController implements DogControllerDocs {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}")
+    @Override
+    public ResponseEntity<DogResponseDTO> updateDog(@PathVariable Long id, @Valid @RequestBody DogRequestDTO requestDto) {
+        DogResponseDTO responseDto = dogService.updateDog(id, requestDto);
+
+        return ResponseEntity.ok(responseDto);
+    }
 }

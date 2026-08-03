@@ -36,4 +36,13 @@ public class DogMapper {
         return new DogResponseDTO(dog.getId(), dog.getName(), dog.getBirthDate(), dog.getSex(),dog.getBreed(), dog.getMicrochip(),
                 dog.getPedigreeNumber(), ownerSummary);
     }
+
+    public void updateEntity (Dog dog, DogRequestDTO dto) {
+        dog.setName(dto.getName());
+        dog.setBirthDate(dto.getBirthDate());
+        dog.setSex(dto.getSex());
+        dog.setBreed(dto.getBreed());
+        dog.setMicrochip(dto.getMicrochip());
+        dog.setPedigreeNumber(dto.getPedigreeNumber());
+    }
 }

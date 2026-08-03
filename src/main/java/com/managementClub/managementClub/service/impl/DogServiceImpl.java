@@ -13,6 +13,7 @@ import com.managementClub.managementClub.service.DogService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DogServiceImpl implements DogService {
@@ -93,5 +94,32 @@ public class DogServiceImpl implements DogService {
                 .toList();
     }
 
+    @Override
+    public DogResponseDTO updateDog(Long id, DogRequestDTO dogRequest) {
 
+        Dog existingDog = dogRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Perro con identificador " + id + " no encontrado."));
+
+        if (!Objects.equals(dogRequest.getMicrochip(), existingDog.getMicrochip())) {
+                dogRepository.findByMicrochip(dogRequest.getMicrochip())
+                        .ifPresent(d -> {
+                            throw new ResourceAlreadyExistsException("Ya existe un perro con el microchip indicado.");
+                        });
+        }
+
+        if (!Objects.equals(dogRequest.getPedigreeNumber(), existingDog.getPedigreeNumber())) {
+            if (dogRequest.getPedigreeNumber() != null && !dogRequest.getPedigreeNumber().isBlank()) {
+                dogRepository.findByPedigreeNumber(dogRequest.getPedigreeNumber())
+                        .ifPresent(d -> {
+                            throw new ResourceAlreadyExistsException("Ya existe un perro con el número de pedigree indicado.");
+                        });
+            }
+        }
+
+        dogMapper.updateEntity(existingDog, dogRequest);
+
+        Dog updatedDog = dogRepository.save(existingDog);
+
+        return dogMapper.toResponseDto(updatedDog);
+    }
 }

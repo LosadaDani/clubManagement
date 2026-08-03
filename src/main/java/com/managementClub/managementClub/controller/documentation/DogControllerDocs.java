@@ -115,7 +115,7 @@ public interface DogControllerDocs {
 
     @Operation(
             summary = "Obtener todos los perros",
-            description = "Recupera el listado completo de los perros registrados en el sistema"
+            description = "Recupera el listado completo de los perros registrados en el sistema."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200",
@@ -123,5 +123,36 @@ public interface DogControllerDocs {
             )
     })
     ResponseEntity<List<DogResponseDTO>> getAllDogs();
+
+    @Operation(
+            summary = "Actualizar un perro",
+            description = "Actualiza los datos de un perro existente. Si se modifica el microchip o número de pedigree, se comprobará que no existan otros perros con el mismo valor."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Perro actualizado correctamente."),
+            @ApiResponse(responseCode = "400",
+                    description = "Los datos enviados no son válidos.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe ningún perro con el identificador indicado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "409",
+                    description = "Ya existe otro perro con el microchip o el número de pedigree indicado.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<DogResponseDTO> updateDog(@Parameter(description = "Identificador único del perro") Long id, DogRequestDTO requestDto);
 
 }

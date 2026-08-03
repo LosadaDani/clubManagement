@@ -80,19 +80,19 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO updatePerson(Long id, PersonRequestDTO personRequest) {
 
-        Person personDb = personRepository.findById(id)
+        Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("No existe ninguna persona con el id " + id));
 
-        if (!personDb.getEmail().equalsIgnoreCase(personRequest.getEmail())) {
+        if (!existingPerson.getEmail().equalsIgnoreCase(personRequest.getEmail())) {
             if(personRepository.findByEmail(personRequest.getEmail()).isPresent()) {
                 throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
             }
         }
 
-        personMapper.updateEntity(personDb, personRequest);
+        personMapper.updateEntity(existingPerson, personRequest);
 
-        Person updatedPerson = personRepository.save(personDb);
+        Person updatedPerson = personRepository.save(existingPerson);
 
         return personMapper.toResponseDto(updatedPerson);
     }
@@ -100,16 +100,16 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO changeMembershipStatus(Long id, PersonStatusDTO dto) {
 
-        Person personDb = personRepository.findById(id)
+        Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("No existe ninguna persona con el id " + id));
 
-        if (personDb.getMembershipStatus() == dto.getMembershipStatus()) {
-            return personMapper.toResponseDto(personDb);
+        if (existingPerson.getMembershipStatus() == dto.getMembershipStatus()) {
+            return personMapper.toResponseDto(existingPerson);
         }
 
-        personDb.setMembershipStatus(dto.getMembershipStatus());
+        existingPerson.setMembershipStatus(dto.getMembershipStatus());
 
-        return personMapper.toResponseDto(personRepository.save(personDb));
+        return personMapper.toResponseDto(personRepository.save(existingPerson));
     }
 }

@@ -110,7 +110,7 @@ public interface PersonControllerDocs {
                     )
             )
     })
-    ResponseEntity<PersonResponseDTO> updatePerson(PersonRequestDTO requestDto, @Parameter(description = "Identificador único de la persona") Long id);
+    ResponseEntity<PersonResponseDTO> updatePerson(@Parameter(description = "Identificador único de la persona") Long id, PersonRequestDTO requestDto);
 
     @Operation(
             summary = "Cambiar el estado de una persona",
