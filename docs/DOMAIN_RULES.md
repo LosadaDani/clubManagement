@@ -55,25 +55,19 @@ La vigencia de una licencia se determinará exclusivamente mediante dichas fecha
 
 No se almacenará un estado (activa, caducada, etc.), ya que esta información puede obtenerse a partir del periodo de vigencia.
 
-La renovación de una licencia no modificará una licencia existente.
+La renovación de una licencia nunca modificará una licencia existente.
 
-Cada renovación generará un nuevo registro de licencia con su propio periodo de vigencia.
+Cada renovación generará un nuevo registro con su propio periodo de vigencia, permitiendo conservar el histórico completo de licencias.
 
-Esto permitirá conservar el histórico completo de las licencias emitidas.
+El número de licencia será asignado por la organización emisora.
 
-El número de licencia será el asignado por la organización emisora.
+El número de licencia no constituye un identificador único del sistema. Cada organización podrá seguir sus propias reglas de numeración, por lo que el mismo número podrá existir en organizaciones distintas o variar entre renovaciones.
 
-No se asumirá que dicho número permanezca constante entre renovaciones, ya que algunas organizaciones pueden asignar un nuevo número de licencia.
-
-No podrán existir dos licencias cuyos periodos de vigencia se solapen para:
-
-- la misma organización
-- la misma persona
-- el mismo perro
+No podrán existir dos licencias cuyos periodos de vigencia se solapen para el mismo binomio (persona-perro) dentro de una misma organización.
 
 La modificación del propietario de un perro no forma parte de la gestión de licencias.
 
-Las cesiones de perros se implementarán mediante una funcionalidad específica, conservando el histórico de propietarios y de licencias asociadas a cada binomio.
+Las cesiones de perros se implementarán mediante una funcionalidad específica, conservando el histórico tanto de propietarios como de licencias asociadas a cada binomio.
 
 ---
 

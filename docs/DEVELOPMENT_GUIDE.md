@@ -24,6 +24,19 @@ Responsabilidades:
 - Lanzar excepciones.
 - Utilizar Repositories y Mappers.
 
+### Validación de reglas de negocio
+
+Las reglas de negocio que no puedan expresarse mediante restricciones de la base de datos o anotaciones JPA deberán implementarse en la capa Service.
+
+Ejemplos:
+
+- Validación de periodos de vigencia.
+- Comprobación de solapamiento entre licencias.
+- Reglas temporales.
+- Validaciones que involucren varias entidades.
+
+No deben utilizarse restricciones JPA para resolver reglas de negocio que requieran comparar varios registros o aplicar lógica temporal. Estas validaciones deberán realizarse siempre en el Service.
+
 ---
 
 ### Repository
