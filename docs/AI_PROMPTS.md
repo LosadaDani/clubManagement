@@ -98,6 +98,31 @@ No analices DTO ni Service.
 
 ---
 
+# 3. Revisión de un Repository
+
+Prompt
+
+```text
+Utiliza el contexto común definido en AI_PROMPTS.md y revisa este Repository.
+
+Comprueba:
+
+- Uso correcto de JpaRepository.
+- Nombres de los métodos siguiendo las convenciones de Spring Data JPA.
+- Consultas @Query únicamente cuando sean necesarias.
+- Ausencia de lógica de negocio.
+- Consultas redundantes o innecesarias.
+- Legibilidad.
+
+No analices Entity, Service ni Controller.
+
+No propongas nuevas tecnologías.
+
+Indica únicamente mejoras que realmente aporten valor para este proyecto.
+```
+
+---
+
 # 3. Revisión de un Service
 
 Objetivo
