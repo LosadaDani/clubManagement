@@ -97,7 +97,7 @@ Se evita introducir complejidad innecesaria.
 
 ## Sprint 3
 
-- Federaciones
+- Organizaciones
 - Competiciones
 - Históricos
 
