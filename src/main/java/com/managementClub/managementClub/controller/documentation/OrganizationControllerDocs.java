@@ -4,6 +4,7 @@ import com.managementClub.managementClub.model.dto.ErrorResponseDTO;
 import com.managementClub.managementClub.model.dto.OrganizationRequestDTO;
 import com.managementClub.managementClub.model.dto.OrganizationResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -40,4 +41,35 @@ public interface OrganizationControllerDocs {
             )
     })
     ResponseEntity<OrganizationResponseDTO> createOrganization(OrganizationRequestDTO requestDto);
+
+    @Operation(
+            summary = "Actualizar una organización",
+            description = "Actualiza los datos de una organización existente"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                description = "Organización actualizada correctamente"),
+            @ApiResponse(responseCode = "400",
+                    description = "Los datos enviados no son válidos",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe ninguna organización con el identificador indicado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "409",
+                    description = "Ya existe otra organización con el mismo nombre abreviado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<OrganizationResponseDTO> updateOrganization(@Parameter(description = "Identificador de la organización") Long id, OrganizationRequestDTO organizationRequestDTO);
 }

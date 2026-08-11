@@ -6,4 +6,6 @@ import com.managementClub.managementClub.model.dto.OrganizationResponseDTO;
 public interface OrganizationService {
 
     OrganizationResponseDTO createOrganization(OrganizationRequestDTO organizationRequestDTO);
+
+    OrganizationResponseDTO updateOrganization(Long id, OrganizationRequestDTO organizationRequestDTO);
 }

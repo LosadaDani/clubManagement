@@ -7,10 +7,7 @@ import com.managementClub.managementClub.service.OrganizationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/organizations")
@@ -28,5 +25,13 @@ public class OrganizationController implements OrganizationControllerDocs {
         OrganizationResponseDTO organization = organizationService.createOrganization(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(organization);
+    }
+
+    @PatchMapping("/{id}")
+    @Override
+    public ResponseEntity<OrganizationResponseDTO> updateOrganization(@PathVariable Long id, @Valid @RequestBody OrganizationRequestDTO requestDTO) {
+        OrganizationResponseDTO responseDto = organizationService.updateOrganization(id, requestDTO);
+
+        return ResponseEntity.ok(responseDto);
     }
 }

@@ -20,4 +20,9 @@ public class OrganizationMapper {
                 organization.getName(),
                 organization.getShortName());
     }
+
+    public void updateEntity(Organization organization, OrganizationRequestDTO organizationRequestDTO) {
+        organization.setName(organizationRequestDTO.getName());
+        organization.setShortName(organizationRequestDTO.getShortName());
+    }
 }
