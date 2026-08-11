@@ -34,6 +34,8 @@ Una organización puede ser, por ejemplo:
 - Real Federación Española de Caza (RFEC)
 
 Las organizaciones podrán mantenerse mediante operaciones de administración (alta, modificación y baja), aunque se espera que su contenido cambie muy pocas veces.
+Las organizaciones no se eliminarán físicamente del sistema.
+En caso de que una organización deje de estar operativa, se conservará su registro para mantener el histórico de licencias y relaciones asociadas. La gestión de su disponibilidad para nuevas operaciones se realizará mediante un estado de actividad cuando esta funcionalidad sea implementada.
 
 ---
 
