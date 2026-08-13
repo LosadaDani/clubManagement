@@ -5,9 +5,9 @@ import java.time.LocalDate;
 public class CompetitionLicenseResponseDTO {
 
     private Long id;
-    private Long organizationId;
-    private Long personId;
-    private Long dogId;
+    private OrganizationSummaryDTO organization;
+    private PersonSummaryDTO person;
+    private DogSummaryDTO dog;
     private String licenseNumber;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -15,11 +15,11 @@ public class CompetitionLicenseResponseDTO {
     public CompetitionLicenseResponseDTO() {
     }
 
-    public CompetitionLicenseResponseDTO(Long id, Long organizationId, Long personId, Long dogId, String licenseNumber, LocalDate startDate, LocalDate endDate) {
+    public CompetitionLicenseResponseDTO(Long id, OrganizationSummaryDTO organization, PersonSummaryDTO person, DogSummaryDTO dog, String licenseNumber, LocalDate startDate, LocalDate endDate) {
         this.id = id;
-        this.organizationId = organizationId;
-        this.personId = personId;
-        this.dogId = dogId;
+        this.organization = organization;
+        this.person = person;
+        this.dog = dog;
         this.licenseNumber = licenseNumber;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -33,28 +33,28 @@ public class CompetitionLicenseResponseDTO {
         this.id = id;
     }
 
-    public Long getOrganizationId() {
-        return organizationId;
+    public OrganizationSummaryDTO getOrganization() {
+        return organization;
     }
 
-    public void setOrganizationId(Long organizationId) {
-        this.organizationId = organizationId;
+    public void setOrganization(OrganizationSummaryDTO organization) {
+        this.organization = organization;
     }
 
-    public Long getPersonId() {
-        return personId;
+    public PersonSummaryDTO getPerson() {
+        return person;
     }
 
-    public void setPersonId(Long personId) {
-        this.personId = personId;
+    public void setPerson(PersonSummaryDTO person) {
+        this.person = person;
     }
 
-    public Long getDogId() {
-        return dogId;
+    public DogSummaryDTO getDog() {
+        return dog;
     }
 
-    public void setDogId(Long dogId) {
-        this.dogId = dogId;
+    public void setDog(DogSummaryDTO dog) {
+        this.dog = dog;
     }
 
     public String getLicenseNumber() {

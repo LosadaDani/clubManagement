@@ -15,9 +15,11 @@ import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.service.impl.CompetitionLicenseService;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
+@Service
 public class CompetitionLicenseServiceImpl implements CompetitionLicenseService {
 
     private CompetitionLicenseRepository competitionLicenseRepository;

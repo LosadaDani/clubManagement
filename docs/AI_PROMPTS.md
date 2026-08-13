@@ -321,7 +321,7 @@ Si puedes acceder a él, aplica el contexto común definido en ese documento ant
 
 Si no puedes acceder al archivo, indícalo antes de continuar.
 
-Verifica únicamente que la implementación respeta las decisiones del proyecto y revisa toda la implementación de esta Issue.
+Verifica únicamente que la implementación respeta las decisiones del proyecto, anotaciones de cada capa y revisa toda la implementación de esta Issue.
 
 Analiza:
 
@@ -332,6 +332,16 @@ Analiza:
 - Service
 - Controller
 - Swagger
+
+Analiza las anotaciones:
+
+- Entity → @Entity, @Table, relaciones JPA, etc.
+- Repository → extensión correcta de JpaRepository.
+- Service → @Service.
+- Controller → @RestController, @RequestMapping, mappings HTTP, @Valid, @RequestBody, @PathVariable, etc.
+- Swagger → @Tag, @Operation, @ApiResponses.
+- DTO → validaciones Bean Validation.
+- Mapper → @Component.
 
 Comprueba que la implementación cumple la documentación del proyecto y las reglas de negocio.
 

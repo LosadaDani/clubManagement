@@ -1,7 +1,6 @@
 package com.managementClub.managementClub.mapper;
 
-import com.managementClub.managementClub.model.dto.CompetitionLicenseRequestDTO;
-import com.managementClub.managementClub.model.dto.CompetitionLicenseResponseDTO;
+import com.managementClub.managementClub.model.dto.*;
 import com.managementClub.managementClub.model.entity.CompetitionLicense;
 import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Organization;
@@ -26,10 +25,25 @@ public class CompetitionLicenseMapper {
 
     public CompetitionLicenseResponseDTO toResponseDTO (CompetitionLicense competitionLicense) {
 
+        OrganizationSummaryDTO organization = new OrganizationSummaryDTO(competitionLicense.getOrganization().getId(),
+                competitionLicense.getOrganization().getName(),
+                competitionLicense.getOrganization().getShortName());
+
+        PersonSummaryDTO person = new PersonSummaryDTO(competitionLicense.getPerson().getId(),
+                competitionLicense.getPerson().getName(),
+                competitionLicense.getPerson().getLastName());
+
+        DogSummaryDTO dog = new DogSummaryDTO(competitionLicense.getDog().getId(),
+                competitionLicense.getDog().getName(),
+                competitionLicense.getDog().getBreed(),
+                competitionLicense.getDog().getMicrochip(),
+                competitionLicense.getDog().getPedigreeNumber());
+
+
         return new CompetitionLicenseResponseDTO(competitionLicense.getId(),
-                competitionLicense.getOrganization().getId(),
-                competitionLicense.getPerson().getId(),
-                competitionLicense.getDog().getId(),
+                organization,
+                person,
+                dog,
                 competitionLicense.getLicenseNumber(),
                 competitionLicense.getStartDate(),
                 competitionLicense.getEndDate());

@@ -139,7 +139,7 @@ Ejemplos:
 
 - PersonSummaryDTO
 - DogSummaryDTO (futuro)
-- FederationSummaryDTO (futuro)
+- OrganizationSummaryDTO (futuro)
 
 ### Motivo
 
