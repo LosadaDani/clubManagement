@@ -1,11 +1,13 @@
 package com.managementClub.managementClub.config;
 
+import com.managementClub.managementClub.model.entity.CompetitionLicense;
 import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Organization;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.DogSex;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.model.enums.MembershipType;
+import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
@@ -24,13 +26,16 @@ public class DevDataInitializer implements CommandLineRunner {
     private final PersonRepository personRepository;
     private final DogRepository dogRepository;
     private final OrganizationRepository organizationRepository;
+    private final CompetitionLicenseRepository competitionLicenseRepository;
 
     public DevDataInitializer(PersonRepository personRepository,
                               DogRepository dogRepository,
-                              OrganizationRepository organizationRepository) {
+                              OrganizationRepository organizationRepository,
+                              CompetitionLicenseRepository competitionLicenseRepository) {
         this.personRepository = personRepository;
         this.dogRepository = dogRepository;
         this.organizationRepository = organizationRepository;
+        this.competitionLicenseRepository = competitionLicenseRepository;
     }
 
     @Override
@@ -40,6 +45,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializeOrganizations();
             initializePersons();
             initializeDogs();
+            initializeCompetitionLicenses();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -178,5 +184,81 @@ public class DevDataInitializer implements CommandLineRunner {
         dogRepository.save(max);
 
         log.info("Dogs initialized: Fuchur, Gmork (Dani Losada), Ramen (Cristina Martínez), Max (Carlos López)");
+    }
+
+    private void initializeCompetitionLicenses() {
+        if (competitionLicenseRepository.count() > 0) {
+            return;
+        }
+
+        Organization fcag = organizationRepository.findByShortName("FCAG").orElseThrow();
+        Organization rsce = organizationRepository.findByShortName("RSCE").orElseThrow();
+        Organization rfec = organizationRepository.findByShortName("RFEC").orElseThrow();
+
+        Person dani = personRepository.findByEmail("dani.losada@example.com").orElseThrow();
+        Person cristina = personRepository.findByEmail("cristina.martinez@example.com").orElseThrow();
+        Person carlos = personRepository.findByEmail("carlos.lopez@example.com").orElseThrow();
+
+        Dog fuchur = dogRepository.findByName("Fuchur").orElseThrow();
+        Dog gmork = dogRepository.findByName("Gmork").orElseThrow();
+        Dog ramen = dogRepository.findByName("Ramen").orElseThrow();
+        Dog max = dogRepository.findByName("Max").orElseThrow();
+
+        CompetitionLicense fcagFuchur = new CompetitionLicense();
+        fcagFuchur.setOrganization(fcag);
+        fcagFuchur.setPerson(dani);
+        fcagFuchur.setDog(fuchur);
+        fcagFuchur.setLicenseNumber("FCAG-2026-001");
+        fcagFuchur.setStartDate(LocalDate.of(2026, 9, 1));
+        fcagFuchur.setEndDate(LocalDate.of(2027, 8, 31));
+
+        CompetitionLicense rsceFuchur = new CompetitionLicense();
+        rsceFuchur.setOrganization(rsce);
+        rsceFuchur.setPerson(dani);
+        rsceFuchur.setDog(fuchur);
+        rsceFuchur.setLicenseNumber("RSCE-2026-001");
+        rsceFuchur.setStartDate(LocalDate.of(2026, 9, 1));
+        rsceFuchur.setEndDate(LocalDate.of(2027, 8, 31));
+
+        CompetitionLicense fcagGmork = new CompetitionLicense();
+        fcagGmork.setOrganization(fcag);
+        fcagGmork.setPerson(dani);
+        fcagGmork.setDog(gmork);
+        fcagGmork.setLicenseNumber("FCAG-2026-002");
+        fcagGmork.setStartDate(LocalDate.of(2026, 9, 1));
+        fcagGmork.setEndDate(LocalDate.of(2027, 8, 31));
+
+        CompetitionLicense rsceRamen = new CompetitionLicense();
+        rsceRamen.setOrganization(rsce);
+        rsceRamen.setPerson(cristina);
+        rsceRamen.setDog(ramen);
+        rsceRamen.setLicenseNumber("RSCE-2026-002");
+        rsceRamen.setStartDate(LocalDate.of(2026, 9, 1));
+        rsceRamen.setEndDate(LocalDate.of(2027, 8, 31));
+
+        CompetitionLicense rfecMax = new CompetitionLicense();
+        rfecMax.setOrganization(rfec);
+        rfecMax.setPerson(carlos);
+        rfecMax.setDog(max);
+        rfecMax.setLicenseNumber("RFEC-2026-001");
+        rfecMax.setStartDate(LocalDate.of(2026, 1, 1));
+        rfecMax.setEndDate(LocalDate.of(2026, 12, 31));
+
+        CompetitionLicense previousFcagFuchur = new CompetitionLicense();
+        previousFcagFuchur.setOrganization(fcag);
+        previousFcagFuchur.setPerson(dani);
+        previousFcagFuchur.setDog(fuchur);
+        previousFcagFuchur.setLicenseNumber("FCAG-2025-001");
+        previousFcagFuchur.setStartDate(LocalDate.of(2025, 1, 1));
+        previousFcagFuchur.setEndDate(LocalDate.of(2025, 12, 31));
+
+        competitionLicenseRepository.save(fcagFuchur);
+        competitionLicenseRepository.save(rsceFuchur);
+        competitionLicenseRepository.save(fcagGmork);
+        competitionLicenseRepository.save(rsceRamen);
+        competitionLicenseRepository.save(rfecMax);
+        competitionLicenseRepository.save(previousFcagFuchur);
+
+        log.info("Competition licenses initialized: 6 licenses");
     }
 }
