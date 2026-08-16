@@ -10,6 +10,8 @@ import java.util.Optional;
 @Repository
 public interface DogRepository extends JpaRepository<Dog, Long> {
 
+    Optional<Dog> findByName(String name);
+
     Optional<Dog> findByMicrochip(String microchip);
 
     List<Dog> findByOwnerId(Long ownerId);
