@@ -1,4 +1,4 @@
-package com.managementClub.managementClub.service;
+package com.managementClub.managementClub.service.impl;
 
 import com.managementClub.managementClub.exception.InvalidBusinessRuleException;
 import com.managementClub.managementClub.exception.ResourceAlreadyExistsException;
@@ -14,9 +14,10 @@ import com.managementClub.managementClub.repository.CompetitionLicenseRepository
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
-import com.managementClub.managementClub.service.impl.CompetitionLicenseService;
+import com.managementClub.managementClub.service.CompetitionLicenseService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -65,5 +66,16 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
         CompetitionLicense competitionLicense = competitionLicenseMapper.toEntity(competitionLicenseRequestDTO, organization, person, dog);
         CompetitionLicense savedCompetitionLicense = competitionLicenseRepository.save(competitionLicense);
         return competitionLicenseMapper.toResponseDTO(savedCompetitionLicense);
+    }
+
+    @Override
+    public List<CompetitionLicenseResponseDTO> getCompetitionLicensesByDogId(Long dogId) {
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+
+        return competitionLicenseRepository.findByDog(dog)
+                .stream()
+                .map(competitionLicense -> competitionLicenseMapper.toResponseDTO(competitionLicense))
+                .toList();
     }
 }

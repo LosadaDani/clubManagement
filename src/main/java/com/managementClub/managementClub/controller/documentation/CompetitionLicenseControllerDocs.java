@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 @Tag(
         name = "Licencia de competición",
         description = "Operaciones relacionadas con las licencias de competición")
@@ -45,4 +47,18 @@ public interface CompetitionLicenseControllerDocs {
             )
     })
     ResponseEntity<CompetitionLicenseResponseDTO> createCompetitionLicense(CompetitionLicenseRequestDTO requestDTO);
+
+    @Operation(
+            summary = "Obtener licencias de competición por perro",
+            description = "Obtiene todas las licencias de competición para un perro específico")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de licencias obtenido correctamente. Puede devolver una lista vacía si el perro no tiene licencias registradas.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<List<CompetitionLicenseResponseDTO>> getCompetitionLicensesByDogId(Long dogId);
 }

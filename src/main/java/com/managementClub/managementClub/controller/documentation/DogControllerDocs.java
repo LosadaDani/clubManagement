@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -50,7 +52,7 @@ public interface DogControllerDocs {
                     )
             )
     })
-    ResponseEntity<DogResponseDTO> createDog(DogRequestDTO requestDto);
+    ResponseEntity<DogResponseDTO> createDog(@Valid DogRequestDTO requestDto);
 
     @Operation(
             summary = "Obtener un perro por su ID",
@@ -111,7 +113,7 @@ public interface DogControllerDocs {
             @ApiResponse(responseCode = "200",
                     description = "Listado de perros obtenido correctamente. Puede devolver una lista vacía si no existen perros registrados por el nombre indicado.")
     })
-    ResponseEntity<List<DogResponseDTO>> getDogByName(@Parameter(description = "Nombre del perro") String name);
+    ResponseEntity<List<DogResponseDTO>> getDogByName(@Parameter(description = "Nombre del perro") @NotBlank String name);
 
     @Operation(
             summary = "Obtener todos los perros",
@@ -153,6 +155,6 @@ public interface DogControllerDocs {
                     )
             )
     })
-    ResponseEntity<DogResponseDTO> updateDog(@Parameter(description = "Identificador único del perro") Long id, DogRequestDTO requestDto);
+    ResponseEntity<DogResponseDTO> updateDog(@Parameter(description = "Identificador único del perro") Long id, @Valid DogRequestDTO requestDto);
 
 }
