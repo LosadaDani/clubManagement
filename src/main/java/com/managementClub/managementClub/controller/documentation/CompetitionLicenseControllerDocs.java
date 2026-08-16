@@ -53,7 +53,10 @@ public interface CompetitionLicenseControllerDocs {
             description = "Obtiene todas las licencias de competición para un perro específico")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
-                    description = "Listado de licencias obtenido correctamente. Puede devolver una lista vacía si el perro no tiene licencias registradas.",
+                    description = "Listado de licencias obtenido correctamente. Puede devolver una lista vacía si el perro no tiene licencias registradas."),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe ningún perro con el identificador indicado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDTO.class)
