@@ -13,6 +13,23 @@ Responsabilidades:
 
 No contiene lógica de negocio.
 
+Cuando un Controller implemente una interfaz `*ControllerDocs`, las
+restricciones de Bean Validation aplicadas a los parámetros de los métodos
+deberán mantener una configuración consistente entre la interfaz y la
+implementación.
+
+Las restricciones como `@Valid`, `@NotBlank`, `@NotNull`, etc. deberán
+mantenerse en ambos lados cuando formen parte de la validación del método.
+
+Las anotaciones propias de Spring MVC, como `@RequestBody`, `@PathVariable`,
+`@RequestParam`, etc., se aplicarán en la implementación del Controller.
+
+Si el Controller utiliza validación sobre parámetros de sus métodos, por
+ejemplo mediante `@NotBlank` o `@NotNull`, deberá utilizar `@Validated`.
+
+Esta configuración evita conflictos de Hibernate Validator al validar
+métodos que sobrescriben los definidos en `*ControllerDocs`.
+
 ---
 
 ### Service
