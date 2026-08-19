@@ -5,6 +5,8 @@ import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Organization;
 import com.managementClub.managementClub.model.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -22,4 +24,13 @@ public interface CompetitionLicenseRepository extends JpaRepository<CompetitionL
             Dog dog,
             LocalDate newEndDate,
             LocalDate newStartDate);
+
+    @Query("""
+          SELECT c 
+          FROM CompetitionLicense c 
+          WHERE c.dog = :dog 
+          AND c.startDate <= CURRENT_DATE 
+          AND c.endDate >= CURRENT_DATE
+           """)
+    List<CompetitionLicense> findLicenseCurrentByDog(@Param("dog") Dog dog);
 }

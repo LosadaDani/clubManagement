@@ -37,4 +37,12 @@ public class CompetitionLicenseController implements CompetitionLicenseControlle
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/dog/{dogId}/current")
+    @Override
+    public ResponseEntity<List<CompetitionLicenseResponseDTO>> getLicenseCurrentByDogId(@PathVariable Long dogId) {
+        List<CompetitionLicenseResponseDTO> response = competitionLicenseService.getLicenseCurrentByDogId(dogId);
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -10,4 +10,6 @@ public interface CompetitionLicenseService {
     CompetitionLicenseResponseDTO createCompetitionLicense(CompetitionLicenseRequestDTO competitionLicenseRequestDTO);
 
     List<CompetitionLicenseResponseDTO> getCompetitionLicensesByDogId(Long dogId);
+
+    List<CompetitionLicenseResponseDTO> getLicenseCurrentByDogId(Long dogId);
 }

@@ -54,8 +54,7 @@ public interface CompetitionLicenseControllerDocs {
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     description = "Listado de licencias obtenido correctamente. Puede devolver una lista vacía si el perro no tiene licencias registradas."),
-            @ApiResponse(
-                    responseCode = "404",
+            @ApiResponse(responseCode = "404",
                     description = "No existe ningún perro con el identificador indicado",
                     content = @Content(
                             mediaType = "application/json",
@@ -64,4 +63,21 @@ public interface CompetitionLicenseControllerDocs {
             )
     })
     ResponseEntity<List<CompetitionLicenseResponseDTO>> getCompetitionLicensesByDogId(Long dogId);
+
+    @Operation(
+            summary = "Obtener licencias de competicion vigentes por perro",
+            description = "Obtiene todas las licencias de competición vigentes para un perro específico")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                    description = "Listado de licencias vigentes obtenido correctamente. Puede devolver una lista vacía si el perro no tiene licencias vigentes."),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe ningún perro con el identificador indicado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+
+            )
+    })
+    ResponseEntity<List<CompetitionLicenseResponseDTO>> getLicenseCurrentByDogId(Long dogId);
 }

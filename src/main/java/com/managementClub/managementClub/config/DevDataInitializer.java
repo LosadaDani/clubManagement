@@ -178,10 +178,19 @@ public class DevDataInitializer implements CommandLineRunner {
                 carlos
         );
 
+        Dog luna = new Dog("Luna",
+                birthDate,
+                DogSex.FEMALE,
+                "Golden Retriever",
+                "ES999999999999",
+                "PED-999",
+                dani);
+
         dogRepository.save(fuchur);
         dogRepository.save(gmork);
         dogRepository.save(ramen);
         dogRepository.save(max);
+        dogRepository.save(luna);
 
         log.info("Dogs initialized: Fuchur, Gmork (Dani Losada), Ramen (Cristina Martínez), Max (Carlos López)");
     }
@@ -244,6 +253,41 @@ public class DevDataInitializer implements CommandLineRunner {
         rfecMax.setStartDate(LocalDate.of(2026, 1, 1));
         rfecMax.setEndDate(LocalDate.of(2026, 12, 31));
 
+        // 1. Perro con múltiples licencias vigentes (Fuchur)
+        CompetitionLicense fcagFuchurCurrent = new CompetitionLicense();
+        fcagFuchurCurrent.setOrganization(fcag);
+        fcagFuchurCurrent.setPerson(dani);
+        fcagFuchurCurrent.setDog(fuchur);
+        fcagFuchurCurrent.setLicenseNumber("FCAG-2026-005");
+        fcagFuchurCurrent.setStartDate(LocalDate.of(2026, 1, 1)); // Vigente
+        fcagFuchurCurrent.setEndDate(LocalDate.of(2026, 12, 31));
+
+        CompetitionLicense rsceFuchurCurrent = new CompetitionLicense();
+        rsceFuchurCurrent.setOrganization(rsce);
+        rsceFuchurCurrent.setPerson(dani);
+        rsceFuchurCurrent.setDog(fuchur);
+        rsceFuchurCurrent.setLicenseNumber("RSCE-2026-005");
+        rsceFuchurCurrent.setStartDate(LocalDate.of(2026, 6, 1)); // Vigente
+        rsceFuchurCurrent.setEndDate(LocalDate.of(2027, 5, 31));
+
+// 2. Licencia que empieza hoy (borde)
+        CompetitionLicense startsToday = new CompetitionLicense();
+        startsToday.setOrganization(fcag);
+        startsToday.setPerson(cristina);
+        startsToday.setDog(ramen);
+        startsToday.setLicenseNumber("FCAG-2026-006");
+        startsToday.setStartDate(LocalDate.of(2026, 8, 17)); // Hoy
+        startsToday.setEndDate(LocalDate.of(2027, 8, 16));
+
+// 3. Licencia que termina hoy (borde)
+        CompetitionLicense endsToday = new CompetitionLicense();
+        endsToday.setOrganization(rsce);
+        endsToday.setPerson(carlos);
+        endsToday.setDog(max);
+        endsToday.setLicenseNumber("RSCE-2026-006");
+        endsToday.setStartDate(LocalDate.of(2025, 8, 18));
+        endsToday.setEndDate(LocalDate.of(2026, 8, 17)); // Hoy
+
         CompetitionLicense previousFcagFuchur = new CompetitionLicense();
         previousFcagFuchur.setOrganization(fcag);
         previousFcagFuchur.setPerson(dani);
@@ -258,6 +302,10 @@ public class DevDataInitializer implements CommandLineRunner {
         competitionLicenseRepository.save(rsceRamen);
         competitionLicenseRepository.save(rfecMax);
         competitionLicenseRepository.save(previousFcagFuchur);
+        competitionLicenseRepository.save(fcagFuchurCurrent);
+        competitionLicenseRepository.save(rsceFuchurCurrent);
+        competitionLicenseRepository.save(startsToday);
+        competitionLicenseRepository.save(endsToday);
 
         log.info("Competition licenses initialized: 6 licenses");
     }

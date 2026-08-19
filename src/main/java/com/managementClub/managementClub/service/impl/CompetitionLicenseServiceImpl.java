@@ -78,4 +78,15 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
                 .map(competitionLicense -> competitionLicenseMapper.toResponseDTO(competitionLicense))
                 .toList();
     }
+
+    @Override
+    public List<CompetitionLicenseResponseDTO> getLicenseCurrentByDogId(Long dogId) {
+        Dog dog = dogRepository.findById(dogId)
+                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+
+        return competitionLicenseRepository.findLicenseCurrentByDog(dog)
+                .stream()
+                .map(competitionLicenseMapper::toResponseDTO)
+                .toList();
+    }
 }
