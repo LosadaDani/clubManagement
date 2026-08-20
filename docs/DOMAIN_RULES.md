@@ -77,7 +77,6 @@ Las cesiones de perros se implementarán mediante una funcionalidad específica,
 
 Este documento crecerá conforme se implementen nuevas funcionalidades:
 
-- Competiciones.
 - Recibos.
 - Pagos.
 - Usuarios y Seguridad.
