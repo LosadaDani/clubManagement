@@ -321,7 +321,7 @@ Si puedes acceder a él, aplica el contexto común definido en ese documento ant
 
 Si no puedes acceder al archivo, indícalo antes de continuar.
 
-Verifica únicamente que la implementación respeta las decisiones del proyecto, anotaciones de cada capa y revisa toda la implementación de esta Issue.
+Verifica únicamente que la implementación respeta las decisiones del proyecto, anotaciones de cada capa y revisa toda la implementación de la Issue de .
 
 Analiza:
 

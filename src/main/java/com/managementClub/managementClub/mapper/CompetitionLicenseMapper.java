@@ -48,4 +48,14 @@ public class CompetitionLicenseMapper {
                 competitionLicense.getStartDate(),
                 competitionLicense.getEndDate());
     }
+
+    public void updateEntity (CompetitionLicense competitionLicense, CompetitionLicenseRequestDTO dto, Organization organization, Person person, Dog dog) {
+
+        competitionLicense.setOrganization(organization);
+        competitionLicense.setPerson(person);
+        competitionLicense.setDog(dog);
+        competitionLicense.setLicenseNumber(dto.getLicenseNumber());
+        competitionLicense.setStartDate(dto.getStartDate());
+        competitionLicense.setEndDate(dto.getEndDate());
+    }
 }

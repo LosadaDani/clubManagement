@@ -89,4 +89,37 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
                 .map(competitionLicenseMapper::toResponseDTO)
                 .toList();
     }
+
+    @Override
+    public CompetitionLicenseResponseDTO updateCompetitionLicense(Long id, CompetitionLicenseRequestDTO competitionLicenseRequestDTO) {
+
+        CompetitionLicense existingCompetitionLicense = competitionLicenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("No existe ninguna licencia con el id " + id));
+
+        Organization organization = organizationRepository.findById(competitionLicenseRequestDTO.getOrganizationId())
+                .orElseThrow(() -> new ResourceNotFoundException("La organización indicada no existe"));
+
+        Person person = personRepository.findById(competitionLicenseRequestDTO.getPersonId())
+                .orElseThrow(() -> new ResourceNotFoundException("La persona indicada no existe"));
+
+        Dog dog = dogRepository.findById(competitionLicenseRequestDTO.getDogId())
+                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+
+        if (!Objects.equals(dog.getOwner().getId(), competitionLicenseRequestDTO.getPersonId())) {
+            throw new InvalidBusinessRuleException("El propietario del perro no coincide con el indicado en la licencia");
+        }
+
+        if (competitionLicenseRequestDTO.getStartDate().isAfter(competitionLicenseRequestDTO.getEndDate())) {
+            throw new InvalidBusinessRuleException("La fecha de inicio debe ser anterior a la fecha de fin");
+        }
+
+        if (competitionLicenseRepository.findOverlappingLicenseExcludingId(organization, person, dog, competitionLicenseRequestDTO.getEndDate(), competitionLicenseRequestDTO.getStartDate(), id)
+                .isPresent()) {
+            throw new ResourceAlreadyExistsException("Ya existe una licencia para la misma organización, persona y perro con periodo de vigencia solapado");
+        }
+
+        competitionLicenseMapper.updateEntity(existingCompetitionLicense, competitionLicenseRequestDTO, organization, person, dog);
+        CompetitionLicense savedCompetitionLicense = competitionLicenseRepository.save(existingCompetitionLicense);
+        return competitionLicenseMapper.toResponseDTO(savedCompetitionLicense);
+    }
 }

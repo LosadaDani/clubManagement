@@ -26,11 +26,29 @@ public interface CompetitionLicenseRepository extends JpaRepository<CompetitionL
             LocalDate newStartDate);
 
     @Query("""
+        SELECT c
+        FROM CompetitionLicense c
+        WHERE c.dog = :dog
+        AND c.organization = :organization
+        AND c.person = :person
+        AND c.startDate <= :newEndDate
+        AND c.endDate >= :newStartDate
+        AND c.id != :idCompetitionLicense
+        """)
+    Optional<CompetitionLicense> findOverlappingLicenseExcludingId (
+            @Param("organization") Organization organization,
+            @Param("person") Person person,
+            @Param("dog") Dog dog,
+            @Param("newEndDate") LocalDate newEndDate,
+            @Param("newStartDate") LocalDate newStartDate,
+            @Param("idCompetitionLicense")Long idCompetitionLicense);
+
+    @Query("""
           SELECT c 
           FROM CompetitionLicense c 
           WHERE c.dog = :dog 
           AND c.startDate <= CURRENT_DATE 
           AND c.endDate >= CURRENT_DATE
-           """)
+          """)
     List<CompetitionLicense> findLicenseCurrentByDog(@Param("dog") Dog dog);
 }

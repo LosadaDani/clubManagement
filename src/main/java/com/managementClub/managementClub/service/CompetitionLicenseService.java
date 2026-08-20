@@ -12,4 +12,6 @@ public interface CompetitionLicenseService {
     List<CompetitionLicenseResponseDTO> getCompetitionLicensesByDogId(Long dogId);
 
     List<CompetitionLicenseResponseDTO> getLicenseCurrentByDogId(Long dogId);
+
+    CompetitionLicenseResponseDTO updateCompetitionLicense(Long id, CompetitionLicenseRequestDTO competitionLicenseRequestDTO);
 }

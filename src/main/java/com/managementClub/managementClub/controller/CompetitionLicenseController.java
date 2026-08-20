@@ -45,4 +45,12 @@ public class CompetitionLicenseController implements CompetitionLicenseControlle
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}")
+    @Override
+    public ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@PathVariable Long id, @Valid @RequestBody CompetitionLicenseRequestDTO requestDTO) {
+        CompetitionLicenseResponseDTO response = competitionLicenseService.updateCompetitionLicense(id, requestDTO);
+
+        return ResponseEntity.ok(response);
+    }
 }
