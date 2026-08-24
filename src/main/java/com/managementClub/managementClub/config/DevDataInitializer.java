@@ -276,8 +276,8 @@ public class DevDataInitializer implements CommandLineRunner {
         startsToday.setPerson(cristina);
         startsToday.setDog(ramen);
         startsToday.setLicenseNumber("FCAG-2026-006");
-        startsToday.setStartDate(LocalDate.of(2026, 8, 17)); // Hoy
-        startsToday.setEndDate(LocalDate.of(2027, 8, 16));
+        startsToday.setStartDate(LocalDate.now()); // Hoy
+        startsToday.setEndDate(LocalDate.now().plusYears(1).minusDays(1));
 
 // 3. Licencia que termina hoy (borde)
         CompetitionLicense endsToday = new CompetitionLicense();
@@ -285,8 +285,8 @@ public class DevDataInitializer implements CommandLineRunner {
         endsToday.setPerson(carlos);
         endsToday.setDog(max);
         endsToday.setLicenseNumber("RSCE-2026-006");
-        endsToday.setStartDate(LocalDate.of(2025, 8, 18));
-        endsToday.setEndDate(LocalDate.of(2026, 8, 17)); // Hoy
+        endsToday.setStartDate(LocalDate.now().minusYears(1).plusDays(1));
+        endsToday.setEndDate(LocalDate.now()); // Hoy
 
         CompetitionLicense previousFcagFuchur = new CompetitionLicense();
         previousFcagFuchur.setOrganization(fcag);
