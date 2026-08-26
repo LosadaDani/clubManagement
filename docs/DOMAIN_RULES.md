@@ -81,7 +81,7 @@ Durante el mes podrán añadirse líneas de recibo correspondientes a cuotas, ga
 
 ### Línea de recibo
 
-Una línea de recibo representa un importe que debe ser cobrado a una persona.
+Una línea de recibo representa un importe asociado a una persona que podrá ser incluido en un recibo.
 
 Cada línea de recibo estará asociada obligatoriamente a una persona y tendrá:
 
@@ -90,11 +90,20 @@ Cada línea de recibo estará asociada obligatoriamente a una persona y tendrá:
 - Un importe.
 - Un estado.
 
+El importe podrá ser positivo o negativo:
+
+- Un importe positivo representa un cargo a la persona.
+- Un importe negativo representa un abono a favor de la persona.
+
 Una línea de recibo podrá encontrarse en los siguientes estados:
 
 - `PENDING`: la línea está pendiente de ser incluida en un recibo.
 - `ISSUED`: la línea ha sido incluida en un recibo emitido.
 - `PAID`: el importe correspondiente a la línea ha sido abonado.
+
+Una línea podrá modificarse o eliminarse únicamente mientras se encuentre en estado `PENDING`.
+
+Una vez que una línea haya sido incluida en un recibo y pase a estado `ISSUED`, no podrá modificarse ni eliminarse.
 
 Una línea podrá marcarse como `PAID` cuando haya sido abonada, independientemente del medio de pago utilizado.
 
@@ -146,7 +155,11 @@ Las líneas correspondientes a un recibo podrán obtenerse consultando las líne
 
 La preparación de recibos se realizará a partir de las líneas de recibo que se encuentren en estado `PENDING`.
 
+Durante la preparación podrán incluirse líneas de importe negativo para aplicar abonos a favor de la persona.
+
 El sistema mostrará las líneas pendientes correspondientes a cada persona para permitir preparar el siguiente recibo.
+
+Si el importe del abono supera la cantidad que puede compensarse en el recibo actual, la parte no compensada deberá permanecer disponible para futuras preparaciones.
 
 Las líneas aparecerán inicialmente seleccionadas para su inclusión en el recibo.
 
@@ -157,6 +170,14 @@ Las líneas deseleccionadas permanecerán en estado `PENDING` y estarán disponi
 Durante la preparación también se propondrá la cuota correspondiente al tipo de membresía de la persona.
 
 La cuota se mostrará como una propuesta durante la preparación, pero no se creará como una línea de recibo hasta que el recibo sea generado.
+
+Los abonos se representarán mediante líneas de recibo con importe negativo.
+
+Cuando un abono no pueda compensarse completamente en el recibo actual, la cantidad restante se representará mediante una nueva línea de recibo en estado `PENDING`.
+
+La línea de abono original mantendrá su estado y asociación al recibo en el que haya sido incluida, sin modificarse ni reutilizarse.
+
+El concepto podrá utilizarse para identificar el motivo del abono y, cuando corresponda, indicar que se trata de un abono parcial (AP).
 
 Al generar el recibo:
 
