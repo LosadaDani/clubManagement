@@ -2,20 +2,21 @@
 
 Este documento recoge las principales decisiones de arquitectura adoptadas durante el desarrollo del proyecto.
 
-| ADR | Decisión |
-|------|----------|
-| ADR-001 | DTO separados |
-| ADR-002 | Mapper manual |
-| ADR-003 | Sin Lombok |
-| ADR-004 | Validaciones en RequestDTO |
-| ADR-005 | Constructor injection |
-| ADR-006 | Excepciones personalizadas |
-| ADR-007 | GlobalExceptionHandler |
-| ADR-008 | Baja lógica de personas |
-| ADR-009 | Simplicidad sobre complejidad |
-| ADR-010 | SummaryDTO para relaciones |
-| ADR-011 | Relaciones JPA mediante objetos |
+| ADR | Decisión                                        |
+|------|-------------------------------------------------|
+| ADR-001 | DTO separados                                   |
+| ADR-002 | Mapper manual                                   |
+| ADR-003 | Sin Lombok                                      |
+| ADR-004 | Validaciones en RequestDTO                      |
+| ADR-005 | Constructor injection                           |
+| ADR-006 | Excepciones personalizadas                      |
+| ADR-007 | GlobalExceptionHandler                          |
+| ADR-008 | Baja lógica de personas                         |
+| ADR-009 | Simplicidad sobre complejidad                   |
+| ADR-010 | SummaryDTO para relaciones                      |
+| ADR-011 | Relaciones JPA mediante objetos                 |
 | ADR-012 | Clasificación de DTO (Request/Response/Summary) |
+| ADR-013 | Operaciones transaccionales                     |
 
 ---
 
@@ -184,3 +185,17 @@ El proyecto utiliza tres tipos de DTO:
 - SummaryDTO
 
 Cada uno tiene una finalidad diferente.
+
+---
+
+## ADR-013 - Operaciones transaccionales
+
+### Decisión
+
+Las operaciones de negocio que impliquen múltiples modificaciones dependientes entre sí se ejecutarán dentro de una transacción mediante `@Transactional`.
+
+### Motivo
+
+Garantizar que todas las modificaciones se completen correctamente o que, en caso de producirse un error, no queden cambios parciales persistidos en la base de datos.
+
+---

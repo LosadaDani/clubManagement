@@ -21,17 +21,28 @@ Este proyecto nace con un doble objetivo:
 
 🚧 En desarrollo
 
-Actualmente se ha completado el Sprint 3.
+Actualmente se encuentran completados los Sprints 1, 2 y 3.
+
+El **Sprint 4 — Recibos y líneas de recibo** se encuentra actualmente en desarrollo.
 
 ### Funcionalidades implementadas
 
-- Gestión completa de Personas (CRUD)
-- Cambio de estado mediante PATCH
-- Búsqueda por nombre y apellidos
-- Validación de datos con Bean Validation
-- Manejo global de excepciones
-- Documentación OpenAPI / Swagger
-- Arquitectura por capas
+- Gestión completa de Personas.
+- Cambio de estado de Personas mediante PATCH.
+- Búsqueda de Personas por nombre y apellidos.
+- Gestión completa de Perros.
+- Relación entre Personas y Perros.
+- Gestión de Organizaciones.
+- Gestión de Licencias de competición.
+- Validaciones de negocio.
+- Control de solapamiento de periodos de vigencia de licencias.
+- Histórico funcional de licencias.
+- Validación de datos mediante Bean Validation.
+- Manejo global de excepciones.
+- Documentación OpenAPI / Swagger.
+- Arquitectura por capas.
+- DTOs Request / Response / Summary.
+- Mappers manuales.
 
 ---
 
@@ -42,6 +53,7 @@ Actualmente se ha completado el Sprint 3.
 - Spring Data JPA
 - Spring Validation
 - H2 Database
+- MySQL (futuro entorno de producción)
 - Swagger / OpenAPI
 
 ---
@@ -66,6 +78,8 @@ Además utiliza:
 - Mapper
 - Entity
 - Excepciones personalizadas
+
+El objetivo es mantener una arquitectura sencilla, comprensible y adecuada al tamaño y necesidades del proyecto.
 
 ---
 
@@ -95,10 +109,10 @@ http://localhost:8080/swagger-ui/index.html
 
 La documentación del proyecto se encuentra en la carpeta **docs**.
 
-- PROJECT_GUIDE.md
-- DEVELOPMENT_GUIDE.md
-- DOMAIN_RULES.md
-- ARCHITECTURE_DECISIONS.md
+- PROJECT_GUIDE.md -> Define los objetivos del proyecto, su arquitectura, el roadmap y el alcance de cada Sprint.
+- DEVELOPMENT_GUIDE.md -> Define las reglas funcionales y de negocio que debe cumplir la aplicación.
+- DOMAIN_RULES.md -> Recoge las decisiones arquitectónicas adoptadas durante el desarrollo y los motivos de cada una.
+- ARCHITECTURE_DECISIONS.md -> Define las convenciones, el flujo de desarrollo y los criterios utilizados para implementar nuevas funcionalidades.
 
 ---
 
@@ -107,11 +121,28 @@ La documentación del proyecto se encuentra en la carpeta **docs**.
 - ✅ Sprint 1 - Gestión de Personas
 - ✅ Sprint 2 - Gestión de Perros
 - ✅ Sprint 3 - Organizaciones y competiciones
-- 🚧 Sprint 4 - Recibos y pagos
+- 🚧 Sprint 4 - Recibos
 - ⏳ Sprint 5 - Seguridad, usuarios, roles (JWT)
-- ⏳ Sprint 6 - Auditoria global
-- ⏳ Sprint 7 - Frontend público + backoffice
+- ⏳ Sprint 6 - Frontend público + backoffice
+- ⏳ Sprint 7 - Auditoria global
 - ⏳ Siguientes - Automatizaciones y nuevas mejoras
+
+---
+
+## Objetivo futuro
+
+Una vez completado el backend y la primera versión del frontend, el proyecto podrá evolucionar incorporando nuevas funcionalidades según las necesidades reales del club.
+
+Entre ellas:
+
+- Automatización de procesos administrativos.
+- Emails y notificaciones.
+- Avisos de vencimientos.
+- Estadísticas e informes.
+- Exportación de datos.
+- Mejoras del dashboard.
+
+La primera versión del frontend priorizará la simplicidad y la posibilidad de publicar la web rápidamente. Posteriormente se evaluará su evolución o migración a un framework frontend como React o Angular.
 
 ---
 

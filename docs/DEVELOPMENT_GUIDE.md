@@ -99,6 +99,7 @@ Mientras los casos de uso de creación y actualización compartan el mismo contr
 - Excepciones personalizadas.
 - Swagger documentado.
 - Código limpio y legible.
+- Operaciones transaccionales mediante `@Transactional` cuando una operación implique múltiples modificaciones persistentes.
 
 ---
 
@@ -106,18 +107,21 @@ Mientras los casos de uso de creación y actualización compartan el mismo contr
 
 Cada nueva funcionalidad sigue el siguiente orden:
 
-1. Entity
-2. Repository
-3. DTO
-4. Mapper
-5. Service
-6. Controller
-7. Postman
-8. Swagger
-9. Pruebas con Postman
-10. Revisión de código
-11. Commit
-12. Cierre de la Issue
+1. Revisar las reglas de dominio aplicables.
+2. Revisar las decisiones arquitectónicas relacionadas.
+3. Entity
+4. Repository
+5. DTO
+6. Mapper
+7. Service
+8. Controller
+9. Postman
+10. Swagger
+11. Pruebas con Postman
+12. Revisión de código
+13. Actualización de documentación cuando corresponda.
+14. Commit
+15. Cierre de la Issue
 
 ---
 
@@ -129,6 +133,7 @@ Una historia se considera finalizada cuando:
 - Código revisado.
 - Swagger actualizado.
 - Pruebas completadas.
+- Documentación actualizada cuando corresponda.
 - Commit realizado.
 - Issue cerrada.
 

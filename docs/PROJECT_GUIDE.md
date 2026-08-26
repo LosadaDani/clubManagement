@@ -131,23 +131,34 @@ Se evita introducir complejidad innecesaria.
 
 > El histórico funcional de licencias no requiere una entidad independiente de histórico. Las propias licencias, junto con sus periodos de vigencia y las consultas correspondientes, permiten conservar y consultar el historial de licencias de cada perro.
 
-## Sprint 4 — Recibos y pagos
+## Sprint 4 — Recibos y líneas de recibo
 
-* Gestión de recibos
-* Gestión de líneas de recibo
-* Relación entre recibos y personas
-* Gestión de conceptos de cobro
-* Cálculo del importe total
-* Gestión y registro de pagos
-* Validaciones de negocio
-* Operaciones transaccionales con `@Transactional`
-* DTOs
-* Mapper
-* Excepciones personalizadas
-* Swagger
+* Gestión de recibos.
+* Gestión de líneas de recibo.
+* Relación entre personas del club (`Person`) y recibos.
+* Relación entre recibos y líneas de recibo.
+* Registro de conceptos e importes asociados a una persona.
+* Gestión del estado de las líneas de recibo.
+* Generación de una propuesta de recibo a partir de las líneas pendientes.
+* Inclusión de la cuota correspondiente como línea de recibo al generar el recibo.
+* Selección y deselección de líneas durante la preparación del recibo.
+* Posibilidad de aplazar líneas pendientes a un recibo posterior.
+* Gestión de recibos devueltos.
+* Generación de la penalización correspondiente a un recibo devuelto.
+* Registro de líneas pendientes para su inclusión en recibos posteriores.
+* Cálculo del importe total del recibo.
+* Operaciones transaccionales con `@Transactional`.
+* Validaciones de negocio.
+* DTOs.
+* Mapper.
+* Excepciones personalizadas.
+* Swagger / OpenAPI.
 
-**Estado: Pendiente**
+**Estado: En desarrollo**
 
+> El sistema no implementará inicialmente una gestión contable de pagos ni una entidad independiente de Pago. El estado de pago se reflejará mediante los estados de Recibo y LíneaRecibo. El medio utilizado para realizar el pago no forma parte del modelo actual.
+
+> La preparación de recibos se realizará a partir de las líneas pendientes. La consulta de preparación no generará ni modificará datos; la cuota se incorporará como LíneaRecibo únicamente cuando el recibo sea generado definitivamente.
 ## Sprint 5 — Seguridad
 
 * Gestión de usuarios
@@ -162,7 +173,40 @@ Se evita introducir complejidad innecesaria.
 
 **Estado: Pendiente**
 
-## Sprint 6 — Auditoría
+## Sprint 6 — Frontend
+
+### Web pública / comercial
+
+* Página principal
+* Información del club
+* Actividades
+* Competiciones
+* Información de contacto
+* Noticias o comunicaciones, si se consideran necesarias
+* Diseño responsive
+
+### Backoffice
+
+* Autenticación
+* Dashboard
+* Gestión de personas
+* Gestión de perros
+* Gestión de organizaciones
+* Gestión de licencias
+* Gestión de recibos
+* Gestión de líneas de recibo
+* Gestión de usuarios
+* Consultas, filtros y navegación
+
+**Estado: Pendiente**
+
+> El frontend tendrá dos ámbitos diferenciados: una web pública orientada a visitantes y una interfaz de gestión privada para usuarios autorizados del sistema.
+>
+> El objetivo inicial de este sprint será disponer de una web sencilla y publicable para el club.
+> 
+> La primera versión se desarrollará utilizando una solución sencilla que permita poner en producción la web sin introducir todavía un framework frontend que pueda condicionar el aprendizaje posterior.
+
+## Sprint 7 — Auditoría
 
 * Auditoría transversal de las entidades
 * Registro de creación de entidades
@@ -184,35 +228,6 @@ Se evita introducir complejidad innecesaria.
 
 > La auditoría es independiente del histórico funcional de las entidades. Su objetivo es proporcionar trazabilidad sobre las operaciones realizadas por los usuarios y facilitar la investigación de errores o incidencias.
 
-## Sprint 7 — Frontend
-
-### Web pública / comercial
-
-* Página principal
-* Información del club
-* Actividades
-* Competiciones
-* Información de contacto
-* Noticias o comunicaciones, si se consideran necesarias
-* Diseño responsive
-
-### Backoffice
-
-* Autenticación
-* Dashboard
-* Gestión de personas
-* Gestión de perros
-* Gestión de organizaciones
-* Gestión de licencias
-* Gestión de recibos
-* Gestión de pagos
-* Gestión de usuarios
-* Consulta de auditoría
-* Consultas, filtros y navegación
-
-**Estado: Pendiente**
-
-> El frontend tendrá dos ámbitos diferenciados: una web pública orientada a visitantes y una interfaz de gestión privada para usuarios autorizados del sistema.
 
 ## Fase posterior — Mejoras y nuevas funcionalidades
 
@@ -251,7 +266,7 @@ Cada Sprint finaliza con:
 
 Actualmente se encuentran completados los Sprints 1, 2 y 3.
 
-El siguiente objetivo es comenzar el Sprint 4 — Recibos y pagos.
+El Sprint 4 - Recibos se encuentra actualmente en desarrollo.
 
 ---
 
@@ -267,8 +282,6 @@ El siguiente objetivo es comenzar el Sprint 4 — Recibos y pagos.
 * Validaciones con Bean Validation.
 * Swagger / OpenAPI.
 * GlobalExceptionHandler.
-
----
 
 ## Sprint 2
 
@@ -290,8 +303,6 @@ El siguiente objetivo es comenzar el Sprint 4 — Recibos y pagos.
 * Un perro debe estar asociado a una persona existente.
 * Una persona puede tener varios perros.
 * La relación propietario-perro se valida desde la capa de Service.
-
----
 
 ## Sprint 3
 
@@ -329,3 +340,39 @@ El siguiente objetivo es comenzar el Sprint 4 — Recibos y pagos.
 El histórico funcional de las licencias no requiere una entidad independiente. Cada licencia representa un periodo de vigencia y permanece almacenada una vez finalizado dicho periodo, permitiendo consultar tanto todas las licencias de un perro como sus licencias vigentes.
 
 La auditoría de modificaciones de las entidades se ha separado del histórico funcional y se implementará posteriormente como un sistema transversal dentro del Sprint 6.
+
+## Sprint 4
+
+### Objetivo
+
+Implementar la gestión de recibos del club, permitiendo acumular durante el mes líneas pendientes de cobro y preparar posteriormente los recibos que serán emitidos.
+
+### Alcance
+
+* Gestión de LíneaRecibo.
+* Gestión de Recibo.
+* Asociación de líneas a personas.
+* Asociación de recibos a personas.
+* Preparación de recibos mediante consulta de líneas pendientes.
+* Selección de líneas que se incluirán en cada recibo.
+* Incorporación de la cuota correspondiente.
+* Generación definitiva del recibo y cálculo de su importe total.
+* Gestión de estados de recibos y líneas de recibo.
+* Gestión de recibos devueltos mediante la generación de una nueva línea pendiente.
+* Operaciones transaccionales para las operaciones que impliquen múltiples modificaciones.
+
+### Reglas de negocio
+
+Las reglas funcionales de Recibos y LíneaRecibo se encuentran definidas en `DOMAIN_RULES.md`.
+
+### Decisiones de diseño
+
+La relación entre Recibo y LíneaRecibo se implementará mediante una referencia desde LíneaRecibo hacia Recibo, sin utilizar una entidad intermedia.
+
+La preparación del recibo no modificará datos. Las líneas seleccionadas se asociarán al recibo únicamente durante su generación definitiva.
+
+Las operaciones que impliquen múltiples modificaciones dependientes se ejecutarán dentro de una transacción mediante `@Transactional`.
+
+### Estado
+
+En desarrollo.

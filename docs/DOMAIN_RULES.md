@@ -73,10 +73,132 @@ Las cesiones de perros se implementarán mediante una funcionalidad específica,
 
 ---
 
+## Recibos y líneas de recibo
+
+El sistema permitirá gestionar los importes pendientes de cobro de las personas mediante líneas de recibo y recibos.
+
+Durante el mes podrán añadirse líneas de recibo correspondientes a cuotas, gastos u otros conceptos que deban ser cobrados a una persona.
+
+### Línea de recibo
+
+Una línea de recibo representa un importe que debe ser cobrado a una persona.
+
+Cada línea de recibo estará asociada obligatoriamente a una persona y tendrá:
+
+- Una fecha.
+- Un concepto.
+- Un importe.
+- Un estado.
+
+Una línea de recibo podrá encontrarse en los siguientes estados:
+
+- `PENDING`: la línea está pendiente de ser incluida en un recibo.
+- `ISSUED`: la línea ha sido incluida en un recibo emitido.
+- `PAID`: el importe correspondiente a la línea ha sido abonado.
+
+Una línea podrá marcarse como `PAID` cuando haya sido abonada, independientemente del medio de pago utilizado.
+
+Actualmente el sistema no registrará el medio mediante el cual se ha realizado el pago.
+
+Las líneas que no sean incluidas en un recibo durante su preparación permanecerán en estado `PENDING` y podrán incluirse en un recibo posterior.
+
+### Recibo
+
+Un recibo representa un conjunto de importes emitidos conjuntamente para una persona.
+
+Cada recibo estará asociado obligatoriamente a una persona y tendrá:
+
+- Una fecha de emisión.
+- Un importe total.
+- Un estado.
+
+Un recibo podrá encontrarse en los siguientes estados:
+
+- `ISSUED`: el recibo ha sido generado y emitido.
+- `PAID`: el recibo ha sido abonado.
+- `RETURNED`: el recibo ha sido devuelto.
+
+Un recibo se considerará pagado íntegramente.
+
+Actualmente no se contempla el pago parcial de un recibo.
+
+Cuando un recibo se marque como `PAID`, las líneas asociadas al recibo pasarán a estado `PAID`.
+
+Cuando un recibo sea marcado como `RETURNED`, las líneas asociadas mantendrán su estado `ISSUED`.
+
+### Relación entre recibos y líneas de recibo
+
+Una persona podrá tener varios recibos y varias líneas de recibo.
+
+Una línea de recibo podrá estar asociada como máximo a un único recibo.
+
+Una línea en estado `PENDING` no estará asociada a ningún recibo.
+
+Cuando una línea sea incluida en un recibo, quedará asociada a dicho recibo y pasará a estado `ISSUED`.
+
+Una vez asociada a un recibo, una línea no podrá trasladarse ni reutilizarse en otro recibo.
+
+La asociación entre una línea de recibo y un recibo se mantendrá desde la línea de recibo.
+
+Las líneas correspondientes a un recibo podrán obtenerse consultando las líneas asociadas a dicho recibo.
+
+### Preparación de recibos
+
+La preparación de recibos se realizará a partir de las líneas de recibo que se encuentren en estado `PENDING`.
+
+El sistema mostrará las líneas pendientes correspondientes a cada persona para permitir preparar el siguiente recibo.
+
+Las líneas aparecerán inicialmente seleccionadas para su inclusión en el recibo.
+
+Durante la preparación podrán deseleccionarse líneas que no deban incluirse en el recibo actual.
+
+Las líneas deseleccionadas permanecerán en estado `PENDING` y estarán disponibles para futuras preparaciones.
+
+Durante la preparación también se propondrá la cuota correspondiente al tipo de membresía de la persona.
+
+La cuota se mostrará como una propuesta durante la preparación, pero no se creará como una línea de recibo hasta que el recibo sea generado.
+
+Al generar el recibo:
+
+- Se creará el recibo correspondiente.
+- Se creará la línea correspondiente a la cuota, cuando proceda.
+- Las líneas seleccionadas quedarán asociadas al recibo.
+- Las líneas seleccionadas pasarán de estado `PENDING` a `ISSUED`.
+- El importe total del recibo se calculará a partir de las líneas incluidas.
+
+### Devolución de recibos
+
+Cuando un recibo sea devuelto, el recibo pasará a estado `RETURNED`.
+
+Las líneas asociadas al recibo original permanecerán asociadas a dicho recibo y conservarán su estado `ISSUED`, manteniendo así el histórico de los conceptos que formaban parte del recibo devuelto.
+
+La devolución de un recibo generará una nueva línea de recibo en estado `PENDING`.
+
+Esta nueva línea representará el importe pendiente correspondiente al recibo devuelto y tendrá un importe formado por:
+
+- El importe total del recibo devuelto.
+- La penalización correspondiente a la devolución, cuando sea aplicable.
+
+La nueva línea podrá incluirse posteriormente en otro recibo como cualquier otra línea pendiente.
+
+Las líneas originales del recibo devuelto no se incluirán nuevamente de forma individual en futuros recibos.
+
+Si el importe pendiente derivado de un recibo devuelto es abonado por otra vía, la línea correspondiente podrá marcarse como `PAID`.
+
+### Histórico
+
+Las líneas de recibo y los recibos no se reutilizarán para representar nuevos cobros.
+
+Cada recibo conservará históricamente las líneas que fueron emitidas con él.
+
+En caso de devolución, el recibo original y las líneas asociadas se mantendrán para conservar el histórico.
+
+Los nuevos intentos de cobro derivados de una devolución se representarán mediante nuevas líneas de recibo y, posteriormente, nuevos recibos.
+
+---
+
 ## Futuras reglas
 
 Este documento crecerá conforme se implementen nuevas funcionalidades:
 
-- Recibos.
-- Pagos.
 - Usuarios y Seguridad.
