@@ -22,12 +22,11 @@ import java.util.Objects;
 
 @Service
 public class CompetitionLicenseServiceImpl implements CompetitionLicenseService {
-
-    private CompetitionLicenseRepository competitionLicenseRepository;
-    private OrganizationRepository organizationRepository;
-    private PersonRepository personRepository;
-    private DogRepository dogRepository;
-    private CompetitionLicenseMapper competitionLicenseMapper;
+    private final CompetitionLicenseRepository competitionLicenseRepository;
+    private final OrganizationRepository organizationRepository;
+    private final PersonRepository personRepository;
+    private final DogRepository dogRepository;
+    private final CompetitionLicenseMapper competitionLicenseMapper;
 
     public CompetitionLicenseServiceImpl(CompetitionLicenseRepository competitionLicenseRepository, OrganizationRepository organizationRepository, PersonRepository personRepository, DogRepository dogRepository, CompetitionLicenseMapper competitionLicenseMapper) {
         this.competitionLicenseRepository = competitionLicenseRepository;
