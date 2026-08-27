@@ -1,11 +1,28 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        description = "Información resumida de una persona."
+)
 public class PersonSummaryDTO {
 
+    @Schema(
+            description = "Identificador único de la persona.",
+            example = "1"
+    )
     private Long id;
 
+    @Schema(
+            description = "Nombre de la persona.",
+            example = "Daniel"
+    )
     private String name;
 
+    @Schema(
+            description = "Apellidos de la persona.",
+            example = "Losada Anillo"
+    )
     private String lastName;
 
     public PersonSummaryDTO() {

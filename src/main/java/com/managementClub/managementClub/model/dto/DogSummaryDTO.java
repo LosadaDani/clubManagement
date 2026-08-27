@@ -1,11 +1,36 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        description = "Información resumida de un perro."
+)
 public class DogSummaryDTO {
 
+    @Schema(
+            description = "Identificador único del perro.",
+            example = "1"
+    )
     private Long id;
+    @Schema(
+            description = "Nombre del perro.",
+            example = "Rex"
+    )
     private String name;
+    @Schema(
+            description = "Raza del perro.",
+            example = "Golden Retriever"
+    )
     private String breed;
+    @Schema(
+            description = "Número de microchip (15 dígitos).",
+            example = "123456789012345"
+    )
     private String microchip;
+    @Schema(
+            description = "Número de pedigree del perro.",
+            example = "ES-2020-1234"
+    )
     private String pedigreeNumber;
 
     public DogSummaryDTO() {

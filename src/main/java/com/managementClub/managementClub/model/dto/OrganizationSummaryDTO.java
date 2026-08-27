@@ -1,9 +1,26 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(
+        description = "Información resumida de una organización."
+)
 public class OrganizationSummaryDTO {
 
+    @Schema(
+            description = "Identificador único de la organización.",
+            example = "1"
+    )
     private Long id;
+    @Schema(
+            description = "Nombre completo de la organización.",
+            example = "Real Sociedad Canina de España"
+    )
     private String name;
+    @Schema(
+            description = "Nombre abreviado de la organización.",
+            example = "RSCE"
+    )
     private String shortName;
 
     public OrganizationSummaryDTO() {

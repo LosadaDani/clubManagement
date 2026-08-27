@@ -1,15 +1,45 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDate;
 
+@Schema(
+        description = "Información completa de una licencia de competición."
+)
 public class CompetitionLicenseResponseDTO {
 
+    @Schema(
+            description = "Identificador único de la licencia.",
+            example = "1"
+    )
     private Long id;
+    @Schema(
+            description = "Organización emisora de la licencia."
+    )
     private OrganizationSummaryDTO organization;
+    @Schema(
+            description = "Persona titular de la licencia."
+    )
     private PersonSummaryDTO person;
+    @Schema(
+            description = "Perro asociado a la licencia."
+    )
     private DogSummaryDTO dog;
+    @Schema(
+            description = "Número de licencia de competición.",
+            example = "LC-2026-001"
+    )
     private String licenseNumber;
+    @Schema(
+            description = "Fecha de inicio de vigencia de la licencia.",
+            example = "2026-01-01"
+    )
     private LocalDate startDate;
+    @Schema(
+            description = "Fecha de fin de vigencia de la licencia.",
+            example = "2026-12-31"
+    )
     private LocalDate endDate;
 
     public CompetitionLicenseResponseDTO() {

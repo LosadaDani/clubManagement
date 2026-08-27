@@ -1,25 +1,60 @@
 package com.managementClub.managementClub.model.dto;
 
 import com.managementClub.managementClub.model.enums.DogSex;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 
+@Schema(
+        description = "Información completa de un perro registrado en el sistema."
+)
 public class DogResponseDTO {
 
+    @Schema(
+            description = "Identificador único del perro.",
+            example = "1"
+    )
     private Long id;
 
+    @Schema(
+            description = "Nombre del perro.",
+            example = "Rex"
+    )
     private String name;
 
+    @Schema(
+            description = "Fecha de nacimiento del perro.",
+            example = "2020-05-15"
+    )
     private LocalDate birthDate;
 
+    @Schema(
+            description = "Sexo del perro.",
+            example = "MALE"
+    )
     private DogSex sex;
 
+    @Schema(
+            description = "Raza del perro.",
+            example = "Golden Retriever"
+    )
     private String breed;
 
+    @Schema(
+            description = "Número de microchip (15 dígitos).",
+            example = "123456789012345"
+    )
     private String microchip;
 
+    @Schema(
+            description = "Número de pedigree del perro.",
+            example = "ES-2020-1234"
+    )
     private String pedigreeNumber;
 
+    @Schema(
+            description = "Propietario del perro."
+    )
     private PersonSummaryDTO owner;
 
     public DogResponseDTO() {
