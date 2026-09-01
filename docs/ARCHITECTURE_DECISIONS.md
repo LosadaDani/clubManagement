@@ -199,3 +199,82 @@ Las operaciones de negocio que impliquen múltiples modificaciones dependientes 
 Garantizar que todas las modificaciones se completen correctamente o que, en caso de producirse un error, no queden cambios parciales persistidos en la base de datos.
 
 ---
+
+## ADR-014 — Cuotas hardcodeadas mediante lógica condicional, sin entidad de configuración
+
+### Estado
+
+Decisión tomada. Pendiente de implementación (issue aún no codificada).
+
+### Contexto
+
+El club aplica distintas cuotas según el tipo de membresía. Los importes de cada
+cuota son valores fijos y conocidos de antemano, no configurables ni sujetos a
+cambio frecuente.
+
+### Decisión
+
+Las cuotas se resuelven mediante lógica condicional en el código (según el tipo
+de membresía de la persona), con los importes hardcodeados directamente. No se
+crea una entidad de configuración (por ejemplo, `MembershipType` con un campo
+`amount`) para representar estos importes.
+
+Esta es una decisión de diseño permanente, no una solución temporal a sustituir
+más adelante.
+
+### Alternativa descartada
+
+Modelar los tipos de membresía y sus importes como una entidad configurable en
+base de datos. Se descarta por no aportar valor real dado el tamaño del proyecto:
+los importes no cambian con frecuencia, y añadir una entidad de configuración solo
+para esto introduciría complejidad sin necesidad (ver `PROJECT_OVERVIEW.md`:
+"¿está justificado para el tamaño del proyecto?").
+
+### Consecuencias
+
+* Un cambio en el importe de una cuota requiere modificar código y desplegar,
+  no una simple edición de datos.
+* La lógica condicional de cuotas debe mantenerse centralizada (idealmente en
+  el Service), no repetida en varios puntos del código.
+* Si en el futuro cambiaran las condiciones actuales (frecuencia de cambio de
+  importes, necesidad de gestión desde fuera del código), esta decisión debería
+  revisarse explícitamente como una decisión nueva, no como continuación de esta.
+
+---
+
+## ADR-015 — Fetch type explícito LAZY en relaciones @ManyToOne
+
+### Estado
+
+Decisión tomada e implementada.
+
+### Contexto
+
+JPA establece `EAGER` como valor por defecto para relaciones `@ManyToOne` y `@OneToOne`,
+mientras que `@OneToMany` y `@ManyToMany` ya usan `LAZY` por defecto. Con `EAGER`, cargar
+una entidad implica cargar automáticamente todas sus relaciones `@ManyToOne`, aunque no se
+necesiten en ese caso de uso. Este coste se acumula cuando una entidad tiene varias
+relaciones (por ejemplo, `CompetitionLicense`, con relaciones a `Organization`, `Person`
+y `Dog`).
+
+### Decisión
+
+Todas las relaciones `@ManyToOne` del proyecto se declaran explícitamente con
+`fetch = FetchType.LAZY`, en lugar de depender del `EAGER` por defecto de JPA.
+
+Las relaciones `@OneToMany` no requieren esta anotación explícita, ya que su valor
+por defecto en JPA ya es `LAZY`.
+
+### Consecuencias
+
+* La carga de una entidad relacionada (`Person`, `Organization`, `Dog`, `Receipt`)
+  solo ocurre cuando se accede explícitamente a ella, no de forma automática.
+* El mapeo a DTO debe ocurrir dentro del Service, antes de que finalice la transacción
+  implícita de Spring Data (o la explícita de un método `@Transactional`), para evitar
+  `LazyInitializationException` al acceder a una relación `LAZY` fuera de sesión.
+* No afecta a la arquitectura de relaciones mediante objetos ya definida en ADR-011.
+* Aplica a todo código nuevo del proyecto: cualquier nueva relación `@ManyToOne` debe
+  declarar `fetch = FetchType.LAZY` de forma explícita.
+
+---
+
