@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -47,7 +48,7 @@ public interface CompetitionLicenseControllerDocs {
                 )
             )
     })
-    ResponseEntity<CompetitionLicenseResponseDTO> createCompetitionLicense(CompetitionLicenseRequestDTO requestDTO);
+    ResponseEntity<CompetitionLicenseResponseDTO> createCompetitionLicense(@Valid CompetitionLicenseRequestDTO requestDTO);
 
     @Operation(
             summary = "Obtener licencias de competición por perro",
@@ -110,5 +111,5 @@ public interface CompetitionLicenseControllerDocs {
                     )
             )
     })
-    ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@Parameter(description = "Identificador único de la licencia de competición") Long id, CompetitionLicenseRequestDTO requestDTO);
+    ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@Parameter(description = "Identificador único de la licencia de competición") Long id, @Valid CompetitionLicenseRequestDTO requestDTO);
 }

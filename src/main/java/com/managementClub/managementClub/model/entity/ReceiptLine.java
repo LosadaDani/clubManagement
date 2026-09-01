@@ -14,7 +14,7 @@ public class ReceiptLine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
@@ -27,12 +27,11 @@ public class ReceiptLine {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal amount;
 
-    //TODO para el service Inicialmente Pending
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ReceiptLineStatus status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receipt_id")
     private Receipt receipt;
 

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public interface PersonControllerDocs {
                     )
             )
     })
-    ResponseEntity<PersonResponseDTO> createPerson (PersonRequestDTO requestDto);
+    ResponseEntity<PersonResponseDTO> createPerson (@Valid PersonRequestDTO requestDto);
 
     @Operation(
             summary = "Obtener una persona por ID",
@@ -110,7 +111,7 @@ public interface PersonControllerDocs {
                     )
             )
     })
-    ResponseEntity<PersonResponseDTO> updatePerson(@Parameter(description = "Identificador único de la persona") Long id, PersonRequestDTO requestDto);
+    ResponseEntity<PersonResponseDTO> updatePerson(@Parameter(description = "Identificador único de la persona") Long id, @Valid PersonRequestDTO requestDto);
 
     @Operation(
             summary = "Cambiar el estado de una persona",
@@ -134,5 +135,5 @@ public interface PersonControllerDocs {
                     )
             )
     })
-    ResponseEntity<PersonResponseDTO> changeMembershipStatus(@Parameter(description = "Identificador único de la persona") Long id, PersonStatusDTO dto);
+    ResponseEntity<PersonResponseDTO> changeMembershipStatus(@Parameter(description = "Identificador único de la persona") Long id, @Valid PersonStatusDTO dto);
 }

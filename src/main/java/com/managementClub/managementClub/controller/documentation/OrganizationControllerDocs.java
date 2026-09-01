@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 
 @Tag(
@@ -40,7 +41,7 @@ public interface OrganizationControllerDocs {
                     )
             )
     })
-    ResponseEntity<OrganizationResponseDTO> createOrganization(OrganizationRequestDTO requestDto);
+    ResponseEntity<OrganizationResponseDTO> createOrganization(@Valid OrganizationRequestDTO requestDto);
 
     @Operation(
             summary = "Actualizar una organización",
@@ -71,5 +72,5 @@ public interface OrganizationControllerDocs {
                     )
             )
     })
-    ResponseEntity<OrganizationResponseDTO> updateOrganization(@Parameter(description = "Identificador de la organización") Long id, OrganizationRequestDTO organizationRequestDTO);
+    ResponseEntity<OrganizationResponseDTO> updateOrganization(@Parameter(description = "Identificador de la organización") Long id, @Valid OrganizationRequestDTO organizationRequestDTO);
 }
