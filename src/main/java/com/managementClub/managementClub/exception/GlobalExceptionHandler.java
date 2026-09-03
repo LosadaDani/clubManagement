@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
@@ -67,6 +68,33 @@ public class GlobalExceptionHandler {
         String message = exception.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .collect(Collectors.joining("; "));
+
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponseDTO> handlerMethodArgumentTypeMismatchException (
+            MethodArgumentTypeMismatchException exception,
+            HttpServletRequest request) {
+
+        String requiredType = exception.getRequiredType() != null
+                ? exception.getRequiredType().getSimpleName()
+                : "desconocido";
+
+        String message = String.format(
+                "%s: el valor '%s' no es válido para el tipo %s",
+                exception.getName(),
+                exception.getValue(),
+                requiredType
+        );
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 LocalDateTime.now(),

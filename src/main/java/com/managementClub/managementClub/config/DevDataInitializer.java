@@ -4,18 +4,22 @@ import com.managementClub.managementClub.model.entity.CompetitionLicense;
 import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Organization;
 import com.managementClub.managementClub.model.entity.Person;
+import com.managementClub.managementClub.model.entity.ReceiptLine;
 import com.managementClub.managementClub.model.enums.DogSex;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.model.enums.MembershipType;
+import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
 import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
+import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Component
@@ -27,15 +31,18 @@ public class DevDataInitializer implements CommandLineRunner {
     private final DogRepository dogRepository;
     private final OrganizationRepository organizationRepository;
     private final CompetitionLicenseRepository competitionLicenseRepository;
+    private final ReceiptLineRepository receiptLineRepository;
 
     public DevDataInitializer(PersonRepository personRepository,
                               DogRepository dogRepository,
                               OrganizationRepository organizationRepository,
-                              CompetitionLicenseRepository competitionLicenseRepository) {
+                              CompetitionLicenseRepository competitionLicenseRepository,
+                              ReceiptLineRepository receiptLineRepository) {
         this.personRepository = personRepository;
         this.dogRepository = dogRepository;
         this.organizationRepository = organizationRepository;
         this.competitionLicenseRepository = competitionLicenseRepository;
+        this.receiptLineRepository = receiptLineRepository;
     }
 
     @Override
@@ -46,6 +53,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializePersons();
             initializeDogs();
             initializeCompetitionLicenses();
+            initializeReceiptLines();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -308,5 +316,46 @@ public class DevDataInitializer implements CommandLineRunner {
         competitionLicenseRepository.save(endsToday);
 
         log.info("Competition licenses initialized: 6 licenses");
+    }
+
+    private void initializeReceiptLines() {
+        if (receiptLineRepository.count() > 0) {
+            return;
+        }
+
+        Person dani = personRepository.findByEmail("dani.losada@example.com").orElseThrow();
+
+        ReceiptLine juneLine = new ReceiptLine(
+                dani,
+                LocalDate.of(2026, 6, 10),
+                "Cuota mensual junio 2026",
+                new BigDecimal("25.00"),
+                ReceiptLineStatus.PAID,
+                null
+        );
+
+        ReceiptLine julyLine = new ReceiptLine(
+                dani,
+                LocalDate.of(2026, 7, 10),
+                "Cuota mensual julio 2026",
+                new BigDecimal("25.00"),
+                ReceiptLineStatus.ISSUED,
+                null
+        );
+
+        ReceiptLine augustLine = new ReceiptLine(
+                dani,
+                LocalDate.of(2026, 8, 10),
+                "Cuota mensual agosto 2026",
+                new BigDecimal("25.00"),
+                ReceiptLineStatus.PENDING,
+                null
+        );
+
+        receiptLineRepository.save(juneLine);
+        receiptLineRepository.save(julyLine);
+        receiptLineRepository.save(augustLine);
+
+        log.info("Receipt lines initialized: 3 lines for Dani Losada (PAID, ISSUED, PENDING)");
     }
 }

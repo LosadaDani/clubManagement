@@ -12,6 +12,8 @@ import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.service.ReceiptLineService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReceiptLineServiceImpl implements ReceiptLineService {
 
@@ -37,4 +39,25 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
 
         return receiptLineMapper.toResponseDto(savedReceiptLine);
     }
+
+    @Override
+    public List<ReceiptLineResponseDTO> findByPerson(Long personId, ReceiptLineStatus status) {
+
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("La persona indicada con el id " + personId + " no existe"));
+
+        if (status != null) {
+            return receiptLineRepository.findByPersonAndStatusOrderByDateDesc(person, status)
+                    .stream()
+                    .map( receiptLineMapper::toResponseDto)
+                    .toList();
+        } else {
+            return receiptLineRepository.findByPersonOrderByDateDesc(person)
+                    .stream()
+                    .map( receiptLineMapper::toResponseDto)
+                    .toList();
+        }
+    }
+
 }
