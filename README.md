@@ -111,7 +111,7 @@ La documentación del proyecto se encuentra en la carpeta **docs**.
 
 - PROJECT_GUIDE.md -> Define los objetivos del proyecto, su arquitectura, el roadmap y el alcance de cada Sprint.
 - DEVELOPMENT_GUIDE.md -> Define las reglas funcionales y de negocio que debe cumplir la aplicación.
-- DOMAIN_RULES.md -> Recoge las decisiones arquitectónicas adoptadas durante el desarrollo y los motivos de cada una.
+- DOMAIN_RULES.md -> Índice de las reglas de negocio por entidad, separadas en DOMAIN_PERSONAS.md, DOMAIN_PERROS.md, DOMAIN_ORGANIZACIONES.md y DOMAIN_RECIBOS.md.
 - ARCHITECTURE_DECISIONS.md -> Define las convenciones, el flujo de desarrollo y los criterios utilizados para implementar nuevas funcionalidades.
 
 ---

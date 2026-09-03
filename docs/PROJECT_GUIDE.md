@@ -363,7 +363,7 @@ Implementar la gestión de recibos del club, permitiendo acumular durante el mes
 
 ### Reglas de negocio
 
-Las reglas funcionales de Recibos y LíneaRecibo se encuentran definidas en `DOMAIN_RULES.md`.
+Las reglas funcionales de Recibos y LíneaRecibo se encuentran definidas en `docs/DOMAIN_RECIBOS.md`.
 
 ### Decisiones de diseño
 
