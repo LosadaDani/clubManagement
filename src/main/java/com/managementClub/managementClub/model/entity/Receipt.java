@@ -24,7 +24,6 @@ public class Receipt {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
-    //TODO inicialmente ISSUED para el service
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ReceiptStatus status;

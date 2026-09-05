@@ -19,14 +19,16 @@ public class ReceiptProposalResponseDTO {
     private List<ReceiptLineResponseDTO> pendingLines;
     @Schema(
             description = "Propuesta de cuota.",
+            nullable = true,
             example = "100.00"
     )
-    private BigDecimal proposedQuota; //nullable
+    private BigDecimal proposedQuota;
     @Schema(
             description = "Concepto de cuota.",
+            nullable = true,
             example = "Cuota de membresía"
     )
-    private String quotaConcept; //nullable
+    private String quotaConcept;
 
     public ReceiptProposalResponseDTO() {
     }

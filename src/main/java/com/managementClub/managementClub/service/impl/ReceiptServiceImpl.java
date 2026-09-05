@@ -5,7 +5,6 @@ import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
 import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
-import com.managementClub.managementClub.model.enums.MembershipType;
 import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.service.ReceiptLineService;
@@ -14,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -45,33 +46,36 @@ public class ReceiptServiceImpl implements ReceiptService {
             String quotaConcept = null;
             List<ReceiptLineResponseDTO> listPendingLine = receiptLineService.findByPerson(person.getId(), ReceiptLineStatus.PENDING);
 
-            if (person.getMembershipType() == MembershipType.INITIATION_TRAINING) {
-                if (!listPendingLine.isEmpty()) {
-                    includePerson = true;
-                }
-            } else {
-                if ((person.getMembershipType() == MembershipType.FULL_PARTNER || person.getMembershipType() == MembershipType.SUBSCRIBED_MEMBER)
-                        && person.getMembershipStatus() == MembershipStatus.ACTIVE) {
-                    proposedQuota = MONTHLY_QUOTA_MEMBER;
-                    quotaConcept = "Quota Mensual " + LocalDate.now().getMonth();
-                    includePerson = true;
-                } else if (person.getMembershipType() == MembershipType.PERMANENT_TRAINING) {
-                    proposedQuota = MONTHLY_QUOTA_PERMANENT_TRAINING;
-                    quotaConcept = "Quota Mensual " + LocalDate.now().getMonth();
-                    includePerson = true;
-                } else if (person.getMembershipStatus() == MembershipStatus.INACTIVE) {
-
-                    if (LocalDate.now().getMonthValue() == 1) {
-                        proposedQuota = ANNUAL_QUOTA_MEMBER;
-                        quotaConcept = "Quota anual " + LocalDate.now().getYear();
-                        includePerson = true;
-                    }
-
+            switch (person.getMembershipType()) {
+                case INITIATION_TRAINING -> {
                     if (!listPendingLine.isEmpty()) {
                         includePerson = true;
                     }
                 }
+                case PERMANENT_TRAINING -> {
+                    proposedQuota = MONTHLY_QUOTA_PERMANENT_TRAINING;
+                    quotaConcept = "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
+                    includePerson = true;
+                }
+                case FULL_PARTNER, SUBSCRIBED_MEMBER -> {
+                    if (person.getMembershipStatus() == MembershipStatus.ACTIVE) {
+                        proposedQuota = MONTHLY_QUOTA_MEMBER;
+                        quotaConcept = "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES"));
+                        includePerson = true;
+                    } else if (person.getMembershipStatus() == MembershipStatus.INACTIVE) {
+                        if (LocalDate.now().getMonthValue() == 1) {
+                            proposedQuota = ANNUAL_QUOTA_MEMBER;
+                            quotaConcept = "Cuota anual " + LocalDate.now().getYear();
+                            includePerson = true;
+                        }
+
+                        if (!listPendingLine.isEmpty()) {
+                            includePerson = true;
+                        }
+                    }
+                }
             }
+
             if (includePerson) {
                 response.add(receiptMapper.toProposalDTO(person, listPendingLine, proposedQuota, quotaConcept));
             }
