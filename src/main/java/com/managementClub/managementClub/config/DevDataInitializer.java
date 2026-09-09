@@ -54,6 +54,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializeDogs();
             initializeCompetitionLicenses();
             initializeReceiptLines();
+            initializeReceiptProposalTestData();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -357,5 +358,106 @@ public class DevDataInitializer implements CommandLineRunner {
         receiptLineRepository.save(augustLine);
 
         log.info("Receipt lines initialized: 3 lines for Dani Losada (PAID, ISSUED, PENDING)");
+    }
+
+    /**
+     * Datos adicionales, exclusivos para poder probar por Postman los casos de
+     * MembershipType/MembershipStatus de GET /api/receipt/proposal que el dataset
+     * original no cubría (ver docs/reviews/dataset-expansion-receipt-proposal.md).
+     * No modifica ni reutiliza las personas ni líneas de recibo ya existentes.
+     */
+    private void initializeReceiptProposalTestData() {
+        if (personRepository.findByEmail("marc.puig@example.com").isPresent()) {
+            return;
+        }
+
+        LocalDate memberSince = LocalDate.of(2023, 1, 1);
+
+        // Caso 1: INITIATION_TRAINING con línea PENDING -> debe aparecer en la propuesta.
+        Person marc = new Person(
+                "Marc",
+                "Puig",
+                "600567890",
+                "marc.puig@example.com",
+                LocalDate.of(2026, 7, 1),
+                MembershipStatus.ACTIVE,
+                MembershipType.INITIATION_TRAINING
+        );
+
+        // Caso 2: INITIATION_TRAINING sin líneas -> NO debe aparecer en la propuesta.
+        Person elena = new Person(
+                "Elena",
+                "Vidal",
+                "600678901",
+                "elena.vidal@example.com",
+                LocalDate.of(2026, 8, 1),
+                MembershipStatus.ACTIVE,
+                MembershipType.INITIATION_TRAINING
+        );
+
+        // Caso 3: PERMANENT_TRAINING (siempre ACTIVE) -> debe aparecer con cuota mensual.
+        Person jordi = new Person(
+                "Jordi",
+                "Ferrer",
+                "600789012",
+                "jordi.ferrer@example.com",
+                memberSince,
+                MembershipStatus.ACTIVE,
+                MembershipType.PERMANENT_TRAINING
+        );
+
+        // Caso 4: CANCELLED -> NO debe aparecer en la propuesta bajo ningún caso.
+        Person nuria = new Person(
+                "Núria",
+                "Roca",
+                "600890123",
+                "nuria.roca@example.com",
+                memberSince,
+                MembershipStatus.CANCELLED,
+                MembershipType.FULL_PARTNER
+        );
+
+        // Caso 5: SUBSCRIBED_MEMBER/FULL_PARTNER INACTIVE con línea PENDING -> debe
+        // aparecer solo con esa línea (fuera de enero, sin cuota).
+        Person pau = new Person(
+                "Pau",
+                "Serra",
+                "600901234",
+                "pau.serra@example.com",
+                memberSince,
+                MembershipStatus.INACTIVE,
+                MembershipType.SUBSCRIBED_MEMBER
+        );
+
+        personRepository.save(marc);
+        personRepository.save(elena);
+        personRepository.save(jordi);
+        personRepository.save(nuria);
+        personRepository.save(pau);
+
+        log.info("Additional persons initialized for receipt proposal testing: Marc Puig, Elena Vidal, Jordi Ferrer, Núria Roca, Pau Serra");
+
+        ReceiptLine marcInitialLine = new ReceiptLine(
+                marc,
+                LocalDate.of(2026, 7, 5),
+                "Cuota inicial iniciación 1",
+                new BigDecimal("20.00"),
+                ReceiptLineStatus.PENDING,
+                null
+        );
+
+        ReceiptLine pauPendingLine = new ReceiptLine(
+                pau,
+                LocalDate.of(2026, 7, 10),
+                "Cuota mensual julio 2026",
+                new BigDecimal("15.00"),
+                ReceiptLineStatus.PENDING,
+                null
+        );
+
+        receiptLineRepository.save(marcInitialLine);
+        receiptLineRepository.save(pauPendingLine);
+
+        log.info("Additional receipt lines initialized for receipt proposal testing: 1 PENDING line for Marc Puig, 1 PENDING line for Pau Serra");
     }
 }

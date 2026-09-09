@@ -26,4 +26,18 @@ public class ReceiptController implements ReceiptControllerDocs {
         List<ReceiptProposalResponseDTO> response = receiptService.getReceiptProposal();
         return ResponseEntity.ok(response);
     }
+
+    /*
+
+
+
+    POST /api/receipt/generate            → @Valid @RequestBody GenerateReceiptRequestDTO una persona
+POST /api/receipt/generate-batch      → @Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> varias personas
+
+@PostMapping("/generate-batch")
+public ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptsBatch(
+        @Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> requests) {
+    ...
+}
+     */
 }
