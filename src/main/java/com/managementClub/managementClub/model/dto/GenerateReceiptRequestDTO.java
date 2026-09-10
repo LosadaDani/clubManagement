@@ -1,13 +1,24 @@
 package com.managementClub.managementClub.model.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
+@Schema(description = "Representa un recibo antes de crearse")
 public class GenerateReceiptRequestDTO {
-
+    @Schema(description = "Identificador de la persona a la que se le creara el recibo",
+            example = "1")
+    @NotNull(message = "El id de la persona es obligatorio")
     private Long personId;
 
+    @Schema(description = "Identificadores de las lineas de recibo seleccionadas",
+            example = "[1, 2]")
     private List<Long> selectedReceiptLineIds;
 
+    @Schema(description = "Indica si se incluye la cuota propuesta",
+            example = "true")
+    @NotNull(message = "Debe especificarse si se incluye la cuota propuesta")
     private Boolean includeQuota;
 
     public GenerateReceiptRequestDTO() {

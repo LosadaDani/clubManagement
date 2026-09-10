@@ -3,7 +3,9 @@ package com.managementClub.managementClub.mapper;
 import com.managementClub.managementClub.model.dto.PersonSummaryDTO;
 import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
 import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
+import com.managementClub.managementClub.model.dto.ReceiptResponseDTO;
 import com.managementClub.managementClub.model.entity.Person;
+import com.managementClub.managementClub.model.entity.Receipt;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -20,5 +22,19 @@ public class ReceiptMapper {
 
         PersonSummaryDTO personSummary = new PersonSummaryDTO(person.getId(), person.getName(), person.getLastName());
         return new ReceiptProposalResponseDTO(personSummary, pendingLine, proposedQuota, quotaConcept);
+    }
+
+    public ReceiptResponseDTO toResponseDTO(Receipt receipt) {
+        PersonSummaryDTO personSummary = new PersonSummaryDTO(
+                receipt.getPerson().getId(),
+                receipt.getPerson().getName(),
+                receipt.getPerson().getLastName());
+
+        return new ReceiptResponseDTO(
+                receipt.getId(),
+                personSummary,
+                receipt.getIssueDate(),
+                receipt.getTotal(),
+                receipt.getStatus());
     }
 }
