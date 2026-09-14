@@ -109,11 +109,11 @@ public class ReceiptServiceImpl implements ReceiptService {
                         .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + lineId + " no existe"));
 
                 if (!receiptLine.getPerson().getId().equals(request.getPersonId())) {
-                    throw new InvalidBusinessRuleException("La línea " + lineId + " no pertenece a la persona " + request.getPersonId());
+                    throw new ResourceNotFoundException("La línea " + lineId + " no pertenece a la persona " + request.getPersonId());
                 }
 
                 if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
-                    throw new ResourceNotFoundException("La línea " + lineId + " no está en estado PENDING");
+                    throw new InvalidBusinessRuleException("La línea " + lineId + " no está en estado PENDING");
                 }
 
                 totalAmount =totalAmount.add(receiptLine.getAmount());

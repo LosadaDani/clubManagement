@@ -4,16 +4,19 @@ import com.managementClub.managementClub.model.entity.CompetitionLicense;
 import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Organization;
 import com.managementClub.managementClub.model.entity.Person;
+import com.managementClub.managementClub.model.entity.Receipt;
 import com.managementClub.managementClub.model.entity.ReceiptLine;
 import com.managementClub.managementClub.model.enums.DogSex;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.model.enums.MembershipType;
 import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
+import com.managementClub.managementClub.model.enums.ReceiptStatus;
 import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
+import com.managementClub.managementClub.repository.ReceiptRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -32,17 +35,20 @@ public class DevDataInitializer implements CommandLineRunner {
     private final OrganizationRepository organizationRepository;
     private final CompetitionLicenseRepository competitionLicenseRepository;
     private final ReceiptLineRepository receiptLineRepository;
+    private final ReceiptRepository receiptRepository;
 
     public DevDataInitializer(PersonRepository personRepository,
                               DogRepository dogRepository,
                               OrganizationRepository organizationRepository,
                               CompetitionLicenseRepository competitionLicenseRepository,
-                              ReceiptLineRepository receiptLineRepository) {
+                              ReceiptLineRepository receiptLineRepository,
+                              ReceiptRepository receiptRepository) {
         this.personRepository = personRepository;
         this.dogRepository = dogRepository;
         this.organizationRepository = organizationRepository;
         this.competitionLicenseRepository = competitionLicenseRepository;
         this.receiptLineRepository = receiptLineRepository;
+        this.receiptRepository = receiptRepository;
     }
 
     @Override
@@ -55,6 +61,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializeCompetitionLicenses();
             initializeReceiptLines();
             initializeReceiptProposalTestData();
+            initializeGenerateReceiptTestData();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -459,5 +466,104 @@ public class DevDataInitializer implements CommandLineRunner {
         receiptLineRepository.save(pauPendingLine);
 
         log.info("Additional receipt lines initialized for receipt proposal testing: 1 PENDING line for Marc Puig, 1 PENDING line for Pau Serra");
+    }
+
+    /**
+     * Datos exclusivos para poder probar por Postman las futuras issues "marcar
+     * recibo como pagado" y "marcar recibo como devuelto" (ver
+     * docs/reviews/dataset-expansion-generate-receipt.md). Deja preparados tres
+     * Receipt en estado ISSUED, cada uno para un escenario distinto. No modifica
+     * ninguna persona ni línea ya existente en el dataset.
+     */
+    private void initializeGenerateReceiptTestData() {
+        if (receiptRepository.count() > 0) {
+            return;
+        }
+
+        LocalDate today = LocalDate.of(2026, 9, 14);
+
+        // Escenario 1 (caso 4 de generate-receipt-postman-cases.md): cargo y abono
+        // que se cancelan, para Cristina Martínez (persona ya existente).
+        Person cristina = personRepository.findByEmail("cristina.martinez@example.com").orElseThrow();
+
+        Receipt cancelledReceipt = new Receipt(cristina, today, new BigDecimal("0.00"), ReceiptStatus.ISSUED);
+        Receipt savedCancelledReceipt = receiptRepository.save(cancelledReceipt);
+
+        ReceiptLine chargeLine = new ReceiptLine(
+                cristina,
+                today,
+                "Camiseta oficial competición",
+                new BigDecimal("30.00"),
+                ReceiptLineStatus.ISSUED,
+                savedCancelledReceipt
+        );
+
+        ReceiptLine creditLine = new ReceiptLine(
+                cristina,
+                today,
+                "Abono error facturación camiseta",
+                new BigDecimal("-30.00"),
+                ReceiptLineStatus.ISSUED,
+                savedCancelledReceipt
+        );
+
+        receiptLineRepository.save(chargeLine);
+        receiptLineRepository.save(creditLine);
+
+        // Escenario 2: Receipt ISSUED con importe distinto de cero, reservado para
+        // probar "marcar como pagado" (Receipt y sus líneas deben pasar a PAID).
+        Person martina = new Person(
+                "Martina",
+                "Costa",
+                "601012345",
+                "martina.costa@example.com",
+                LocalDate.of(2024, 1, 1),
+                MembershipStatus.ACTIVE,
+                MembershipType.FULL_PARTNER
+        );
+        personRepository.save(martina);
+
+        Receipt toBePaidReceipt = new Receipt(martina, today, new BigDecimal("25.00"), ReceiptStatus.ISSUED);
+        Receipt savedToBePaidReceipt = receiptRepository.save(toBePaidReceipt);
+
+        ReceiptLine toBePaidLine = new ReceiptLine(
+                martina,
+                today,
+                "Cuota mensual septiembre 2026",
+                new BigDecimal("25.00"),
+                ReceiptLineStatus.ISSUED,
+                savedToBePaidReceipt
+        );
+        receiptLineRepository.save(toBePaidLine);
+
+        // Escenario 3: Receipt ISSUED con importe distinto de cero, reservado para
+        // probar "marcar como devuelto" (Receipt debe pasar a RETURNED, sus líneas
+        // mantienen ISSUED, y se genera una nueva ReceiptLine PENDING con el
+        // importe + penalización).
+        Person bruno = new Person(
+                "Bruno",
+                "Camps",
+                "601123456",
+                "bruno.camps@example.com",
+                LocalDate.of(2024, 3, 1),
+                MembershipStatus.ACTIVE,
+                MembershipType.SUBSCRIBED_MEMBER
+        );
+        personRepository.save(bruno);
+
+        Receipt toBeReturnedReceipt = new Receipt(bruno, today, new BigDecimal("15.00"), ReceiptStatus.ISSUED);
+        Receipt savedToBeReturnedReceipt = receiptRepository.save(toBeReturnedReceipt);
+
+        ReceiptLine toBeReturnedLine = new ReceiptLine(
+                bruno,
+                today,
+                "Cuota mensual septiembre 2026",
+                new BigDecimal("15.00"),
+                ReceiptLineStatus.ISSUED,
+                savedToBeReturnedReceipt
+        );
+        receiptLineRepository.save(toBeReturnedLine);
+
+        log.info("Generate-receipt test data initialized: 3 Receipt ISSUED (cancelled total, to-be-paid, to-be-returned)");
     }
 }
