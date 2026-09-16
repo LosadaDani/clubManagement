@@ -1,9 +1,6 @@
 package com.managementClub.managementClub.mapper;
 
-import com.managementClub.managementClub.model.dto.PersonSummaryDTO;
-import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
-import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
-import com.managementClub.managementClub.model.dto.ReceiptResponseDTO;
+import com.managementClub.managementClub.model.dto.*;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.Receipt;
 import org.springframework.stereotype.Component;
@@ -36,5 +33,16 @@ public class ReceiptMapper {
                 receipt.getIssueDate(),
                 receipt.getTotal(),
                 receipt.getStatus());
+    }
+
+    public ReceiptDetailResponseDTO toDetailResponseDto (Receipt receipt, List<ReceiptLineResponseDTO> lines) {
+        PersonSummaryDTO personSummary = new PersonSummaryDTO(
+                receipt.getPerson().getId(),
+                receipt.getPerson().getName(),
+                receipt.getPerson().getLastName()
+        );
+
+        return new ReceiptDetailResponseDTO(receipt.getId(), personSummary, receipt.getIssueDate(), receipt.getTotal(), receipt.getStatus(), lines);
+
     }
 }

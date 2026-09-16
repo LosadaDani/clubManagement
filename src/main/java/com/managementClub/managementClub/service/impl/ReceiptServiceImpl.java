@@ -2,11 +2,9 @@ package com.managementClub.managementClub.service.impl;
 
 import com.managementClub.managementClub.exception.InvalidBusinessRuleException;
 import com.managementClub.managementClub.exception.ResourceNotFoundException;
+import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.mapper.ReceiptMapper;
-import com.managementClub.managementClub.model.dto.GenerateReceiptRequestDTO;
-import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
-import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
-import com.managementClub.managementClub.model.dto.ReceiptResponseDTO;
+import com.managementClub.managementClub.model.dto.*;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.Receipt;
 import com.managementClub.managementClub.model.entity.ReceiptLine;
@@ -19,8 +17,8 @@ import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.repository.ReceiptRepository;
 import com.managementClub.managementClub.service.ReceiptLineService;
 import com.managementClub.managementClub.service.ReceiptService;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -37,6 +35,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     private final ReceiptLineRepository receiptLineRepository;
     private final ReceiptMapper receiptMapper;
     private final ReceiptRepository receiptRepository;
+    private final ReceiptLineMapper receiptLineMapper;
 
     private static final BigDecimal MONTHLY_QUOTA_MEMBER = new BigDecimal("15.00");
     private static final BigDecimal ANNUAL_QUOTA_MEMBER = new BigDecimal("15.00");
@@ -44,12 +43,13 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     private record QuotaCalculation(BigDecimal amount, String concept) {}
 
-    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository) {
+    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository, ReceiptLineMapper receiptLineMapper) {
         this.personRepository = personRepository;
         this.receiptLineService = receiptLineService;
         this.receiptLineRepository = receiptLineRepository;
         this.receiptMapper = receiptMapper;
         this.receiptRepository = receiptRepository;
+        this.receiptLineMapper = receiptLineMapper;
     }
 
     @Override
@@ -149,6 +149,31 @@ public class ReceiptServiceImpl implements ReceiptService {
         receiptRepository.save(savedReceipt);
 
         return receiptMapper.toResponseDTO(savedReceipt);
+    }
+
+    @Override
+    public List<ReceiptResponseDTO> getReceiptsByPersonId(Long personId) {
+
+        if (!personRepository.existsById(personId)) {
+            throw new ResourceNotFoundException("La persona indicada con el id " + personId + " no existe");
+        }
+
+        List<Receipt> receipts = receiptRepository.findByPersonIdOrderByIssueDateDescIdDesc(personId);
+
+        return receipts.stream().map(receiptMapper::toResponseDTO).toList();
+    }
+
+    @Override
+    public ReceiptDetailResponseDTO getReceiptDetail(Long receiptId) {
+
+        Receipt receipt = receiptRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+
+        List<ReceiptLine> lines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
+
+        List<ReceiptLineResponseDTO> receiptLinesDto = lines.stream().map(receiptLineMapper::toResponseDto).toList();
+
+        return receiptMapper.toDetailResponseDto(receipt, receiptLinesDto);
     }
 
     private QuotaCalculation calculateQuota(Person person) {

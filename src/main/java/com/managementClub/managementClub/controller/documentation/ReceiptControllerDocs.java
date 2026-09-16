@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
@@ -69,4 +70,38 @@ public interface ReceiptControllerDocs {
             )
     })
     ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> requests);
+
+    @Operation(
+            summary = "Obtiene los recibos de una persona",
+            description = "Obtiene los recibos de una persona a partir de su ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Recibos obtenidos correctamente."),
+            @ApiResponse(responseCode = "404",
+                    description = "La persona indicada no existe.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<List<ReceiptResponseDTO>> getReceiptsByPersonId(@PathVariable Long id);
+
+    @Operation(
+            summary = "Obtiene el detalle de un recibo",
+            description = "Obtiene el detalle de un recibo con sus lineas de recibo a partir de su ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Detalle recibo obtenido correctamente."),
+            @ApiResponse(responseCode = "404",
+                    description = "La recibo indicado no existe.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<ReceiptDetailResponseDTO> getReceiptDetail(@PathVariable Long id);
 }

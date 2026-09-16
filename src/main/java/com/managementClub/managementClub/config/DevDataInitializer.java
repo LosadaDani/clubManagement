@@ -62,6 +62,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializeReceiptLines();
             initializeReceiptProposalTestData();
             initializeGenerateReceiptTestData();
+            initializeReceiptOrderTestData();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -565,5 +566,69 @@ public class DevDataInitializer implements CommandLineRunner {
         receiptLineRepository.save(toBeReturnedLine);
 
         log.info("Generate-receipt test data initialized: 3 Receipt ISSUED (cancelled total, to-be-paid, to-be-returned)");
+    }
+
+    /**
+     * Datos exclusivos para poder probar por Postman el orden descendente de
+     * GET /api/receipt/by-person/{id} y GET /api/receipt/{id} cuando una misma
+     * persona tiene varios Receipt con issueDate explícitas y distintas entre sí
+     * (ver docs/reviews/dataset-expansion-receipt-order.md). Escenario
+     * independiente de Cristina/Martina/Bruno (initializeGenerateReceiptTestData)
+     * y de las personas/líneas usadas en generate-receipt-postman-cases.md: usa
+     * una persona nueva y no modifica ninguna persona ni línea ya existente.
+     */
+    private void initializeReceiptOrderTestData() {
+        if (personRepository.findByEmail("pol.vila@example.com").isPresent()) {
+            return;
+        }
+
+        Person pol = new Person(
+                "Pol",
+                "Vila",
+                "601234567",
+                "pol.vila@example.com",
+                LocalDate.of(2024, 6, 1),
+                MembershipStatus.ACTIVE,
+                MembershipType.FULL_PARTNER
+        );
+        personRepository.save(pol);
+
+        Receipt julyReceipt = new Receipt(pol, LocalDate.of(2026, 7, 10), new BigDecimal("15.00"), ReceiptStatus.ISSUED);
+        Receipt savedJulyReceipt = receiptRepository.save(julyReceipt);
+        ReceiptLine julyLine = new ReceiptLine(
+                pol,
+                LocalDate.of(2026, 7, 10),
+                "Cuota mensual julio 2026",
+                new BigDecimal("15.00"),
+                ReceiptLineStatus.ISSUED,
+                savedJulyReceipt
+        );
+        receiptLineRepository.save(julyLine);
+
+        Receipt augustReceipt = new Receipt(pol, LocalDate.of(2026, 8, 10), new BigDecimal("15.00"), ReceiptStatus.ISSUED);
+        Receipt savedAugustReceipt = receiptRepository.save(augustReceipt);
+        ReceiptLine augustLine = new ReceiptLine(
+                pol,
+                LocalDate.of(2026, 8, 10),
+                "Cuota mensual agosto 2026",
+                new BigDecimal("15.00"),
+                ReceiptLineStatus.ISSUED,
+                savedAugustReceipt
+        );
+        receiptLineRepository.save(augustLine);
+
+        Receipt septemberReceipt = new Receipt(pol, LocalDate.of(2026, 9, 10), new BigDecimal("15.00"), ReceiptStatus.ISSUED);
+        Receipt savedSeptemberReceipt = receiptRepository.save(septemberReceipt);
+        ReceiptLine septemberLine = new ReceiptLine(
+                pol,
+                LocalDate.of(2026, 9, 10),
+                "Cuota mensual septiembre 2026",
+                new BigDecimal("15.00"),
+                ReceiptLineStatus.ISSUED,
+                savedSeptemberReceipt
+        );
+        receiptLineRepository.save(septemberLine);
+
+        log.info("Receipt-order test data initialized: Pol Vila with 3 Receipt ISSUED (2026-07-10, 2026-08-10, 2026-09-10)");
     }
 }

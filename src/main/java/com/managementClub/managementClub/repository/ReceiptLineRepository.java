@@ -18,4 +18,5 @@ public interface ReceiptLineRepository extends JpaRepository<ReceiptLine, Long> 
 
     Optional<ReceiptLine> findById(Long id);
 
+    List<ReceiptLine> findByReceiptIdOrderByDateDescIdDesc(Long receiptId);
 }

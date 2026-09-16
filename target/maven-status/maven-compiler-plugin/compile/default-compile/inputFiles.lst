@@ -38,6 +38,7 @@
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/PersonResponseDTO.java
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/PersonStatusDTO.java
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/PersonSummaryDTO.java
+/Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/ReceiptDetailResponseDTO.java
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/ReceiptGenerationResultDTO.java
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/ReceiptLineRequestDTO.java
 /Users/dani/Documents/workspace/clubManagement/src/main/java/com/managementClub/managementClub/model/dto/ReceiptLineResponseDTO.java

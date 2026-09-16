@@ -1,6 +1,7 @@
 com/managementClub/managementClub/config/DevDataInitializer.class
 com/managementClub/managementClub/controller/ReceiptController.class
 com/managementClub/managementClub/service/impl/ReceiptServiceImpl.class
+com/managementClub/managementClub/model/dto/ReceiptDetailResponseDTO.class
 com/managementClub/managementClub/service/ReceiptService.class
 com/managementClub/managementClub/mapper/ReceiptMapper.class
 com/managementClub/managementClub/controller/documentation/ReceiptControllerDocs.class

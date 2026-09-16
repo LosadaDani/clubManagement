@@ -1,10 +1,7 @@
 package com.managementClub.managementClub.controller;
 
 import com.managementClub.managementClub.controller.documentation.ReceiptControllerDocs;
-import com.managementClub.managementClub.model.dto.GenerateReceiptBatchResponseDTO;
-import com.managementClub.managementClub.model.dto.GenerateReceiptRequestDTO;
-import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
-import com.managementClub.managementClub.model.dto.ReceiptResponseDTO;
+import com.managementClub.managementClub.model.dto.*;
 import com.managementClub.managementClub.service.ReceiptBatchService;
 import com.managementClub.managementClub.service.ReceiptService;
 import jakarta.validation.Valid;
@@ -43,6 +40,20 @@ public class ReceiptController implements ReceiptControllerDocs {
     @PostMapping("/generate-batch")
     public ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> requests) {
         GenerateReceiptBatchResponseDTO response = receiptBatchService.generateReceiptBatch(requests);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping("/by-person/{id}")
+    public ResponseEntity<List<ReceiptResponseDTO>> getReceiptsByPersonId(@PathVariable Long id) {
+        List<ReceiptResponseDTO> response = receiptService.getReceiptsByPersonId(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public ResponseEntity<ReceiptDetailResponseDTO> getReceiptDetail(@PathVariable Long id) {
+        ReceiptDetailResponseDTO response = receiptService.getReceiptDetail(id);
         return ResponseEntity.ok(response);
     }
 
