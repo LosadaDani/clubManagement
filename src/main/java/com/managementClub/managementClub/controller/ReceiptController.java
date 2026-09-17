@@ -57,4 +57,18 @@ public class ReceiptController implements ReceiptControllerDocs {
         return ResponseEntity.ok(response);
     }
 
+    @Override
+    @PatchMapping("/{id}/pay")
+    public ResponseEntity<ReceiptDetailResponseDTO> markAsPaid(@PathVariable Long id) {
+        ReceiptDetailResponseDTO response = receiptService.markAsPaid(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    @PatchMapping("/{id}/return")
+    public ResponseEntity<ReceiptDetailResponseDTO> markAsReturned(@PathVariable Long id) {
+        ReceiptDetailResponseDTO response = receiptService.markAsReturned(id);
+        return ResponseEntity.ok(response);
+    }
+
 }

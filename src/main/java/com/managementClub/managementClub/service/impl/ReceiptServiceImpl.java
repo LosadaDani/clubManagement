@@ -30,6 +30,7 @@ import java.util.Locale;
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
 
+
     private final PersonRepository personRepository;
     private final ReceiptLineService receiptLineService;
     private final ReceiptLineRepository receiptLineRepository;
@@ -40,6 +41,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     private static final BigDecimal MONTHLY_QUOTA_MEMBER = new BigDecimal("15.00");
     private static final BigDecimal ANNUAL_QUOTA_MEMBER = new BigDecimal("15.00");
     private static final BigDecimal MONTHLY_QUOTA_PERMANENT_TRAINING = new BigDecimal ("15.00");
+    private static final BigDecimal RETURN_PENALTY = new BigDecimal("2.48");
 
     private record QuotaCalculation(BigDecimal amount, String concept) {}
 
@@ -174,6 +176,64 @@ public class ReceiptServiceImpl implements ReceiptService {
         List<ReceiptLineResponseDTO> receiptLinesDto = lines.stream().map(receiptLineMapper::toResponseDto).toList();
 
         return receiptMapper.toDetailResponseDto(receipt, receiptLinesDto);
+    }
+
+    @Override
+    @Transactional
+    public ReceiptDetailResponseDTO markAsPaid(Long receiptId) {
+
+        Receipt receipt = receiptRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+
+        if (receipt.getStatus() != ReceiptStatus.ISSUED) {
+            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como pagado si no está en estado enviados");
+        }
+
+        receipt.setStatus(ReceiptStatus.PAID);
+        Receipt savedReceipt = receiptRepository.save(receipt);
+
+        List<ReceiptLine> lines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
+
+        List<ReceiptLine> savedLines = new ArrayList<>();
+        lines.forEach(line -> {
+            line.setStatus(ReceiptLineStatus.PAID);
+            ReceiptLine savedLine = receiptLineRepository.save(line);
+            savedLines.add(savedLine);
+        });
+
+        return receiptMapper.toDetailResponseDto(savedReceipt, savedLines.stream().map(receiptLineMapper::toResponseDto).toList());
+    }
+
+    @Override
+    @Transactional
+    public ReceiptDetailResponseDTO markAsReturned(Long receiptId) {
+
+        Receipt receipt = receiptRepository.findById(receiptId)
+                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+
+        if (receipt.getStatus() != ReceiptStatus.ISSUED) {
+            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como devuelto si no está en estado enviados");
+        }
+
+        if (receipt.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como devuelto si no tiene un importe mayor a 0");
+        }
+
+        receipt.setStatus(ReceiptStatus.RETURNED);
+        Receipt savedReceipt = receiptRepository.save(receipt);
+
+        ReceiptLine lineReturn = new ReceiptLine();
+        lineReturn.setDate(LocalDate.now());
+        lineReturn.setConcept("Devolución recibo " + receiptId);
+        lineReturn.setStatus(ReceiptLineStatus.PENDING);
+        BigDecimal amountPenalty = savedReceipt.getTotal().add(RETURN_PENALTY);
+        lineReturn.setAmount(amountPenalty);
+        lineReturn.setPerson(savedReceipt.getPerson());
+        ReceiptLine savedLineReturn = receiptLineRepository.save(lineReturn);
+
+        List<ReceiptLine> originalLines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
+        List<ReceiptLineResponseDTO> originalLineDtos = originalLines.stream().map(receiptLineMapper::toResponseDto).toList();
+        return receiptMapper.toDetailResponseDto(savedReceipt, originalLineDtos);
     }
 
     private QuotaCalculation calculateQuota(Person person) {

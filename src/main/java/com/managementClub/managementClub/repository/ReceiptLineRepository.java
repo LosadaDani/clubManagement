@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ReceiptLineRepository extends JpaRepository<ReceiptLine, Long> {
@@ -15,8 +14,6 @@ public interface ReceiptLineRepository extends JpaRepository<ReceiptLine, Long> 
     List<ReceiptLine> findByPersonOrderByDateDesc(Person person);
 
     List<ReceiptLine> findByPersonAndStatusOrderByDateDesc(Person person, ReceiptLineStatus status);
-
-    Optional<ReceiptLine> findById(Long id);
 
     List<ReceiptLine> findByReceiptIdOrderByDateDescIdDesc(Long receiptId);
 }

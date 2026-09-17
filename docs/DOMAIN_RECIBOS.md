@@ -183,6 +183,14 @@ Las líneas originales del recibo devuelto no se incluirán nuevamente de forma 
 
 Si el importe pendiente derivado de un recibo devuelto es abonado por otra vía, la línea correspondiente podrá marcarse como `PAID`.
 
+La penalización por devolución (actualmente 2,48€, fija) se aplica siempre
+que se devuelve un recibo con importe > 0, sin excepciones contempladas.
+
+> Nota: un recibo con importe ≤ 0 no puede devolverse en el estado actual
+> del sistema — ver DOMAIN_RECIBOS.md backlog / docs/BACKLOG.md (prioridad
+> Alta: "Recibo con importe ≤ 0...").
+
+
 ### Histórico
 
 Las líneas de recibo y los recibos no se reutilizarán para representar nuevos cobros.

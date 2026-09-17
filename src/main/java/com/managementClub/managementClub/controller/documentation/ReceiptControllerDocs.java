@@ -104,4 +104,52 @@ public interface ReceiptControllerDocs {
             )
     })
     ResponseEntity<ReceiptDetailResponseDTO> getReceiptDetail(@PathVariable Long id);
+
+    @Operation(
+            summary = "Marca un recibo como pagado",
+            description = "Marca un recibo y sus lineas de recibo como pagado a partir de su ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                description = "Cambio a pagado realizado correctamente."),
+            @ApiResponse(responseCode = "400",
+                description = "El recibo no se puede marcar como pagado, ya que no se encuentra en estado ISSUED",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+            ),
+            @ApiResponse(responseCode = "404",
+                description = "La recibo indicado no existe.",
+                content = @Content(
+                        mediaType = "application/json",
+                        schema = @Schema(implementation = ErrorResponseDTO.class)
+                )
+            )
+    })
+    ResponseEntity<ReceiptDetailResponseDTO> markAsPaid(@PathVariable Long id);
+
+    @Operation(
+            summary = "Marca un recibo como devuelto",
+            description = "Marca un recibo como devuelto a partir de su ID."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Cambio a devuelto realizado correctamente"),
+            @ApiResponse(responseCode = "400",
+                    description = "El recibo no se puede marcar como devuelto, ya que no se encuentra en estado ISSUED o el importe es 0 o menor.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "La recibo indicado no existe.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<ReceiptDetailResponseDTO> markAsReturned(@PathVariable Long id);
 }

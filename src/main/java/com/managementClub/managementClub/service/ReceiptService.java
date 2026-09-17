@@ -17,4 +17,9 @@ public interface ReceiptService {
 
     ReceiptDetailResponseDTO getReceiptDetail(Long receiptId);
 
+    ReceiptDetailResponseDTO markAsPaid(Long receiptId);
+
+    ReceiptDetailResponseDTO markAsReturned(Long receiptId);
+
+
 }
