@@ -264,9 +264,9 @@ Cada Sprint finaliza con:
 * Actualización de Swagger.
 * Actualización de la documentación.
 
-Actualmente se encuentran completados los Sprints 1, 2 y 3.
+Actualmente se encuentran completados los Sprints 1, 2, 3 y 4.
 
-El Sprint 4 - Recibos se encuentra actualmente en desarrollo.
+El Sprint 5 - Seguridad se encuentra actualmente en desarrollo.
 
 ---
 
