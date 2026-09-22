@@ -24,7 +24,7 @@ public interface PersonControllerDocs {
 
     @Operation(
             summary = "Crear una persona",
-            description = "Registra una nueva persona en el sistema. Si no se indica la fecha de alta, se asignará la fecha actual y el estado inicial será ACTIVE."
+            description = "Registra una nueva persona en el sistema. Si no se indica la fecha de alta, se asignará la fecha actual y el estado inicial será ACTIVE. Si la persona es tipo INITIATION_TRAINING, se crearán las dos líneas de recibo pertinentes."
             )
     @ApiResponses({
             @ApiResponse(responseCode = "201",

@@ -13,6 +13,8 @@ import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.service.ReceiptLineService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,6 +23,9 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     private final ReceiptLineRepository receiptLineRepository;
     private final PersonRepository personRepository;
     private final ReceiptLineMapper receiptLineMapper;
+
+    private final static BigDecimal FIRST_INITIATION_PRICE = new BigDecimal("150");
+    private final static BigDecimal SECOND_INITIATION_PRICE = new BigDecimal("100");
 
     public ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, PersonRepository personRepository, ReceiptLineMapper receiptLineMapper) {
         this.receiptLineRepository = receiptLineRepository;
@@ -89,6 +94,25 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
         }
 
         receiptLineRepository.delete(receiptLine);
+    }
+
+    @Override
+    public void createInitiationLines(Person person) {
+        ReceiptLine receiptLineFirst = new ReceiptLine();
+        receiptLineFirst.setPerson(person);
+        receiptLineFirst.setAmount(FIRST_INITIATION_PRICE);
+        receiptLineFirst.setStatus(ReceiptLineStatus.PENDING);
+        receiptLineFirst.setConcept("1ª cuota Iniciación");
+        receiptLineFirst.setDate(LocalDate.now());
+        receiptLineRepository.save(receiptLineFirst);
+
+        ReceiptLine receiptLineSecond = new ReceiptLine();
+        receiptLineSecond.setPerson(person);
+        receiptLineSecond.setAmount(SECOND_INITIATION_PRICE);
+        receiptLineSecond.setStatus(ReceiptLineStatus.PENDING);
+        receiptLineSecond.setConcept("2ª cuota Iniciación");
+        receiptLineSecond.setDate(LocalDate.now().plusMonths(1));
+        receiptLineRepository.save(receiptLineSecond);
     }
 
 }

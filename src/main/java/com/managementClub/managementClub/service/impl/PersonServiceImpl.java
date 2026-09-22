@@ -8,9 +8,12 @@ import com.managementClub.managementClub.model.dto.PersonResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonStatusDTO;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
+import com.managementClub.managementClub.model.enums.MembershipType;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.service.PersonService;
+import com.managementClub.managementClub.service.ReceiptLineService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -20,13 +23,15 @@ public class PersonServiceImpl implements PersonService {
 
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
+    private final ReceiptLineService receiptLineService;
 
-    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper) {
-
-    this.personRepository = personRepository;
-    this.personMapper = personMapper;
+    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper, ReceiptLineService receiptLineService) {
+        this.personRepository = personRepository;
+        this.personMapper = personMapper;
+        this.receiptLineService = receiptLineService;
     }
 
+    @Transactional
     @Override
     public PersonResponseDTO createPerson(PersonRequestDTO dto) {
 
@@ -43,6 +48,10 @@ public class PersonServiceImpl implements PersonService {
         person.setMembershipStatus(MembershipStatus.ACTIVE);
 
         Person savedPerson = personRepository.save(person);
+
+        if (dto.getMembershipType() == MembershipType.INITIATION_TRAINING) {
+            receiptLineService.createInitiationLines(savedPerson);
+        }
 
         return personMapper.toResponseDto(savedPerson);
     }

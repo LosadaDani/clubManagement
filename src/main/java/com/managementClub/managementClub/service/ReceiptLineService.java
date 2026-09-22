@@ -2,6 +2,7 @@ package com.managementClub.managementClub.service;
 
 import com.managementClub.managementClub.model.dto.ReceiptLineRequestDTO;
 import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
+import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
 
 import java.util.List;
@@ -15,5 +16,7 @@ public interface ReceiptLineService {
     ReceiptLineResponseDTO updateReceiptLine(Long id, ReceiptLineRequestDTO receiptLineRequestDTO);
 
     void deleteReceiptLine(Long id);
+
+    void createInitiationLines(Person person);
 
 }
