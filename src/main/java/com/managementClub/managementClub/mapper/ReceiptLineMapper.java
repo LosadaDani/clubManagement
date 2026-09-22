@@ -48,4 +48,11 @@ public class ReceiptLineMapper {
                 receiptLine.getStatus(),
                 receiptSummary);
     }
+
+    public ReceiptLine updateEntityFromDTO (ReceiptLineRequestDTO dto, ReceiptLine receiptLine) {
+        receiptLine.setDate(dto.getDate());
+        receiptLine.setConcept(dto.getConcept());
+        receiptLine.setAmount(dto.getAmount());
+        return receiptLine;
+    }
 }

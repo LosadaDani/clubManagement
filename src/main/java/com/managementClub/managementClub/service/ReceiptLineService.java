@@ -12,4 +12,8 @@ public interface ReceiptLineService {
 
     List<ReceiptLineResponseDTO> findByPerson(Long personId, ReceiptLineStatus status);
 
+    ReceiptLineResponseDTO updateReceiptLine(Long id, ReceiptLineRequestDTO receiptLineRequestDTO);
+
+    void deleteReceiptLine(Long id);
+
 }

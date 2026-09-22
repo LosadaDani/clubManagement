@@ -69,4 +69,52 @@ public interface ReceiptLineControllerDocs {
             )
     })
     ResponseEntity<List<ReceiptLineResponseDTO>> findByPerson(@Parameter(description = "Id de la persona") Long id, @Parameter(description = "Estado de la línea de recibo") ReceiptLineStatus status);
+
+    @Operation(
+            summary = "Actualizar línea de recibo",
+            description = "Actualiza una línea de recibo existente en estado PENDING, personId es obligatorio por contrato pero no se usa en la actualización — la persona de una línea no puede reasignarse"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200",
+                description = "Linea de recibo actualizada exitosamente"),
+            @ApiResponse(responseCode = "400",
+                    description = "La línea de recibo no se encuentra en estado PENDING",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe la línea de recibo indicada",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<ReceiptLineResponseDTO> updateReceiptLine(@Parameter(description = "Id de la línea de recibo") Long id, @Valid ReceiptLineRequestDTO requestDTO);
+
+    @Operation(
+            summary = "Borrar línea de recibo",
+            description = "Borrar una línea de recibo existente en estado PENDING"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204",
+                    description = "Linea de recibo borrada exitosamente"),
+            @ApiResponse(responseCode = "400",
+                    description = "La línea de recibo no se encuentra en estado PENDING",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404",
+                    description = "No existe la línea de recibo indicada",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class)
+                    )
+            )
+    })
+    ResponseEntity<Void> deleteReceiptLine(@Parameter(description = "Id de la línea de recibo") Long id);
 }

@@ -35,4 +35,18 @@ public class ReceiptLineController implements ReceiptLineControllerDocs {
         List<ReceiptLineResponseDTO> response = receiptLineService.findByPerson(id, status);
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}")
+    @Override
+    public ResponseEntity<ReceiptLineResponseDTO> updateReceiptLine(@PathVariable Long id, @Valid @RequestBody ReceiptLineRequestDTO requestDTO) {
+        ReceiptLineResponseDTO response = receiptLineService.updateReceiptLine(id, requestDTO);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    @Override
+    public ResponseEntity<Void> deleteReceiptLine(@PathVariable Long id) {
+        receiptLineService.deleteReceiptLine(id);
+        return ResponseEntity.noContent().build();
+    }
 }

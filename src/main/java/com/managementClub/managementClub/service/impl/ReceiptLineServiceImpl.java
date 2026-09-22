@@ -1,5 +1,6 @@
 package com.managementClub.managementClub.service.impl;
 
+import com.managementClub.managementClub.exception.InvalidBusinessRuleException;
 import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.model.dto.ReceiptLineRequestDTO;
@@ -58,6 +59,36 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
                     .map( receiptLineMapper::toResponseDto)
                     .toList();
         }
+    }
+
+    @Override
+    public ReceiptLineResponseDTO updateReceiptLine(Long id, ReceiptLineRequestDTO receiptLineRequestDTO) {
+
+        ReceiptLine receiptLine = receiptLineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + id + " no existe"));
+
+        if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
+            throw new InvalidBusinessRuleException("La linea de recibo indicada con el id " + id + " no se encuentra en estado PENDIENTE");
+        }
+
+        receiptLine = receiptLineMapper.updateEntityFromDTO(receiptLineRequestDTO, receiptLine);
+
+        ReceiptLine updatedReceiptLine = receiptLineRepository.save(receiptLine);
+        return receiptLineMapper.toResponseDto(updatedReceiptLine);
+
+    }
+
+    @Override
+    public void deleteReceiptLine(Long id) {
+
+        ReceiptLine receiptLine = receiptLineRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + id + " no existe"));
+
+        if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
+            throw new InvalidBusinessRuleException("La linea de recibo indicada con el id " + id + " no se encuentra en estado PENDIENTE");
+        }
+
+        receiptLineRepository.delete(receiptLine);
     }
 
 }
