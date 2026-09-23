@@ -6,6 +6,7 @@ Las reglas de dominio se han separado por área. Ver:
 - `docs/DOMAIN_PERROS.md` — Dog.
 - `docs/DOMAIN_ORGANIZACIONES.md` — Organization y CompetitionLicense.
 - `docs/DOMAIN_RECIBOS.md` — Receipt, ReceiptLine, cuotas, recibos.
+- `docs/DOMAIN_SEGURIDAD.md` — Usuarios y Seguridad.
 
 ---
 

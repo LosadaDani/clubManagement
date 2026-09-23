@@ -2,8 +2,8 @@
 
 Este documento recoge las principales decisiones de arquitectura adoptadas durante el desarrollo del proyecto.
 
-| ADR | Decisión                                        |
-|------|-------------------------------------------------|
+| ADR     | Decisión                                        |
+|---------|-------------------------------------------------|
 | ADR-001 | DTO separados                                   |
 | ADR-002 | Mapper manual                                   |
 | ADR-003 | Sin Lombok                                      |
@@ -17,6 +17,10 @@ Este documento recoge las principales decisiones de arquitectura adoptadas duran
 | ADR-011 | Relaciones JPA mediante objetos                 |
 | ADR-012 | Clasificación de DTO (Request/Response/Summary) |
 | ADR-013 | Operaciones transaccionales                     |
+| ADR-014 | Cuotas hardcodeadas mediante lógica condicional, sin entidad de configuración                 |
+| ADR-015 | Fetch type explícito LAZY en relaciones @ManyToOne                 |
+| ADR-016 | Autenticación stateless con JWT                 |
+
 
 ---
 
@@ -278,3 +282,38 @@ por defecto en JPA ya es `LAZY`.
 
 ---
 
+## ADR-016 — Autenticación stateless con JWT
+
+### Estado
+
+Decisión tomada. Pendiente de implementación (Sprint 5 en curso).
+
+### Contexto
+
+El proyecto incorporará seguridad mediante Spring Security. Existían dos mecanismos candidatos: autenticación stateless con JWT, o autenticación stateful con sesión (cookie de sesión gestionada por el servidor).
+
+El frontend del proyecto (Sprint 6) se implementará con Spring, sin cerrar aún si será el mismo proceso que el backend o una aplicación independiente que consuma esta API por HTTP. En cualquier caso, el JWT se genera y se valida íntegramente en el backend, por lo que esta decisión no depende de cómo se resuelva el frontend.
+
+Motivación adicional para esta decisión: JWT es el mecanismo de autenticación más habitual en APIs REST en el entorno profesional, y forma parte de los objetivos de aprendizaje del proyecto (ver PROJECT_OVERVIEW.md).
+
+### Decisión
+
+Se utilizará autenticación stateless mediante JWT: el backend valida credenciales en el login, genera un token firmado, y lo valida en cada petición posterior mediante un filtro propio. No se usa HttpSession para mantener el estado de autenticación.
+
+### Motivo
+
+Es el patrón estándar en APIs REST y el más extendido en el entorno profesional, alineado con el objetivo de aprendizaje del proyecto.
+No depende de cómo se resuelva el frontend en Sprint 6 (proceso único o aplicación separada); el backend expone la misma API sea cual sea el cliente.
+Al no depender de cookies de sesión, no requiere gestionar protección CSRF (esta solo aplica a mecanismos basados en cookies).
+
+### Consecuencias
+
+El backend debe implementar: generación del token en el login, verificación de firma y expiración en cada petición (filtro propio), y extracción del usuario/rol autenticado a partir del token.
+El logout no lo gestiona Spring Security de forma automática (a diferencia de la sesión) — con JWT, "cerrar sesión" es responsabilidad del cliente (descartar el token) salvo que se implemente una lista de revocación, que queda fuera del alcance de este sprint.
+La clave de firma del token y su tiempo de expiración son configuración sensible del proyecto (a externalizar, no hardcodear en el código fuente final).
+
+### Alternativa descartada
+
+Sesión con cookie (formLogin + HttpSession). Habría sido la opción más simple si el frontend compartiera proceso con el backend, pero se descarta a favor de JWT por la motivación de aprendizaje explicada arriba y porque no ata la decisión a cómo se resuelva el frontend en Sprint 6.
+
+---
