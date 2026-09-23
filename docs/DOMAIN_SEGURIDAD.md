@@ -11,9 +11,25 @@
 
 ## Roles
 
-*(Pendiente — de momento solo existe el rol `ADMIN`. El resto de roles reales del
-club, y su relación con `MembershipType` de `Person`, están en backlog. Se añadirán
-aquí como reglas declarativas cuando se decidan — ver `BACKLOG.md`.)*
+Decisión tomada. Pendiente de implementación (Issue 2 del Sprint 5).
+
+Existirán tres roles:
+
+ADMIN: socios completos que pertenecen a la junta del club. Acceso completo a todas las funcionalidades del sistema.
+
+USER: socios permanentes, abonados, y personas en formación de iniciación o formación permanente. Pueden ver y modificar sus propios datos personales, los de sus perros y sus licencias de competición. Pueden visualizar (sin modificar) sus propios recibos y líneas de recibo.
+
+ENTRENADOR: socios permanentes que ejercen de formadores. Mismos permisos que USER, más la capacidad de dar de alta personas de formación iniciación y formación permanente.
+
+### Asignación de roles
+
+- Toda alta de usuario se crea siempre con rol USER por defecto, independientemente de lo que se envíe en la petición de alta.
+- El cambio a otro rol (ADMIN o ENTRENADOR) es una operación distinta, restringida a usuarios con rol ADMIN.
+- El rol ADMIN solo podrá asignarse a personas cuyo MembershipType sea FULL_PARTNER
+
+*(Pendiente definir (backlog) — qué ocurre con el rol `ADMIN` de una persona si su `MembershipType` deja de ser `FULL_PARTNER` (por ejemplo, si deja la junta o cambia de tipo de membresía) — no
+se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva 
+automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
 
 ## Autenticación
 
