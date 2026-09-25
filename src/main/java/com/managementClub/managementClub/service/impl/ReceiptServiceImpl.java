@@ -60,16 +60,13 @@ public class ReceiptServiceImpl implements ReceiptService {
         List<Person> listPerson = personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED);
 
         listPerson.forEach(person -> {
-            Boolean includePerson = false;
             List<ReceiptLineResponseDTO> listPendingLine = receiptLineService.findByPerson(person.getId(), ReceiptLineStatus.PENDING);
 
             QuotaCalculation quotaCalculation = calculateQuota(person);
 
-            if (person.getMembershipType() == MembershipType.INITIATION_TRAINING) {
-                includePerson = !listPendingLine.isEmpty();
-            } else {
-                includePerson = quotaCalculation != null || !listPendingLine.isEmpty();
-            }
+            boolean includePerson = person.getMembershipType() == MembershipType.INITIATION_TRAINING
+                    ? listPendingLine.isEmpty()
+                    : quotaCalculation != null || !listPendingLine.isEmpty();
 
             if (includePerson){
                 response.add(receiptMapper.toProposalDTO(
@@ -229,7 +226,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         BigDecimal amountPenalty = savedReceipt.getTotal().add(RETURN_PENALTY);
         lineReturn.setAmount(amountPenalty);
         lineReturn.setPerson(savedReceipt.getPerson());
-        ReceiptLine savedLineReturn = receiptLineRepository.save(lineReturn);
+        receiptLineRepository.save(lineReturn);
 
         List<ReceiptLine> originalLines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
         List<ReceiptLineResponseDTO> originalLineDtos = originalLines.stream().map(receiptLineMapper::toResponseDto).toList();
@@ -241,13 +238,13 @@ public class ReceiptServiceImpl implements ReceiptService {
         return switch (person.getMembershipType()) {
             case PERMANENT_TRAINING -> new QuotaCalculation(
                     MONTHLY_QUOTA_PERMANENT_TRAINING,
-                    "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES")));
+                    "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
 
             case FULL_PARTNER, SUBSCRIBED_MEMBER -> {
                 if (person.getMembershipStatus() == MembershipStatus.ACTIVE) {
                     yield new QuotaCalculation(
                             MONTHLY_QUOTA_MEMBER,
-                            "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, new Locale("es", "ES")));
+                            "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
                 } else if (person.getMembershipStatus() == MembershipStatus.INACTIVE && LocalDate.now().getMonthValue() == 1) {
                     yield new QuotaCalculation(
                             ANNUAL_QUOTA_MEMBER,
