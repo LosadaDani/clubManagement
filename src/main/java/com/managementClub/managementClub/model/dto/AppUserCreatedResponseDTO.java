@@ -27,7 +27,7 @@ public class AppUserCreatedResponseDTO {
     private Role role;
 
     @Schema(
-            description = "Persona asociada al usuario.",
+            description = "Persona asociada al usuario."
     )
     private PersonSummaryDTO person;
 
