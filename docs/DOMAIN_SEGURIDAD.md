@@ -31,6 +31,16 @@ ENTRENADOR: socios permanentes que ejercen de formadores. Mismos permisos que US
 se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva 
 automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
 
+### Alta de usuario (credenciales)
+
+Decisión tomada. Pendiente de implementación (Issue #82 del Sprint 5).
+
+Toda persona debe existir previamente en el sistema antes de poder tener un `AppUser` — la relación es obligatoria en el sentido `AppUser → Person`, nunca al revés. No existe el caso de un usuario sin persona asociada.
+
+La contraseña no se recibe en la petición de alta: la genera el sistema de forma aleatoria en el momento de crear el `AppUser`, y se devuelve una única vez, en texto plano, en la respuesta de esa misma operación — para que quien da de alta al usuario (un `ADMIN`) pueda proporcionársela a la persona.
+
+*(Pendiente definir (backlog): que la propia persona pueda cambiar su contraseña una vez tiene acceso, y forzar el cambio de contraseña en el primer login. Sin esto implementado, la contraseña generada por el sistema es la única que existe para ese usuario hasta que un ADMIN la regenere.)*
+
 ## Autenticación
 
 *(Pendiente — se rellenará al implementar la Issue 6, "Proteger endpoints": qué
