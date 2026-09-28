@@ -14,9 +14,11 @@ public class AppUser {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Column(nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)

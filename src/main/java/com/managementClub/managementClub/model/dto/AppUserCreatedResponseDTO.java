@@ -32,8 +32,8 @@ public class AppUserCreatedResponseDTO {
     private PersonSummaryDTO person;
 
     @Schema(
-            description = "Contraseña del usuario.",
-            example = "password123"
+            description = "Contraseña generada por el sistema. Se devuelve en texto plano únicamente en esta respuesta y no puede recuperarse después.",
+            example = "6b06640d-34f"
     )
     private String password;
 

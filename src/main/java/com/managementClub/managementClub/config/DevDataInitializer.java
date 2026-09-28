@@ -1,25 +1,12 @@
 package com.managementClub.managementClub.config;
 
-import com.managementClub.managementClub.model.entity.CompetitionLicense;
-import com.managementClub.managementClub.model.entity.Dog;
-import com.managementClub.managementClub.model.entity.Organization;
-import com.managementClub.managementClub.model.entity.Person;
-import com.managementClub.managementClub.model.entity.Receipt;
-import com.managementClub.managementClub.model.entity.ReceiptLine;
-import com.managementClub.managementClub.model.enums.DogSex;
-import com.managementClub.managementClub.model.enums.MembershipStatus;
-import com.managementClub.managementClub.model.enums.MembershipType;
-import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
-import com.managementClub.managementClub.model.enums.ReceiptStatus;
-import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
-import com.managementClub.managementClub.repository.DogRepository;
-import com.managementClub.managementClub.repository.OrganizationRepository;
-import com.managementClub.managementClub.repository.PersonRepository;
-import com.managementClub.managementClub.repository.ReceiptLineRepository;
-import com.managementClub.managementClub.repository.ReceiptRepository;
+import com.managementClub.managementClub.model.entity.*;
+import com.managementClub.managementClub.model.enums.*;
+import com.managementClub.managementClub.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -36,19 +23,25 @@ public class DevDataInitializer implements CommandLineRunner {
     private final CompetitionLicenseRepository competitionLicenseRepository;
     private final ReceiptLineRepository receiptLineRepository;
     private final ReceiptRepository receiptRepository;
+    private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DevDataInitializer(PersonRepository personRepository,
                               DogRepository dogRepository,
                               OrganizationRepository organizationRepository,
                               CompetitionLicenseRepository competitionLicenseRepository,
                               ReceiptLineRepository receiptLineRepository,
-                              ReceiptRepository receiptRepository) {
+                              ReceiptRepository receiptRepository,
+                              AppUserRepository appUserRepository,
+                              PasswordEncoder passwordEncoder) {
         this.personRepository = personRepository;
         this.dogRepository = dogRepository;
         this.organizationRepository = organizationRepository;
         this.competitionLicenseRepository = competitionLicenseRepository;
         this.receiptLineRepository = receiptLineRepository;
         this.receiptRepository = receiptRepository;
+        this.appUserRepository = appUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -57,6 +50,7 @@ public class DevDataInitializer implements CommandLineRunner {
             log.info("Initializing development data...");
             initializeOrganizations();
             initializePersons();
+            initializeUsers();
             initializeDogs();
             initializeCompetitionLicenses();
             initializeReceiptLines();
@@ -142,6 +136,25 @@ public class DevDataInitializer implements CommandLineRunner {
         personRepository.save(laura);
 
         log.info("Persons initialized: Dani Losada, Cristina Martínez, Carlos López, Laura Sánchez");
+    }
+
+    private void initializeUsers() {
+        if (appUserRepository.count() > 0) {
+            return;
+        }
+
+        Person dani = personRepository.findByEmail("dani.losada@example.com").orElseThrow();
+
+        AppUser admin = new AppUser(
+                "admin",
+                passwordEncoder.encode("admin123"),
+                Role.ROLE_ADMIN,
+                dani
+        );
+
+        appUserRepository.save(admin);
+
+        log.info("Users initialized: admin (Dani Losada)");
     }
 
     private void initializeDogs() {

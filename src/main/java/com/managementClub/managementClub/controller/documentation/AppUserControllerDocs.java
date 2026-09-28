@@ -20,14 +20,14 @@ import org.springframework.http.ResponseEntity;
 public interface AppUserControllerDocs {
 
     @Operation(
-            summary = "Generar un nuevo usuario",
-            description = "Genera un nuevo usuario en el sistema apartir de una Persona existente."
+            summary = "Registrar un nuevo usuario",
+            description = "Registra un nuevo usuario en el sistema a partir de una Persona existente."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201",
                     description = "Usuario generado exitosamente"),
             @ApiResponse(responseCode = "400",
-                    description = "La persona indicada ya tiene un usuario",
+                    description = "Los datos enviados no son válidos",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDTO.class))),
@@ -35,7 +35,12 @@ public interface AppUserControllerDocs {
                     description = "Persona no encontrada",
                     content = @Content(
                             mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "Ya existe un usuario con el UserName indicado, o la persona indicada ya tiene un usuario asignado",
+                    content = @Content(
+                            mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
-    ResponseEntity<AppUserCreatedResponseDTO> generateUser(@Valid AppUserRequestDTO requestDTO);
+    ResponseEntity<AppUserCreatedResponseDTO> registerUser(@Valid AppUserRequestDTO requestDTO);
 }

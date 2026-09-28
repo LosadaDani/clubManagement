@@ -24,7 +24,7 @@ public class AppUserController implements AppUserControllerDocs {
 
     @PostMapping
     @Override
-    public ResponseEntity<AppUserCreatedResponseDTO> generateUser(@Valid @RequestBody AppUserRequestDTO requestDTO) {
+    public ResponseEntity<AppUserCreatedResponseDTO> registerUser(@Valid @RequestBody AppUserRequestDTO requestDTO) {
         AppUserCreatedResponseDTO response = appUserService.registerUser(requestDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

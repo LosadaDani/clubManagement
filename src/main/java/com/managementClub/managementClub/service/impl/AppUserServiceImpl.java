@@ -1,11 +1,6 @@
 package com.managementClub.managementClub.service.impl;
 
-import java.util.UUID;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import com.managementClub.managementClub.exception.InvalidBusinessRuleException;
+import com.managementClub.managementClub.exception.ResourceAlreadyExistsException;
 import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.AppUserMapper;
 import com.managementClub.managementClub.model.dto.AppUserCreatedResponseDTO;
@@ -16,6 +11,10 @@ import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.AppUserRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.service.AppUserService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class AppUserServiceImpl implements AppUserService{
@@ -39,7 +38,11 @@ public class AppUserServiceImpl implements AppUserService{
             .orElseThrow(() -> new ResourceNotFoundException("La persona indicada no existe"));
         
         if (appUserRepository.existsByPerson(person)){
-            throw new InvalidBusinessRuleException("La persona indicada ya tiene un usuario asignado");
+            throw new ResourceAlreadyExistsException("La persona indicada ya tiene un usuario asignado");
+        }
+
+        if (appUserRepository.existsByUsername(appUserDto.getUsername())) {
+            throw new ResourceAlreadyExistsException("Ya existe un usuario con el UserName indicado");
         }
 
         String plainPassword = UUID.randomUUID().toString().substring(0, 12);

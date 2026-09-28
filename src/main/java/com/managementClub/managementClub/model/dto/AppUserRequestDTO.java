@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(
-        description = "Datos necesarios para registrar n usuario."
+        description = "Datos necesarios para registrar un usuario."
 )
 public class AppUserRequestDTO {
 
@@ -19,6 +19,10 @@ public class AppUserRequestDTO {
     @Size(max = 50, message = "El nombre de usuario debe tener un máximo de 50 caracteres")
     private String username;
 
+    @Schema(
+            description = "Id de la persona a la que se le va a dar de alta el usuario.",
+            example = "1"
+    )
     @NotNull(message = "El id de la persona es obligatorio")
     private Long personId;
 
