@@ -2,6 +2,7 @@ package com.managementClub.managementClub.mapper;
 
 import com.managementClub.managementClub.model.dto.AppUserCreatedResponseDTO;
 import com.managementClub.managementClub.model.dto.AppUserRequestDTO;
+import com.managementClub.managementClub.model.dto.LoginResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonSummaryDTO;
 import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Person;
@@ -24,11 +25,7 @@ public class AppUserMapper {
 
     public AppUserCreatedResponseDTO toCreatedResponseDto(AppUser appUser, String plainPassword) {
 
-        PersonSummaryDTO person = new PersonSummaryDTO(
-                appUser.getPerson().getId(),
-                appUser.getPerson().getName(),
-                appUser.getPerson().getLastName()
-        );
+        PersonSummaryDTO person = toPersonSummaryDto(appUser.getPerson());
 
         return new AppUserCreatedResponseDTO(
                 appUser.getId(),
@@ -36,5 +33,22 @@ public class AppUserMapper {
                 appUser.getRole(),
                 person,
                 plainPassword);
+    }
+
+    public LoginResponseDTO toLoginResponseDto(AppUser appUser) {
+
+        PersonSummaryDTO person = toPersonSummaryDto(appUser.getPerson());
+
+        return new LoginResponseDTO(appUser.getUsername(),
+                appUser.getRole(),
+                person);
+    }
+
+    private PersonSummaryDTO toPersonSummaryDto (Person person) {
+        return new PersonSummaryDTO(
+                person.getId(),
+                person.getName(),
+                person.getLastName()
+        );
     }
 }
