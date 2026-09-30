@@ -1,6 +1,8 @@
 package com.managementClub.managementClub.security;
 
 import com.managementClub.managementClub.model.entity.AppUser;
+import com.managementClub.managementClub.model.enums.Role;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -31,5 +33,21 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key)
                 .compact();
+    }
+
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public Role extractRole(String token) {
+        return Role.valueOf(extractClaims(token).get("role", String.class));
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
