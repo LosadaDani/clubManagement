@@ -35,13 +35,14 @@ public class AppUserMapper {
                 plainPassword);
     }
 
-    public LoginResponseDTO toLoginResponseDto(AppUser appUser) {
+    public LoginResponseDTO toLoginResponseDto(AppUser appUser, String token) {
 
         PersonSummaryDTO person = toPersonSummaryDto(appUser.getPerson());
 
         return new LoginResponseDTO(appUser.getUsername(),
                 appUser.getRole(),
-                person);
+                person,
+                token);
     }
 
     private PersonSummaryDTO toPersonSummaryDto (Person person) {

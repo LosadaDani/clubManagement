@@ -15,13 +15,17 @@ public class LoginResponseDTO {
     @Schema(description = "Información del usuario.")
     private PersonSummaryDTO person;
 
+    @Schema(description = "Token de autenticación.")
+    private String token;
+
     public LoginResponseDTO() {
     }
 
-    public LoginResponseDTO(String username, Role role, PersonSummaryDTO person) {
+    public LoginResponseDTO(String username, Role role, PersonSummaryDTO person, String token) {
         this.username = username;
         this.role = role;
         this.person = person;
+        this.token = token;
     }
 
     public String getUsername() {
@@ -46,5 +50,13 @@ public class LoginResponseDTO {
 
     public void setPerson(PersonSummaryDTO person) {
         this.person = person;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }
