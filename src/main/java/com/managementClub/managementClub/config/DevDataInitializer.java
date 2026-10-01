@@ -144,6 +144,8 @@ public class DevDataInitializer implements CommandLineRunner {
         }
 
         Person dani = personRepository.findByEmail("dani.losada@example.com").orElseThrow();
+        Person cristina = personRepository.findByEmail("cristina.martinez@example.com").orElseThrow();
+        Person carlos = personRepository.findByEmail("carlos.lopez@example.com").orElseThrow();
 
         AppUser admin = new AppUser(
                 "admin",
@@ -152,9 +154,25 @@ public class DevDataInitializer implements CommandLineRunner {
                 dani
         );
 
-        appUserRepository.save(admin);
+        AppUser user = new AppUser(
+                "user",
+                passwordEncoder.encode("user123"),
+                Role.ROLE_USER,
+                cristina
+        );
 
-        log.info("Users initialized: admin (Dani Losada)");
+        AppUser trainer = new AppUser(
+                "trainer",
+                passwordEncoder.encode("trainer123"),
+                Role.ROLE_TRAINER,
+                carlos
+        );
+
+        appUserRepository.save(admin);
+        appUserRepository.save(user);
+        appUserRepository.save(trainer);
+
+        log.info("Users initialized: admin (Dani Losada), user (Cristina Martínez), trainer (Carlos López)");
     }
 
     private void initializeDogs() {
