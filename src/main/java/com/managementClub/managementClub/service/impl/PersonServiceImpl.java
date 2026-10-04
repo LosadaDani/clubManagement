@@ -41,16 +41,16 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO createPerson(PersonRequestDTO dto) {
 
-        if(personRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
-        }
-
         AppUser currentUser = currentUserProvider.getCurrentAppUser();
 
         if (currentUser.getRole() == Role.ROLE_TRAINER
                 && dto.getMembershipType() != MembershipType.INITIATION_TRAINING
                 && dto.getMembershipType() != MembershipType.PERMANENT_TRAINING) {
             throw new AccessDeniedException("Un entrenador solo puede dar de alta personas en formación.");
+        }
+
+        if(personRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
         }
 
         Person person = personMapper.toEntity(dto);
