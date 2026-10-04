@@ -65,7 +65,7 @@ Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/
 
 Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <token>` (regla por defecto `anyRequest().authenticated()` en `SecurityConfig`). Sin token, o con uno inválido/caducado, la petición no queda autenticada.
 
-Una petición sin autenticar a una ruta protegida responde 401` con el formato ErrorResponseDTO` habitual de la API, mediante un CustomAuthenticationEntryPoint` propio (en el paquete security`) registrado en SecurityConfig` vía `.exceptionHandling(...), sustituyendo al Http403ForbiddenEntryPoint` por defecto de Spring Security.
+Una petición sin autenticar a una ruta protegida responde `401` con el formato `ErrorResponseDTO` habitual de la API, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security.
 ## Autorización por rol
 
 Implementado parcialmente — por entidad, a medida que se van completando las issues de la Sprint 5-6 ("Restringir operaciones según el rol").
