@@ -2,6 +2,7 @@ package com.managementClub.managementClub.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,8 +21,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-        // TODO: sustituir por reglas de autorización reales en la issue "Proteger endpoints"
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtAuthenticationFilter jwtAuthenticationFilter,
+                                                   CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                                                   CustomAccessDeniedHandler customAccessDeniedHandler) throws Exception {
+
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -31,7 +35,16 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/organizations").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/organizations/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/persons", "/api/persons/search").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/persons").hasAnyRole("ADMIN","TRAINER")
+                        .requestMatchers(HttpMethod.PATCH, "/api/persons/*/status").hasRole("ADMIN")
                         .anyRequest().authenticated()
+                )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .csrf(csrf -> csrf.disable())
                 .headers(headers -> headers

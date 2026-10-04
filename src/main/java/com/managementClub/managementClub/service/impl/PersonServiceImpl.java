@@ -6,12 +6,16 @@ import com.managementClub.managementClub.mapper.PersonMapper;
 import com.managementClub.managementClub.model.dto.PersonRequestDTO;
 import com.managementClub.managementClub.model.dto.PersonResponseDTO;
 import com.managementClub.managementClub.model.dto.PersonStatusDTO;
+import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.enums.MembershipStatus;
 import com.managementClub.managementClub.model.enums.MembershipType;
+import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.PersonRepository;
+import com.managementClub.managementClub.security.CurrentUserProvider;
 import com.managementClub.managementClub.service.PersonService;
 import com.managementClub.managementClub.service.ReceiptLineService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +28,13 @@ public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private final PersonMapper personMapper;
     private final ReceiptLineService receiptLineService;
+    private final CurrentUserProvider currentUserProvider;
 
-    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper, ReceiptLineService receiptLineService) {
+    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper, ReceiptLineService receiptLineService, CurrentUserProvider currentUserProvider) {
         this.personRepository = personRepository;
         this.personMapper = personMapper;
         this.receiptLineService = receiptLineService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
@@ -37,6 +43,14 @@ public class PersonServiceImpl implements PersonService {
 
         if(personRepository.findByEmail(dto.getEmail()).isPresent()) {
             throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
+        }
+
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        if (currentUser.getRole() == Role.ROLE_TRAINER
+                && dto.getMembershipType() != MembershipType.INITIATION_TRAINING
+                && dto.getMembershipType() != MembershipType.PERMANENT_TRAINING) {
+            throw new AccessDeniedException("Un entrenador solo puede dar de alta personas en formación.");
         }
 
         Person person = personMapper.toEntity(dto);
@@ -59,11 +73,17 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO getPersonById(Long id) {
 
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
+            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+        }
+
         Person person = personRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Persona con identificador " + id + " no encontrada"));
 
-            return  personMapper.toResponseDto(person);
+        return  personMapper.toResponseDto(person);
     }
 
     @Override
@@ -89,9 +109,20 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO updatePerson(Long id, PersonRequestDTO personRequest) {
 
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
+            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+        }
+
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN
+            && personRequest.getMembershipType() != existingPerson.getMembershipType()) {
+            throw new AccessDeniedException("No tienes permiso para modificar tu tipo de membresía.");
+        }
 
         if (!existingPerson.getEmail().equalsIgnoreCase(personRequest.getEmail())) {
             if(personRepository.findByEmail(personRequest.getEmail()).isPresent()) {
