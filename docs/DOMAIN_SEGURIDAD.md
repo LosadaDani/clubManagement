@@ -57,16 +57,48 @@ Validaciones de la operación de alta, en este orden: la persona indicada debe e
 
 ## Autenticación
 
-*(Pendiente — se rellenará al implementar la Issue "Proteger endpoints": qué
-rutas son públicas y cuáles requieren un usuario autenticado. Existe actualmente una
-configuración provisional y permisiva (`permitAll()`) en `SecurityConfig`, solo para
-poder probar el alta de usuarios; queda pendiente sustituirla por las reglas
-definitivas.)*
+Implementado (Issues #56-#59 del Sprint 5 — login, generación de JWT, validación de JWT, protección de endpoints).
 
+Login: `POST /api/auth/login`, público, recibe `username/password` y devuelve `username, role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
+
+Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`) y la consola H2 (`/h2-console/**`, solo entorno de desarrollo).
+
+Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <token>` (regla por defecto `anyRequest().authenticated()` en `SecurityConfig`). Sin token, o con uno inválido/caducado, la petición no queda autenticada.
+
+Una petición sin autenticar a una ruta protegida responde 401` con el formato ErrorResponseDTO` habitual de la API, mediante un CustomAuthenticationEntryPoint` propio (en el paquete security`) registrado en SecurityConfig` vía `.exceptionHandling(...), sustituyendo al Http403ForbiddenEntryPoint` por defecto de Spring Security.
 ## Autorización por rol
 
-*(Pendiente — se rellenará al implementar la Issue "Restringir operaciones según
-el rol", con el estilo: "el rol X puede/no puede hacer Y sobre Z".)*
+Implementado parcialmente — por entidad, a medida que se van completando las issues de la Sprint 5-6 ("Restringir operaciones según el rol").
+
+### Organizaciones
+
+Implementado (Issue #59).
+
+ADMIN: puede crear (`POST`) y modificar (`PATCH`) organizaciones.
+
+USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
+
+No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
+
+### Personas
+
+Implementado (Issue #84).
+
+- ADMIN: acceso completo — puede crear, ver, listar, buscar y modificar cualquier persona, y cambiar el estado de membresía (`PATCH /{id}/status`).
+- ENTRENADOR: puede crear (`POST`) personas únicamente con `MembershipType` de formación (`INITIATION_TRAINING` o `PERMANENT_TRAINING`); crear una persona con cualquier otro tipo de membresía está prohibido. Puede ver y modificar únicamente su propia persona (igual que USER). 
+- USER: no puede crear personas. Puede ver (`GET /{id}`) y modificar (`PUT /{id}`) únicamente su propia persona — comparando el `id` solicitado contra la persona asociada a su propio `AppUser`, no contra el rol en sí. 
+- USER y ENTRENADOR no pueden listar (`GET /api/persons`) ni buscar (`GET /api/persons/search`) personas — ambas operaciones quedan restringidas a ADMIN. 
+- Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo. 
+- Nadie, excepto ADMIN, puede cambiar el `MembershipStatus` de ninguna persona (`PATCH /{id}/status`), ni siquiera la propia. 
+- La comprobación de "propios datos" (ownership) se hace antes de comprobar si el recurso existe: si el `id` solicitado no es el propio (y el rol no es ADMIN), se responde `403 sin revelar si esa persona existe o no.
+  
+Un rechazo por rol (`hasRole`/`hasAnyRole` en `SecurityConfig`) y un rechazo por "propios datos" (`AccessDeniedException` lanzada desde el Service) responden ambos `403` con el mismo formato `ErrorResponseDTO`: el primero a través de un `CustomAccessDeniedHandler` propio registrado en `SecurityConfig`, el segundo a través de `GlobalExceptionHandler`.
+
+*(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
+
+### Perros, Licencias, Recibos y líneas de recibo
+
+*Pendiente (issues separadas, aún no implementadas). Las reglas de "propios datos" previstas en la sección "Roles" de más arriba (USER/ENTRENADOR solo sobre sus propios perros, licencias; solo lectura sobre sus propios recibos y líneas) se documentarán aquí cuando se implementen, con el mismo nivel de detalle que Personas.*
 
 ---
 
