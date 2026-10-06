@@ -18,7 +18,7 @@ public class DogMapper {
         dog.setSex(dogRequestDTO.getSex());
         dog.setBreed(dogRequestDTO.getBreed());
         dog.setMicrochip(dogRequestDTO.getMicrochip());
-        dog.setPedigreeNumber(dogRequestDTO.getPedigreeNumber());
+        dog.setPedigreeNumber(blankToNull(dogRequestDTO.getPedigreeNumber()));
 
         dog.setOwner(owner);
         
@@ -43,6 +43,10 @@ public class DogMapper {
         dog.setSex(dto.getSex());
         dog.setBreed(dto.getBreed());
         dog.setMicrochip(dto.getMicrochip());
-        dog.setPedigreeNumber(dto.getPedigreeNumber());
+        dog.setPedigreeNumber(blankToNull(dto.getPedigreeNumber()));
+    }
+
+    private String blankToNull(String value){
+        return (value == null || value.isBlank()) ? null : value;
     }
 }

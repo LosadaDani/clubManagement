@@ -191,7 +191,7 @@ public class DevDataInitializer implements CommandLineRunner {
                 birthDate,
                 DogSex.MALE,
                 "Caniche",
-                "ES123456789012",
+                "941000000000001",
                 "PED-001",
                 dani
         );
@@ -201,7 +201,7 @@ public class DevDataInitializer implements CommandLineRunner {
                 birthDate.plusYears(1),
                 DogSex.MALE,
                 "Border Collie",
-                "ES123456789013",
+                "941000000000002",
                 "PED-002",
                 dani
         );
@@ -211,7 +211,7 @@ public class DevDataInitializer implements CommandLineRunner {
                 birthDate.plusMonths(6),
                 DogSex.FEMALE,
                 "Caniche",
-                "ES123456789014",
+                "941000000000003",
                 "PED-003",
                 cristina
         );
@@ -221,7 +221,7 @@ public class DevDataInitializer implements CommandLineRunner {
                 birthDate.plusMonths(3),
                 DogSex.MALE,
                 "Border Collie",
-                "ES123456789015",
+                "941000000000004",
                 "PED-004",
                 carlos
         );
@@ -230,7 +230,7 @@ public class DevDataInitializer implements CommandLineRunner {
                 birthDate,
                 DogSex.FEMALE,
                 "Golden Retriever",
-                "ES999999999999",
+                "941000000000005",
                 "PED-999",
                 dani);
 
@@ -240,7 +240,7 @@ public class DevDataInitializer implements CommandLineRunner {
         dogRepository.save(max);
         dogRepository.save(luna);
 
-        log.info("Dogs initialized: Fuchur, Gmork (Dani Losada), Ramen (Cristina Martínez), Max (Carlos López)");
+        log.info("Dogs initialized: Fuchur (Dani Losada), Gmork (Dani Losada), Ramen (Cristina Martínez), Max (Carlos López), Luna (Dani Losada)");
     }
 
     private void initializeCompetitionLicenses() {

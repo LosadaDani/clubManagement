@@ -40,6 +40,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/persons", "/api/persons/search").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/persons").hasAnyRole("ADMIN","TRAINER")
                         .requestMatchers(HttpMethod.PATCH, "/api/persons/*/status").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/dogs/microchip/*", "/api/dogs/name/*", "/api/dogs").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
