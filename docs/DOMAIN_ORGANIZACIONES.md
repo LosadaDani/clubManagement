@@ -50,8 +50,59 @@ La modificación del propietario de un perro no forma parte de la gestión de li
 
 Las cesiones de perros se implementarán mediante una funcionalidad específica, conservando el histórico tanto de propietarios como de licencias asociadas a cada binomio.
 
+### Campos y validaciones
+
+- `organizationId`, `personId`, `dogId`: obligatorios. La organización, la persona y el perro deben existir (404 si no).
+- `licenseNumber`: obligatorio, no vacío, máximo 50 caracteres.
+- `startDate`, `endDate`: obligatorias.
+- La fecha de inicio no puede ser posterior a la de fin (pueden ser iguales).
+
+### Persona de la licencia
+
+La persona de la licencia debe ser el **propietario actual del perro**. Esta regla se aplica a todos los roles, incluido ADMIN.
+
+La única excepción prevista es la futura funcionalidad de cesión de perros: cuando un perro se ceda, existirá una licencia para el binomio formado por el perro y la persona a la que se cede. Las cesiones quedan fuera del alcance de la gestión actual de licencias (la cesión a una persona de otro club se decidirá cuando se implemente).
+
+### Solapamiento de vigencia
+
+Se considera que dos licencias de la misma organización, persona y perro se solapan cuando comparten al menos un día: `inicio1 <= fin2` y `inicio2 <= fin1` (límites **inclusivos**: el día de fin cuenta como vigente, igual que en la consulta de licencias vigentes). Por ejemplo, una licencia que termina el 31/12 y otra que empieza el 31/12 se solapan; la siguiente puede empezar el 1/1.
+
+La comprobación se aplica al crear y al corregir una licencia (en la corrección, excluyendo la propia licencia). Si existe solapamiento se responde `409`.
+
+### Duración por organización
+
+*(Regla de negocio documentada; su aplicación automática queda pendiente, ver `BACKLOG.md`. Por ahora el sistema solo valida que `startDate` no sea posterior a `endDate`.)*
+
+En la práctica las licencias son anuales para las organizaciones con las que trabaja el club:
+
+- FCAG: empieza siempre el 1 de septiembre y termina el 31 de agosto del año siguiente. *(Pendiente de confirmar.)*
+- RSCE: un año desde la fecha de inicio (termina el día anterior al primer aniversario).
+- Otras organizaciones (por ejemplo RFEC): sin regla definida por ahora.
+
+### Corrección de una licencia
+
+La corrección existe únicamente para subsanar errores al registrar la licencia, no para renovarla ni para alterarla. Una licencia nueva (renovación) siempre es un registro nuevo.
+
+- Solo ADMIN puede corregir licencias. Se asume que ADMIN aplica las reglas anteriores; el front deberá advertir de que la corrección solo debe usarse para errores.
+- Solo se pueden corregir el número de licencia y las fechas de inicio y fin. La organización, la persona y el perro de una licencia **no se pueden modificar**: si se registró con una persona, un perro o una organización erróneos, la licencia debe anularse (borrarse) y crearse otra. La anulación/borrado (solo ADMIN) no está implementada todavía (ver `BACKLOG.md`).
+- Se vuelven a validar el orden de las fechas y el solapamiento.
+
+### Visibilidad
+
+Solo pueden ver una licencia ADMIN y la persona de la licencia (rol USER o ENTRENADOR).
+
+### Endpoints actuales (`/api/competition-licenses`)
+
+- `POST /` — crear una licencia.
+- `GET /dog/{dogId}` — todas las licencias de un perro.
+- `GET /dog/{dogId}/current` — licencias vigentes hoy de un perro.
+- `PUT /{id}` — corregir una licencia (solo ADMIN; hoy implementado como `PATCH`, pendiente de cambiar en la Issue #86).
+
+Las reglas de quién puede invocar cada operación están en `DOMAIN_SEGURIDAD.md`.
+
 ---
 
 ## Referencias cruzadas
 
 - La persona y el perro que forman el binomio de cada licencia se rigen por las reglas descritas en `docs/DOMAIN_PERSONAS.md` y `docs/DOMAIN_PERROS.md` respectivamente.
+- Las reglas de autorización por rol de las licencias están en `DOMAIN_SEGURIDAD.md` (sección "Licencias — Issue #86").

@@ -14,7 +14,7 @@ Existirán tres roles:
 
 ADMIN: socios completos que pertenecen a la junta del club. Acceso completo a todas las funcionalidades del sistema.
 
-USER: socios permanentes, abonados, y personas en formación de iniciación o formación permanente. Pueden ver y modificar sus propios datos personales, los de sus perros (incluido darlos de alta) y sus licencias de competición. Pueden visualizar (sin modificar) sus propios recibos y líneas de recibo.
+USER: socios permanentes, abonados, y personas en formación de iniciación o formación permanente. Pueden ver y modificar sus propios datos personales y los de sus perros (incluido darlos de alta). Pueden ver sus licencias de competición y darlas de alta para sus propios perros, pero no modificarlas ni borrarlas (la corrección es exclusiva de ADMIN). Pueden visualizar (sin modificar) sus propios recibos y líneas de recibo.
 
 ENTRENADOR: socios permanentes que ejercen de formadores. Mismos permisos que USER, más la capacidad de dar de alta personas de formación iniciación y formación permanente.
 
@@ -111,9 +111,23 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre perros.
 
 *(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
 
-### Licencias, Recibos y líneas de recibo
+### Licencias — Issue #86
 
-*Pendiente (issues separadas, aún no implementadas). Las reglas de "propios datos" previstas en la sección "Roles" de más arriba (USER/ENTRENADOR solo sobre sus propios perros, licencias; solo lectura sobre sus propios recibos y líneas) se documentarán aquí cuando se implementen, con el mismo nivel de detalle que Personas.*
+Pendiente de implementar (reglas acordadas; el código de licencias existe pero aún sin autorización). Las reglas de negocio de las licencias están en `DOMAIN_ORGANIZACIONES.md`.
+
+USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
+
+- ADMIN: puede crear licencias para cualquier binomio coherente (la persona debe ser el propietario del perro, también para ADMIN), consultar las licencias de cualquier perro (`GET /dog/{dogId}` y `GET /dog/{dogId}/current`) y corregir cualquier licencia (`PUT /{id}`). El borrado/anulación (solo ADMIN) no está implementado todavía (backlog).
+- USER y ENTRENADOR: pueden crear licencias (`POST`) únicamente si la persona indicada es su propia persona y el perro indicado es suyo. Pueden consultar (`GET /dog/{dogId}` y `GET /dog/{dogId}/current`) únicamente las licencias de sus propios perros. **No pueden corregir ni borrar licencias**, ni siquiera las propias: la corrección queda restringida a ADMIN mediante `SecurityConfig` (`PUT /api/competition-licenses/**` con `hasRole("ADMIN")`), por lo que un USER o ENTRENADOR recibe `403` sea cual sea la licencia. El motivo es que la corrección podría usarse para renovar o alterar una licencia en lugar de registrar una nueva.
+- La propiedad se determina por la persona (`Person`) propietaria del perro, no por el `AppUser`.
+- Igual que en Personas y Perros, la comprobación de "propios datos" se hace antes de revelar si el recurso existe. Para USER y ENTRENADOR: si la persona o el perro indicados no son propios, se responde `403` tanto si existen como si no, y el `404` de persona o perro solo lo recibe ADMIN. Orden de comprobaciones de un alta de USER/ENTRENADOR: `@Valid` (400) → persona y perro propios (403) → organización existente (404) → reglas de negocio (fechas, solapamiento 409). La regla "el propietario del perro no coincide con la persona de la licencia" solo puede darse, por tanto, en peticiones de ADMIN.
+- La corrección (`PUT /{id}`) usa un DTO propio con solo `licenseNumber`, `startDate` y `endDate`: organización, persona y perro de una licencia no se pueden modificar (ver `DOMAIN_ORGANIZACIONES.md`). Solo la ejecuta ADMIN, por lo que no necesita comprobación de "propios datos" en el Service.
+- Verbo: la corrección pasa de `PATCH` a `PUT` (sustituye los campos corregibles completos, como en Personas y Perros); el matcher de `SecurityConfig` debe usar el mismo verbo.
+- La visibilidad de las licencias es solo para ADMIN y la persona de la licencia (la propietaria actual del perro). El comportamiento tras una cesión (qué ve el propietario anterior) se decidirá al implementar la cesión (ver backlog).
+
+### Recibos y líneas de recibo
+
+Pendiente (issues separadas, aún no implementadas). Las reglas de "propios datos" previstas en la sección "Roles" de más arriba (solo lectura sobre sus propios recibos y líneas) se documentarán aquí cuando se implementen, con el mismo nivel de detalle que Personas y Perros.
 
 ---
 
