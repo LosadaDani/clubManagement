@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/persons").hasAnyRole("ADMIN","TRAINER")
                         .requestMatchers(HttpMethod.PATCH, "/api/persons/*/status").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/dogs/microchip/*", "/api/dogs/name/*", "/api/dogs").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/competition-licenses/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions

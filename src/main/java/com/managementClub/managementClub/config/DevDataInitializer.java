@@ -301,24 +301,7 @@ public class DevDataInitializer implements CommandLineRunner {
         rfecMax.setStartDate(LocalDate.of(2026, 1, 1));
         rfecMax.setEndDate(LocalDate.of(2026, 12, 31));
 
-        // 1. Perro con múltiples licencias vigentes (Fuchur)
-        CompetitionLicense fcagFuchurCurrent = new CompetitionLicense();
-        fcagFuchurCurrent.setOrganization(fcag);
-        fcagFuchurCurrent.setPerson(dani);
-        fcagFuchurCurrent.setDog(fuchur);
-        fcagFuchurCurrent.setLicenseNumber("FCAG-2026-005");
-        fcagFuchurCurrent.setStartDate(LocalDate.of(2026, 1, 1)); // Vigente
-        fcagFuchurCurrent.setEndDate(LocalDate.of(2026, 12, 31));
-
-        CompetitionLicense rsceFuchurCurrent = new CompetitionLicense();
-        rsceFuchurCurrent.setOrganization(rsce);
-        rsceFuchurCurrent.setPerson(dani);
-        rsceFuchurCurrent.setDog(fuchur);
-        rsceFuchurCurrent.setLicenseNumber("RSCE-2026-005");
-        rsceFuchurCurrent.setStartDate(LocalDate.of(2026, 6, 1)); // Vigente
-        rsceFuchurCurrent.setEndDate(LocalDate.of(2027, 5, 31));
-
-// 2. Licencia que empieza hoy (borde)
+        // 2. Licencia que empieza hoy (borde)
         CompetitionLicense startsToday = new CompetitionLicense();
         startsToday.setOrganization(fcag);
         startsToday.setPerson(cristina);
@@ -327,7 +310,7 @@ public class DevDataInitializer implements CommandLineRunner {
         startsToday.setStartDate(LocalDate.now()); // Hoy
         startsToday.setEndDate(LocalDate.now().plusYears(1).minusDays(1));
 
-// 3. Licencia que termina hoy (borde)
+        // 3. Licencia que termina hoy (borde)
         CompetitionLicense endsToday = new CompetitionLicense();
         endsToday.setOrganization(rsce);
         endsToday.setPerson(carlos);
@@ -350,12 +333,10 @@ public class DevDataInitializer implements CommandLineRunner {
         competitionLicenseRepository.save(rsceRamen);
         competitionLicenseRepository.save(rfecMax);
         competitionLicenseRepository.save(previousFcagFuchur);
-        competitionLicenseRepository.save(fcagFuchurCurrent);
-        competitionLicenseRepository.save(rsceFuchurCurrent);
         competitionLicenseRepository.save(startsToday);
         competitionLicenseRepository.save(endsToday);
 
-        log.info("Competition licenses initialized: 6 licenses");
+        log.info("Competition licenses initialized: 8 licenses");
     }
 
     private void initializeReceiptLines() {

@@ -3,6 +3,7 @@ package com.managementClub.managementClub.controller;
 import com.managementClub.managementClub.controller.documentation.CompetitionLicenseControllerDocs;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseRequestDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseResponseDTO;
+import com.managementClub.managementClub.model.dto.CompetitionLicenseUpdateRequestDTO;
 import com.managementClub.managementClub.service.CompetitionLicenseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -46,9 +47,9 @@ public class CompetitionLicenseController implements CompetitionLicenseControlle
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @Override
-    public ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@PathVariable Long id, @Valid @RequestBody CompetitionLicenseRequestDTO requestDTO) {
+    public ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@PathVariable Long id, @Valid @RequestBody CompetitionLicenseUpdateRequestDTO requestDTO) {
         CompetitionLicenseResponseDTO response = competitionLicenseService.updateCompetitionLicense(id, requestDTO);
 
         return ResponseEntity.ok(response);

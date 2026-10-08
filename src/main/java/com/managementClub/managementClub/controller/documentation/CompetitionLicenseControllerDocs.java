@@ -2,6 +2,7 @@ package com.managementClub.managementClub.controller.documentation;
 
 import com.managementClub.managementClub.model.dto.CompetitionLicenseRequestDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseResponseDTO;
+import com.managementClub.managementClub.model.dto.CompetitionLicenseUpdateRequestDTO;
 import com.managementClub.managementClub.model.dto.ErrorResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -97,7 +98,7 @@ public interface CompetitionLicenseControllerDocs {
                     )
             ),
             @ApiResponse(responseCode = "404",
-                    description = "No existe la licencia, organización, persona o perro indicados",
+                    description = "No existe la licencia",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorResponseDTO.class)
@@ -111,5 +112,5 @@ public interface CompetitionLicenseControllerDocs {
                     )
             )
     })
-    ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@Parameter(description = "Identificador único de la licencia de competición") Long id, @Valid CompetitionLicenseRequestDTO requestDTO);
+    ResponseEntity<CompetitionLicenseResponseDTO> updateCompetitionLicense(@Parameter(description = "Identificador único de la licencia de competición") Long id, @Valid CompetitionLicenseUpdateRequestDTO requestDTO);
 }

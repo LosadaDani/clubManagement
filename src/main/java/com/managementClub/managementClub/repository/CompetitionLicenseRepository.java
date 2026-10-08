@@ -11,14 +11,13 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface CompetitionLicenseRepository extends JpaRepository<CompetitionLicense, Long> {
 
     List<CompetitionLicense> findByDog(Dog dog);
 
-    Optional<CompetitionLicense> findByOrganizationAndPersonAndDogAndStartDateBeforeAndEndDateAfter(
+    boolean existsByOrganizationAndPersonAndDogAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
             Organization organization,
             Person person,
             Dog dog,
@@ -26,16 +25,16 @@ public interface CompetitionLicenseRepository extends JpaRepository<CompetitionL
             LocalDate newStartDate);
 
     @Query("""
-        SELECT c
+        SELECT COUNT(c) > 0
         FROM CompetitionLicense c
         WHERE c.dog = :dog
         AND c.organization = :organization
         AND c.person = :person
         AND c.startDate <= :newEndDate
         AND c.endDate >= :newStartDate
-        AND c.id != :idCompetitionLicense
+        AND c.id <> :idCompetitionLicense
         """)
-    Optional<CompetitionLicense> findOverlappingLicenseExcludingId (
+    boolean existsOverlappingLicenseExcludingId(
             @Param("organization") Organization organization,
             @Param("person") Person person,
             @Param("dog") Dog dog,
