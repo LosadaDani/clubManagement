@@ -128,7 +128,17 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
 
 ### Recibos y líneas de recibo
 
-Pendiente (issues separadas, aún no implementadas). Las reglas de "propios datos" previstas en la sección "Roles" de más arriba (solo lectura sobre sus propios recibos y líneas) se documentarán aquí cuando se implementen, con el mismo nivel de detalle que Personas y Perros.
+### Recibos y líneas de recibo — Issue #88
+
+Pendiente de implementar (Issue #88). Las reglas de negocio de recibos y líneas están en `DOMAIN_RECIBOS.md`.
+
+USER y ENTRENADOR tienen exactamente los mismos permisos sobre recibos y líneas de recibo.
+
+- ADMIN: acceso completo. Puede consultar la propuesta de recibos (`GET /api/receipt/proposal`), generar recibos (`POST /api/receipt/generate` y `/generate-batch`), marcarlos como pagados o devueltos (`PATCH /{id}/pay` y `/{id}/return`), consultar cualquier recibo (`GET /{id}`) y los recibos o líneas de cualquier persona (`GET /by-person/{id}`), y crear, modificar y borrar líneas de recibo (`POST`, `PUT /{id}` y `DELETE /{id}` en `/api/receipt-lines`).
+- USER y ENTRENADOR: solo lectura de sus propios datos. Pueden consultar un recibo (`GET /api/receipt/{id}`) únicamente si la persona del recibo es la suya, y los recibos y líneas de una persona (`GET /api/receipt/by-person/{id}` y `GET /api/receipt-lines/by-person/{id}`) únicamente si es su propia persona. Ven todas sus líneas, en cualquier estado (`PENDING`, `ISSUED`, `PAID`) y también las de importe negativo (abonos). El detalle de un recibo incluye sus líneas, así que la regla de propiedad del recibo cubre también las líneas que se ven a través de él. La propiedad se determina por la persona (`Person`) del recibo o de la línea, no por el usuario (`AppUser`).
+- USER y ENTRENADOR no pueden generar, pagar ni devolver recibos, ni crear, modificar o borrar líneas, ni consultar la propuesta de preparación (`GET /api/receipt/proposal`), ni siquiera con datos propios. Esas operaciones se rechazan con `403` por rol en `SecurityConfig`, antes de llegar al Controller: un USER o ENTRENADOR recibe `403` incluso con cuerpo inválido o con un id inexistente. Un socio nunca marca nada como pagado, tampoco sus propios recibos.
+- La comprobación de "propios datos" se hace antes de revelar si el recurso existe: si el recibo o la persona indicados no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN.
+- Matchers de `SecurityConfig`: la restricción a ADMIN se aplica por verbo y prefijo (`POST` y `PATCH` sobre `/api/receipt/**`, `POST`, `PUT` y `DELETE` sobre `/api/receipt-lines/**`, y `GET /api/receipt/proposal`). Las lecturas por id o por persona no tienen matcher de rol: pasan por `authenticated()` y se protegen en el Service. Un `GET` nuevo que se añada a estos controllers debe revisarse a propósito, porque quedaría accesible a cualquier usuario autenticado. Si se cambia el verbo o la ruta de un endpoint hay que cambiar también su matcher.
 
 ---
 

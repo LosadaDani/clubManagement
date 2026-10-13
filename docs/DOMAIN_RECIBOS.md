@@ -201,9 +201,31 @@ En caso de devolución, el recibo original y las líneas asociadas se mantendrá
 
 Los nuevos intentos de cobro derivados de una devolución se representarán mediante nuevas líneas de recibo y, posteriormente, nuevos recibos.
 
+### Endpoints actuales
+
+#### Recibos (`/api/receipt`)
+
+- `GET /proposal` — propuesta de recibos para la preparación (ver "Preparación de recibos").
+- `POST /generate` — generar el recibo de una persona a partir de las líneas seleccionadas. Responde `201`.
+- `POST /generate-batch` — generar varios recibos en una sola operación; recibe una lista de peticiones de generación y devuelve un resumen del lote.
+- `GET /by-person/{id}` — recibos de una persona.
+- `GET /{id}` — detalle de un recibo, que incluye sus líneas.
+- `PATCH /{id}/pay` — marcar un recibo como `PAID` (sus líneas pasan a `PAID`).
+- `PATCH /{id}/return` — marcar un recibo como `RETURNED` (genera la línea `PENDING` de devolución).
+
+#### Líneas de recibo (`/api/receipt-lines`)
+
+- `POST /` — crear una línea. Responde `201`.
+- `GET /by-person/{id}` — todas las líneas de una persona; admite el filtro opcional `status` (`PENDING`, `ISSUED` o `PAID`).
+- `PUT /{id}` — modificar una línea (solo en estado `PENDING`).
+- `DELETE /{id}` — borrar una línea (solo en estado `PENDING`). Responde `204`.
+
+Las reglas de quién puede invocar cada operación están en `DOMAIN_SEGURIDAD.md`.
+
 ---
 
 ## Referencias cruzadas
 
 - Cada línea de recibo y cada recibo están asociados obligatoriamente a una persona. Las reglas de la entidad Person se documentan en `docs/DOMAIN_PERSONAS.md`.
 - La cuota propuesta durante la preparación de recibos depende del tipo de membresía de la persona (MembershipType); ver `docs/DOMAIN_PERSONAS.md`.
+- Las reglas de autorización por rol de los recibos y las líneas están en `DOMAIN_SEGURIDAD.md` (sección "Recibos y líneas de recibo — Issue #88").
