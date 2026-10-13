@@ -7,19 +7,20 @@ import com.managementClub.managementClub.mapper.CompetitionLicenseMapper;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseRequestDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseResponseDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseUpdateRequestDTO;
-import com.managementClub.managementClub.model.entity.CompetitionLicense;
-import com.managementClub.managementClub.model.entity.Dog;
-import com.managementClub.managementClub.model.entity.Organization;
-import com.managementClub.managementClub.model.entity.Person;
+import com.managementClub.managementClub.model.entity.*;
+import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
+import com.managementClub.managementClub.security.CurrentUserProvider;
 import com.managementClub.managementClub.service.CompetitionLicenseService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CompetitionLicenseServiceImpl implements CompetitionLicenseService {
@@ -28,17 +29,31 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
     private final PersonRepository personRepository;
     private final DogRepository dogRepository;
     private final CompetitionLicenseMapper competitionLicenseMapper;
+    private final CurrentUserProvider currentUserProvider;
 
-    public CompetitionLicenseServiceImpl(CompetitionLicenseRepository competitionLicenseRepository, OrganizationRepository organizationRepository, PersonRepository personRepository, DogRepository dogRepository, CompetitionLicenseMapper competitionLicenseMapper) {
+    public CompetitionLicenseServiceImpl(CompetitionLicenseRepository competitionLicenseRepository, OrganizationRepository organizationRepository, PersonRepository personRepository, DogRepository dogRepository, CompetitionLicenseMapper competitionLicenseMapper, CurrentUserProvider currentUserProvider) {
         this.competitionLicenseRepository = competitionLicenseRepository;
         this.organizationRepository = organizationRepository;
         this.personRepository = personRepository;
         this.dogRepository = dogRepository;
         this.competitionLicenseMapper = competitionLicenseMapper;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Override
     public CompetitionLicenseResponseDTO createCompetitionLicense(CompetitionLicenseRequestDTO competitionLicenseRequestDTO) {
+
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+        Optional<Dog> optionalDog = dogRepository.findById(competitionLicenseRequestDTO.getDogId());
+
+        boolean isOwner = optionalDog
+                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
+                .orElse(false);
+
+        if (!currentUser.getRole().equals(Role.ROLE_ADMIN)
+                && (!competitionLicenseRequestDTO.getPersonId().equals(currentUser.getPerson().getId()) || !isOwner)) {
+            throw new AccessDeniedException("No tienes permiso para crear esta licencia.");
+        }
 
         Organization organization = organizationRepository.findById(competitionLicenseRequestDTO.getOrganizationId())
                 .orElseThrow(() -> new ResourceNotFoundException("La organización indicada no existe"));
@@ -46,8 +61,8 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
         Person person = personRepository.findById(competitionLicenseRequestDTO.getPersonId())
                 .orElseThrow(() -> new ResourceNotFoundException("La persona indicada no existe"));
 
-        Dog dog = dogRepository.findById(competitionLicenseRequestDTO.getDogId())
-                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+        Dog dog = optionalDog.orElseThrow (() ->
+                new ResourceNotFoundException("Perro con identificador " + competitionLicenseRequestDTO.getDogId() + " no encontrado."));
 
         if (!Objects.equals(dog.getOwner().getId(), competitionLicenseRequestDTO.getPersonId())) {
             throw new InvalidBusinessRuleException("El propietario del perro no coincide con el indicado en la licencia");
@@ -69,8 +84,7 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
 
     @Override
     public List<CompetitionLicenseResponseDTO> getCompetitionLicensesByDogId(Long dogId) {
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+        Dog dog = getAuthorizedDog(dogId);
 
         return competitionLicenseRepository.findByDog(dog)
                 .stream()
@@ -80,8 +94,7 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
 
     @Override
     public List<CompetitionLicenseResponseDTO> getLicenseCurrentByDogId(Long dogId) {
-        Dog dog = dogRepository.findById(dogId)
-                .orElseThrow(() -> new ResourceNotFoundException("El perro indicado no existe"));
+        Dog dog = getAuthorizedDog(dogId);
 
         return competitionLicenseRepository.findLicenseCurrentByDog(dog)
                 .stream()
@@ -107,5 +120,24 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
         competitionLicenseMapper.updateEntity(existingCompetitionLicense, competitionLicenseUpdateRequestDTO);
         CompetitionLicense savedCompetitionLicense = competitionLicenseRepository.save(existingCompetitionLicense);
         return competitionLicenseMapper.toResponseDTO(savedCompetitionLicense);
+    }
+
+    private Dog getAuthorizedDog(Long dogId) {
+
+        Optional<Dog> optionalDog = dogRepository.findById(dogId);
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        boolean isOwner = optionalDog
+                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
+                .orElse(false);
+
+        if (!currentUser.getRole().equals(Role.ROLE_ADMIN) && !isOwner ) {
+            throw new AccessDeniedException("No tienes permiso para acceder a las licencias de este perro.");
+        }
+
+        Dog dog = optionalDog.orElseThrow(() ->
+                new ResourceNotFoundException("Perro con identificador " + dogId + " no encontrado."));
+
+        return dog;
     }
 }

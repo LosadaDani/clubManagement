@@ -86,7 +86,7 @@ public interface CompetitionLicenseControllerDocs {
 
     @Operation(
             summary = "Actualizar licencia de competición",
-            description = "Actualiza los datos de una licencia de competición existente para corregir información incorrecta. No se utiliza para renovar una licencia. Se comprobará que no exista otra licencia para la misma organización, persona y perro con un periodo de vigencia solapado.")
+            description = "Actualiza los datos de una licencia de competición existente para corregir información incorrecta, solo para ADMIN. No se utiliza para renovar una licencia. Se comprobará que no exista otra licencia para la misma organización, persona y perro con un periodo de vigencia solapado.")
     @ApiResponses({
             @ApiResponse(responseCode = "200",
                     description = "Licencia de competición actualizada exitosamente"),

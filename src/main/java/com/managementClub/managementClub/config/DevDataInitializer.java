@@ -301,7 +301,6 @@ public class DevDataInitializer implements CommandLineRunner {
         rfecMax.setStartDate(LocalDate.of(2026, 1, 1));
         rfecMax.setEndDate(LocalDate.of(2026, 12, 31));
 
-        // 2. Licencia que empieza hoy (borde)
         CompetitionLicense startsToday = new CompetitionLicense();
         startsToday.setOrganization(fcag);
         startsToday.setPerson(cristina);
@@ -310,7 +309,6 @@ public class DevDataInitializer implements CommandLineRunner {
         startsToday.setStartDate(LocalDate.now()); // Hoy
         startsToday.setEndDate(LocalDate.now().plusYears(1).minusDays(1));
 
-        // 3. Licencia que termina hoy (borde)
         CompetitionLicense endsToday = new CompetitionLicense();
         endsToday.setOrganization(rsce);
         endsToday.setPerson(carlos);

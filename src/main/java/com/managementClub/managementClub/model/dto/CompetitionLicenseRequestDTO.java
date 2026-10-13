@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 @Schema(
-        description = "Datos necesarios para registrar o actualizar una licencia de competición."
+        description = "Datos necesarios para registrar una licencia de competición."
 )
 public class CompetitionLicenseRequestDTO {
 
