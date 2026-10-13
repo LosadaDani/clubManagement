@@ -55,7 +55,7 @@ Las cesiones de perros se implementarán mediante una funcionalidad específica,
 - `organizationId`, `personId`, `dogId`: obligatorios. La organización, la persona y el perro deben existir (404 si no).
 - `licenseNumber`: obligatorio, no vacío, máximo 50 caracteres.
 - `startDate`, `endDate`: obligatorias.
-- La fecha de inicio no puede ser posterior a la de fin (pueden ser iguales).
+- La fecha de inicio no puede ser posterior a la de fin (pueden ser iguales). Si lo es, se responde `400`..
 
 ### Persona de la licencia
 
@@ -63,11 +63,13 @@ La persona de la licencia debe ser el **propietario actual del perro**. Esta reg
 
 La única excepción prevista es la futura funcionalidad de cesión de perros: cuando un perro se ceda, existirá una licencia para el binomio formado por el perro y la persona a la que se cede. Las cesiones quedan fuera del alcance de la gestión actual de licencias (la cesión a una persona de otro club se decidirá cuando se implemente).
 
+Si la persona indicada no es la propietaria del perro, se responde `400`.
+
 ### Solapamiento de vigencia
 
 Se considera que dos licencias de la misma organización, persona y perro se solapan cuando comparten al menos un día: `inicio1 <= fin2` y `inicio2 <= fin1` (límites **inclusivos**: el día de fin cuenta como vigente, igual que en la consulta de licencias vigentes). Por ejemplo, una licencia que termina el 31/12 y otra que empieza el 31/12 se solapan; la siguiente puede empezar el 1/1.
 
-La comprobación se aplica al crear y al corregir una licencia (en la corrección, excluyendo la propia licencia). Si existe solapamiento se responde `409`.
+La comprobación se aplica al crear y al corregir una licencia (en la corrección, excluyendo la propia licencia). Si existe solapamiento se responde `409`. El orden de las comprobaciones es: existencia de los recursos (404), propietario (400), fechas (400) y, por último, solapamiento (409).
 
 ### Duración por organización
 
@@ -96,7 +98,7 @@ Solo pueden ver una licencia ADMIN y la persona de la licencia (rol USER o ENTRE
 - `POST /` — crear una licencia.
 - `GET /dog/{dogId}` — todas las licencias de un perro.
 - `GET /dog/{dogId}/current` — licencias vigentes hoy de un perro.
-- `PUT /{id}` — corregir una licencia (solo ADMIN; hoy implementado como `PATCH`, pendiente de cambiar en la Issue #86).
+- `PUT /{id}` — corregir una licencia (solo ADMIN).
 
 Las reglas de quién puede invocar cada operación están en `DOMAIN_SEGURIDAD.md`.
 
