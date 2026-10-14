@@ -5,12 +5,16 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.model.dto.ReceiptLineRequestDTO;
 import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
+import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.ReceiptLine;
 import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
+import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
+import com.managementClub.managementClub.security.CurrentUserProvider;
 import com.managementClub.managementClub.service.ReceiptLineService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,14 +27,16 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     private final ReceiptLineRepository receiptLineRepository;
     private final PersonRepository personRepository;
     private final ReceiptLineMapper receiptLineMapper;
+    private final CurrentUserProvider currentUserProvider;
 
     private final static BigDecimal FIRST_INITIATION_PRICE = new BigDecimal("150");
     private final static BigDecimal SECOND_INITIATION_PRICE = new BigDecimal("100");
 
-    public ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, PersonRepository personRepository, ReceiptLineMapper receiptLineMapper) {
+    public ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, PersonRepository personRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider) {
         this.receiptLineRepository = receiptLineRepository;
         this.personRepository = personRepository;
         this.receiptLineMapper = receiptLineMapper;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Override
@@ -48,6 +54,13 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
 
     @Override
     public List<ReceiptLineResponseDTO> findByPerson(Long personId, ReceiptLineStatus status) {
+
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN
+                && !currentUser.getPerson().getId().equals(personId)) {
+            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+        }
 
         Person person = personRepository.findById(personId)
                 .orElseThrow(() ->

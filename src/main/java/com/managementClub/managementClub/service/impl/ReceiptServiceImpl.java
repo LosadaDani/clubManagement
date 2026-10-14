@@ -5,18 +5,18 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.mapper.ReceiptMapper;
 import com.managementClub.managementClub.model.dto.*;
+import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.Receipt;
 import com.managementClub.managementClub.model.entity.ReceiptLine;
-import com.managementClub.managementClub.model.enums.MembershipStatus;
-import com.managementClub.managementClub.model.enums.MembershipType;
-import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
-import com.managementClub.managementClub.model.enums.ReceiptStatus;
+import com.managementClub.managementClub.model.enums.*;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.repository.ReceiptRepository;
+import com.managementClub.managementClub.security.CurrentUserProvider;
 import com.managementClub.managementClub.service.ReceiptLineService;
 import com.managementClub.managementClub.service.ReceiptService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +26,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Service
 public class ReceiptServiceImpl implements ReceiptService {
@@ -37,6 +38,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     private final ReceiptMapper receiptMapper;
     private final ReceiptRepository receiptRepository;
     private final ReceiptLineMapper receiptLineMapper;
+    private final CurrentUserProvider currentUserProvider;
 
     private static final BigDecimal MONTHLY_QUOTA_MEMBER = new BigDecimal("15.00");
     private static final BigDecimal ANNUAL_QUOTA_MEMBER = new BigDecimal("15.00");
@@ -45,13 +47,14 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     private record QuotaCalculation(BigDecimal amount, String concept) {}
 
-    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository, ReceiptLineMapper receiptLineMapper) {
+    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider) {
         this.personRepository = personRepository;
         this.receiptLineService = receiptLineService;
         this.receiptLineRepository = receiptLineRepository;
         this.receiptMapper = receiptMapper;
         this.receiptRepository = receiptRepository;
         this.receiptLineMapper = receiptLineMapper;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Override
@@ -153,6 +156,13 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public List<ReceiptResponseDTO> getReceiptsByPersonId(Long personId) {
 
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN
+                && !currentUser.getPerson().getId().equals(personId)) {
+            throw new AccessDeniedException("No tienes permiso para ver los recibos de esta persona.");
+        }
+
         if (!personRepository.existsById(personId)) {
             throw new ResourceNotFoundException("La persona indicada con el id " + personId + " no existe");
         }
@@ -165,8 +175,19 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public ReceiptDetailResponseDTO getReceiptDetail(Long receiptId) {
 
-        Receipt receipt = receiptRepository.findById(receiptId)
-                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+        Optional<Receipt> receiptOptional = receiptRepository.findById(receiptId);
+        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+
+        boolean isOwner = receiptOptional
+                .map(receipt -> receipt.getPerson().getId().equals(currentUser.getPerson().getId()))
+                .orElse(false);
+
+        if (currentUser.getRole() != Role.ROLE_ADMIN && !isOwner) {
+            throw new AccessDeniedException("No tienes permiso para ver el recibo de esta persona.");
+        }
+
+        Receipt receipt = receiptOptional.orElseThrow(() ->
+                new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
 
         List<ReceiptLine> lines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
 
