@@ -59,13 +59,14 @@ Validaciones de la operación de alta, en este orden: la persona indicada debe e
 
 Implementado (Issues #56-#59 del Sprint 5 — login, generación de JWT, validación de JWT, protección de endpoints).
 
-Login: `POST /api/auth/login`, público, recibe `username/password` y devuelve `username, role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
+Login: `POST /api/auth/login`, público, recibe `username`/`password` y devuelve `username`, `role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
 
 Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`) y la consola H2 (`/h2-console/**`, solo entorno de desarrollo).
 
 Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <token>` (regla por defecto `anyRequest().authenticated()` en `SecurityConfig`). Sin token, o con uno inválido/caducado, la petición no queda autenticada.
 
 Una petición sin autenticar a una ruta protegida responde `401` con el formato `ErrorResponseDTO` habitual de la API, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security.
+
 ## Autorización por rol
 
 Implementado parcialmente — por entidad, a medida que se van completando las issues de la Sprint 5-6 ("Restringir operaciones según el rol").
@@ -76,9 +77,8 @@ Regla común a todas las entidades: un rechazo por rol (`hasRole`/`hasAnyRole` e
 
 Implementado (Issue #59).
 
-ADMIN: puede crear (`POST`) y modificar (`PATCH`) organizaciones.
-
-USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
+- ADMIN: puede crear (`POST`) y modificar (`PATCH`) organizaciones.
+- USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
 
 No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
 
@@ -92,21 +92,21 @@ Implementado (Issue #84).
 - USER y ENTRENADOR no pueden listar (`GET /api/persons`) ni buscar (`GET /api/persons/search`) personas — ambas operaciones quedan restringidas a ADMIN. 
 - Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo. 
 - Nadie, excepto ADMIN, puede cambiar el `MembershipStatus` de ninguna persona (`PATCH /{id}/status`), ni siquiera la propia. 
-- La comprobación de "propios datos" (ownership) se hace antes de comprobar si el recurso existe: si el `id` solicitado no es el propio (y el rol no es ADMIN), se responde `403 sin revelar si esa persona existe o no.  Esta precedencia se aplica a peticiones con cuerpo válido: la validación del cuerpo (`@Valid`) se ejecuta antes que el Service, así que un `PUT` con cuerpo inválido sobre un perro ajeno o inexistente responde `400` con los errores de validación, igual para cualquier id (no revela si el perro existe).
+- La comprobación de "propios datos" (ownership) se hace antes de comprobar si el recurso existe: si el `id` solicitado no es el propio (y el rol no es ADMIN), se responde `403` sin revelar si esa persona existe o no.
 
 *(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
 
 ### Perros
 
-Implementado  (Issue #85).
+Implementado (Issue#85).
 
 USER y ENTRENADOR tienen exactamente los mismos permisos sobre perros.
 
 - ADMIN: acceso completo — puede dar de alta perros para cualquier propietario, ver cualquier perro, listar todos los perros (`GET /api/dogs`), buscar por nombre (`GET /api/dogs/name/{name}`) y por microchip (`GET /api/dogs/microchip/{microchip}`), consultar los perros de cualquier persona (`GET /api/dogs/person/{personId}`) y modificar cualquier perro (`PUT /{id}`).
 - USER y ENTRENADOR: pueden dar de alta perros (`POST /api/dogs`) únicamente si el propietario indicado es su propia persona. Pueden ver (`GET /{id}`) y modificar (`PUT /{id}`) únicamente sus propios perros, y consultar los perros de una persona (`GET /person/{personId}`) únicamente si es su propia persona. La propiedad de un perro se determina por su propietario (`Person`), no por el usuario (`AppUser`) que hace la petición.
 - USER y ENTRENADOR no pueden listar (`GET /api/dogs`) ni buscar por nombre o por microchip — esas tres operaciones quedan restringidas a ADMIN, incluso si el perro buscado es propio (la regla es por rol, no por propiedad).
-- La comprobación de "propios datos" se hace antes de revelar si el recurso existe: si el perro, la persona o el propietario indicado no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN.
-- El propietario de un perro no se puede modificar mediante la actualización (ver `DOMAIN_PERROS.md`): el `ownerId` enviado en un `PUT` se ignora. El traspaso entre propietarios será un caso de uso específico (pendiente, ver backlog).
+- La comprobación de "propios datos" se hace antes de revelar si el recurso existe: si el perro, la persona o el propietario indicado no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN. Esta precedencia se aplica a peticiones con cuerpo válido: la validación del cuerpo (`@Valid`) se ejecuta antes que el Service, así que un `PUT` con cuerpo inválido sobre un perro ajeno o inexistente responde `400` con los errores de validación, igual para cualquier id (no revela si el perro existe).
+- El propietario de un perro no se puede modificar mediante la actualización (ver `DOMAIN_PERROS.md`): el `ownerId` enviado en un `PUT` se ignora (aunque sigue siendo obligatorio en el cuerpo, porque comparte DTO con el alta). El traspaso entre propietarios será un caso de uso específico (pendiente, ver backlog).
 - La actualización (`PUT /{id}`) sustituye el recurso completo: los campos opcionales que no se envíen (`sex`, `breed`, `pedigreeNumber`) quedan sin valor.
 
 *(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
@@ -125,8 +125,6 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
 - La corrección (`PUT /{id}`) usa un DTO propio con solo `licenseNumber`, `startDate` y `endDate`: organización, persona y perro de una licencia no se pueden modificar (ver `DOMAIN_ORGANIZACIONES.md`); si se envían en el cuerpo, se ignoran. Solo la ejecuta ADMIN, por lo que no necesita comprobación de "propios datos" en el Service.
 - Verbo: la corrección es `PUT` (sustituye los campos corregibles completos, como en Personas y Perros) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría corregir licencias.
 - La visibilidad de las licencias es solo para ADMIN y la persona de la licencia (la propietaria actual del perro). El comportamiento tras una cesión (qué ve el propietario anterior) se decidirá al implementar la cesión (ver backlog).
-
-### Recibos y líneas de recibo
 
 ### Recibos y líneas de recibo — Issue #88
 
