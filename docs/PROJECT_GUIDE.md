@@ -59,12 +59,10 @@ Cada capa tiene una única responsabilidad.
 * Spring Boot
 * Spring Data JPA
 * Spring Validation
-* Spring Security con JWT (autenticación stateless y autorización por rol; ver ver ADR-016 y `DOMAIN_SEGURIDAD.md`)
+* Spring Security con JWT (autenticación stateless y autorización por rol; ver ADR-016 y `DOMAIN_SEGURIDAD.md`)
 * H2 Database
 * MySQL (futuro entorno de producción)
 * Swagger / OpenAPI
-* Spring Security
-* JWT
 
 ---
 
@@ -115,9 +113,9 @@ Se evita introducir complejidad innecesaria.
 * Gestión de licencias de competición
 * Relaciones entre:
 
-    * Organización
-    * Persona
-    * Perro
+  * Organización
+  * Persona
+  * Perro
 * CRUD de licencias de competición
 * Validaciones de negocio
 * Control de solapamiento de periodos de vigencia
@@ -162,6 +160,7 @@ Se evita introducir complejidad innecesaria.
 > El sistema no implementará inicialmente una gestión contable de pagos ni una entidad independiente de Pago. El estado de pago se reflejará mediante los estados de Recibo y LíneaRecibo. El medio utilizado para realizar el pago no forma parte del modelo actual.
 
 > La preparación de recibos se realizará a partir de las líneas pendientes. La consulta de preparación no generará ni modificará datos; la cuota se incorporará como LíneaRecibo únicamente cuando el recibo sea generado definitivamente.
+
 ## Sprint 5 — Seguridad
 
 * Gestión de usuarios
@@ -206,7 +205,7 @@ Se evita introducir complejidad innecesaria.
 > El frontend tendrá dos ámbitos diferenciados: una web pública orientada a visitantes y una interfaz de gestión privada para usuarios autorizados del sistema.
 >
 > El objetivo inicial de este sprint será disponer de una web sencilla y publicable para el club.
-> 
+>
 > La primera versión se desarrollará utilizando una solución sencilla que permita poner en producción la web sin introducir todavía un framework frontend que pueda condicionar el aprendizaje posterior.
 
 ## Sprint 7 — Auditoría
@@ -223,9 +222,9 @@ Se evita introducir complejidad innecesaria.
 * Consulta del historial de auditoría
 * Evaluación y elección de la estrategia técnica de auditoría:
 
-    * Hibernate Envers
-    * Sistema de auditoría propio
-    * Otra alternativa adecuada
+  * Hibernate Envers
+  * Sistema de auditoría propio
+  * Otra alternativa adecuada
 
 **Estado: Pendiente**
 
@@ -267,9 +266,9 @@ Cada Sprint finaliza con:
 * Actualización de Swagger.
 * Actualización de la documentación.
 
-Actualmente se encuentran completados los Sprints 1, 2, 3 y 4.
+Actualmente se encuentran completados los Sprints 1, 2, 3, 4 y 5.
 
-El Sprint 5 - Seguridad se encuentra actualmente en desarrollo.
+El siguiente paso es el Sprint 6 — Frontend. Antes de abordarlo se revisan los pendientes técnicos recogidos en `BACKLOG.md`.
 
 ---
 
@@ -318,7 +317,7 @@ El Sprint 5 - Seguridad se encuentra actualmente en desarrollo.
 * Validación de que el perro pertenece a la persona indicada.
 * Validación de periodos de vigencia.
 * Control de solapamiento de licencias.
-* Actualización de licencias mediante PATCH.
+* Corrección de licencias mediante PUT (solo ADMIN).
 * Exclusión de la licencia actual en la comprobación de solapamientos durante una actualización.
 * Consulta de todas las licencias de un perro.
 * Consulta de licencias vigentes de un perro.
@@ -342,7 +341,7 @@ El Sprint 5 - Seguridad se encuentra actualmente en desarrollo.
 
 El histórico funcional de las licencias no requiere una entidad independiente. Cada licencia representa un periodo de vigencia y permanece almacenada una vez finalizado dicho periodo, permitiendo consultar tanto todas las licencias de un perro como sus licencias vigentes.
 
-La auditoría de modificaciones de las entidades se ha separado del histórico funcional y se implementará posteriormente como un sistema transversal dentro del Sprint 6.
+La auditoría de modificaciones de las entidades se ha separado del histórico funcional y se implementará posteriormente como un sistema transversal dentro del Sprint 7.
 
 ## Sprint 4
 
@@ -378,4 +377,45 @@ Las operaciones que impliquen múltiples modificaciones dependientes se ejecutar
 
 ### Estado
 
-En desarrollo.
+Completado.
+
+## Sprint 5
+
+### Objetivo
+
+Proteger la API: identificar a los usuarios del club, autenticarlos y limitar lo que cada rol puede hacer sobre cada entidad.
+
+### Funcionalidades implementadas
+
+* Alta de usuarios (`AppUser`) asociados a una persona, con contraseña generada por el sistema.
+* Roles `ADMIN`, `USER` y `ENTRENADOR` (`ROLE_ADMIN`, `ROLE_USER`, `ROLE_TRAINER` en código).
+* Login (`POST /api/auth/login`) y generación de JWT.
+* Filtro propio de validación del JWT en cada petición.
+* Protección de endpoints en `SecurityConfig`: por defecto `anyRequest().authenticated()`, con matchers de rol en las operaciones restringidas a ADMIN.
+* Respuestas `401` (`CustomAuthenticationEntryPoint`) y `403` (`CustomAccessDeniedHandler`) con el formato `ErrorResponseDTO` de la API.
+* Autorización por rol y por propiedad de los datos en Organizaciones, Personas, Perros, Licencias y Recibos y líneas de recibo (`AccessDeniedException` lanzada desde los Services y resuelta en `GlobalExceptionHandler`).
+* Suites de Postman por dominio, con casos para ADMIN, USER, ENTRENADOR y peticiones sin autenticar.
+
+### Reglas de negocio
+
+Las reglas de roles y permisos por entidad se encuentran definidas en `docs/DOMAIN_SEGURIDAD.md`.
+
+### Decisiones de diseño
+
+La autenticación es stateless mediante JWT (ADR-016).
+
+La propiedad de un recurso se determina por la persona (`Person`) asociada, nunca por el usuario (`AppUser`) ni por el rol: se compara `Person.id`.
+
+La comprobación de propiedad va antes que la de existencia: USER y ENTRENADOR reciben `403` tanto si el recurso ajeno existe como si no, y el `404` solo lo recibe ADMIN.
+
+USER y ENTRENADOR tienen los mismos permisos, salvo que ENTRENADOR puede dar de alta personas de formación.
+
+En Recibos, las operaciones de escritura y la propuesta son exclusivas de ADMIN; USER y ENTRENADOR solo leen sus propios recibos y líneas.
+
+### Pendientes técnicos
+
+Los pendientes derivados del sprint (cobertura de `HEAD` en Personas y Perros, tratamiento de errores sin handler, codificación de caracteres de los `401`/`403` del filtro, homogeneización de mensajes, cambio de contraseña) están en `BACKLOG.md`.
+
+### Estado
+
+Completado.
