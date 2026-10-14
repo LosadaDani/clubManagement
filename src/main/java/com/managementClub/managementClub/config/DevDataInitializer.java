@@ -57,6 +57,7 @@ public class DevDataInitializer implements CommandLineRunner {
             initializeReceiptProposalTestData();
             initializeGenerateReceiptTestData();
             initializeReceiptOrderTestData();
+            initializeReceiptAuthorizationTestData();
             log.info("Development data initialized successfully.");
         } else {
             log.info("Development data already exists. Skipping initialization.");
@@ -640,5 +641,111 @@ public class DevDataInitializer implements CommandLineRunner {
         receiptLineRepository.save(septemberLine);
 
         log.info("Receipt-order test data initialized: Pol Vila with 3 Receipt ISSUED (2026-07-10, 2026-08-10, 2026-09-10)");
+    }
+
+    /**
+     * Datos exclusivos para poder probar por Postman la autorización de recibos y
+     * líneas de recibo (Issue #88, ver
+     * docs/reviews/receipt-authorization-postman-cases.md). Da recibos y líneas a
+     * Dani (ADMIN), Cristina (USER) y Carlos (ENTRENADOR) en todos los estados, y
+     * deja registros reservados para los casos que modifican datos. Laura sigue
+     * sin recibos ni líneas. No crea ni modifica personas, perros, organizaciones
+     * ni licencias, y no cambia el id de ningún registro ya existente.
+     */
+    private void initializeReceiptAuthorizationTestData() {
+        Person dani = personRepository.findByEmail("dani.losada@example.com").orElseThrow();
+
+        if (!receiptRepository.findByPersonIdOrderByIssueDateDescIdDesc(dani.getId()).isEmpty()) {
+            return;
+        }
+
+        Person cristina = personRepository.findByEmail("cristina.martinez@example.com").orElseThrow();
+        Person carlos = personRepository.findByEmail("carlos.lopez@example.com").orElseThrow();
+
+        // Dani: las líneas PAID e ISSUED de initializeReceiptLines() se crearon sin
+        // recibo. Se les asigna uno para cumplir DOMAIN_RECIBOS.md (una línea ISSUED
+        // o PAID pertenece a un recibo). Conservan su id; la PENDING sigue sin recibo.
+        ReceiptLine daniJuneLine = receiptLineRepository
+                .findByPersonAndStatusOrderByDateDesc(dani, ReceiptLineStatus.PAID).getFirst();
+        ReceiptLine daniJulyLine = receiptLineRepository
+                .findByPersonAndStatusOrderByDateDesc(dani, ReceiptLineStatus.ISSUED).getFirst();
+
+        Receipt daniPaidReceipt = receiptRepository.save(
+                new Receipt(dani, LocalDate.of(2026, 6, 10), new BigDecimal("25.00"), ReceiptStatus.PAID));
+        Receipt daniIssuedReceipt = receiptRepository.save(
+                new Receipt(dani, LocalDate.of(2026, 7, 10), new BigDecimal("25.00"), ReceiptStatus.ISSUED));
+
+        daniJuneLine.setReceipt(daniPaidReceipt);
+        daniJulyLine.setReceipt(daniIssuedReceipt);
+        receiptLineRepository.save(daniJuneLine);
+        receiptLineRepository.save(daniJulyLine);
+
+        // Cristina (USER): recibo PAID, recibo RETURNED con su línea de devolución
+        // PENDING, abono PENDING (importe negativo) y registros reservados.
+        Receipt cristinaPaidReceipt = receiptRepository.save(
+                new Receipt(cristina, LocalDate.of(2026, 7, 10), new BigDecimal("25.00"), ReceiptStatus.PAID));
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 7, 10),
+                "Cuota mensual julio 2026", new BigDecimal("25.00"), ReceiptLineStatus.PAID, cristinaPaidReceipt));
+
+        Receipt cristinaReturnedReceipt = receiptRepository.save(
+                new Receipt(cristina, LocalDate.of(2026, 8, 10), new BigDecimal("25.00"), ReceiptStatus.RETURNED));
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 8, 10),
+                "Cuota mensual agosto 2026", new BigDecimal("25.00"), ReceiptLineStatus.ISSUED, cristinaReturnedReceipt));
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 8, 20),
+                "Devolución recibo " + cristinaReturnedReceipt.getId(), new BigDecimal("27.48"), ReceiptLineStatus.PENDING, null));
+
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 10, 1),
+                "Abono descuento seminario", new BigDecimal("-5.00"), ReceiptLineStatus.PENDING, null));
+
+        // Reservado: PATCH /api/receipt/{id}/pay (ADMIN sobre un recibo de USER).
+        Receipt cristinaToBePaidReceipt = receiptRepository.save(
+                new Receipt(cristina, LocalDate.of(2026, 10, 10), new BigDecimal("40.00"), ReceiptStatus.ISSUED));
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 10, 5),
+                "Inscripción prueba RSCE octubre", new BigDecimal("40.00"), ReceiptLineStatus.ISSUED, cristinaToBePaidReceipt));
+
+        // Reservada: PUT /api/receipt-lines/{id}.
+        receiptLineRepository.save(new ReceiptLine(cristina, LocalDate.of(2026, 10, 2),
+                "Seminario de agility", new BigDecimal("12.00"), ReceiptLineStatus.PENDING, null));
+
+        // Carlos (ENTRENADOR): recibo PAID, recibo ISSUED con un abono (importe
+        // negativo), recibo RETURNED con su línea de devolución y registros reservados.
+        Receipt carlosPaidReceipt = receiptRepository.save(
+                new Receipt(carlos, LocalDate.of(2026, 8, 10), new BigDecimal("15.00"), ReceiptStatus.PAID));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 8, 10),
+                "Cuota mensual agosto 2026", new BigDecimal("15.00"), ReceiptLineStatus.PAID, carlosPaidReceipt));
+
+        Receipt carlosIssuedReceipt = receiptRepository.save(
+                new Receipt(carlos, LocalDate.of(2026, 9, 10), new BigDecimal("7.00"), ReceiptStatus.ISSUED));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 9, 10),
+                "Cuota mensual septiembre 2026", new BigDecimal("15.00"), ReceiptLineStatus.ISSUED, carlosIssuedReceipt));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 9, 5),
+                "Abono chándal (AP)", new BigDecimal("-8.00"), ReceiptLineStatus.ISSUED, carlosIssuedReceipt));
+
+        Receipt carlosReturnedReceipt = receiptRepository.save(
+                new Receipt(carlos, LocalDate.of(2026, 7, 10), new BigDecimal("15.00"), ReceiptStatus.RETURNED));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 7, 10),
+                "Cuota mensual julio 2026", new BigDecimal("15.00"), ReceiptLineStatus.ISSUED, carlosReturnedReceipt));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 7, 20),
+                "Devolución recibo " + carlosReturnedReceipt.getId(), new BigDecimal("17.48"), ReceiptLineStatus.PENDING, null));
+
+        // Reservado: PATCH /api/receipt/{id}/return (ADMIN sobre un recibo de ENTRENADOR).
+        Receipt carlosToBeReturnedReceipt = receiptRepository.save(
+                new Receipt(carlos, LocalDate.of(2026, 10, 10), new BigDecimal("15.00"), ReceiptStatus.ISSUED));
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 10, 10),
+                "Cuota mensual octubre 2026", new BigDecimal("15.00"), ReceiptLineStatus.ISSUED, carlosToBeReturnedReceipt));
+
+        // Reservada: DELETE /api/receipt-lines/{id}.
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 10, 3),
+                "Alquiler pista entrenamiento", new BigDecimal("20.00"), ReceiptLineStatus.PENDING, null));
+
+        // Reservada: POST /api/receipt/generate.
+        receiptLineRepository.save(new ReceiptLine(carlos, LocalDate.of(2026, 10, 4),
+                "Inscripción prueba FCAG", new BigDecimal("10.00"), ReceiptLineStatus.PENDING, null));
+
+        // Reservada: POST /api/receipt/generate-batch.
+        receiptLineRepository.save(new ReceiptLine(dani, LocalDate.of(2026, 10, 7),
+                "Inscripción prueba RSCE", new BigDecimal("18.00"), ReceiptLineStatus.PENDING, null));
+
+        log.info("Receipt-authorization test data initialized: 9 Receipt and 15 ReceiptLine for Dani, Cristina and Carlos");
     }
 }
