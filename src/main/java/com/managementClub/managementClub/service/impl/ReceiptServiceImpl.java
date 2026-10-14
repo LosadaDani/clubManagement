@@ -68,7 +68,7 @@ public class ReceiptServiceImpl implements ReceiptService {
             QuotaCalculation quotaCalculation = calculateQuota(person);
 
             boolean includePerson = person.getMembershipType() == MembershipType.INITIATION_TRAINING
-                    ? listPendingLine.isEmpty()
+                    ? !listPendingLine.isEmpty()
                     : quotaCalculation != null || !listPendingLine.isEmpty();
 
             if (includePerson){
