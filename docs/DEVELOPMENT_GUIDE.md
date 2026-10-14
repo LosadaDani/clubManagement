@@ -123,6 +123,8 @@ Cada nueva funcionalidad sigue el siguiente orden:
 14. Commit
 15. Cierre de la Issue
 
+Cuando la funcionalidad añada o cambie un endpoint, antes de las pruebas con Postman se revisa su protección: qué matcher de `SecurityConfig` lo cubre y si necesita comprobación de propiedad en el Service. Un endpoint sin matcher de rol cae en `anyRequest().authenticated()` y queda accesible a cualquier usuario autenticado, y un matcher con `HttpMethod.GET` no se aplica a `HEAD`. Si se cambia el verbo o la ruta de un endpoint, hay que cambiar también su matcher. Las pruebas incluyen siempre a USER y ENTRENADOR, además de ADMIN (ver `DOMAIN_SEGURIDAD.md`).
+
 ---
 
 ## 4. Definition of Done

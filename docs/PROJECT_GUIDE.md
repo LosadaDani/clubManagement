@@ -59,9 +59,12 @@ Cada capa tiene una única responsabilidad.
 * Spring Boot
 * Spring Data JPA
 * Spring Validation
+* Spring Security con JWT (autenticación stateless y autorización por rol; ver ver ADR-016 y `DOMAIN_SEGURIDAD.md`)
 * H2 Database
 * MySQL (futuro entorno de producción)
 * Swagger / OpenAPI
+* Spring Security
+* JWT
 
 ---
 
@@ -154,7 +157,7 @@ Se evita introducir complejidad innecesaria.
 * Excepciones personalizadas.
 * Swagger / OpenAPI.
 
-**Estado: En desarrollo**
+**Estado: Completado**
 
 > El sistema no implementará inicialmente una gestión contable de pagos ni una entidad independiente de Pago. El estado de pago se reflejará mediante los estados de Recibo y LíneaRecibo. El medio utilizado para realizar el pago no forma parte del modelo actual.
 
@@ -171,7 +174,7 @@ Se evita introducir complejidad innecesaria.
 * Configuración de Spring Security
 * Gestión de errores de autenticación y autorización
 
-**Estado: Pendiente**
+**Estado: Completado**
 
 ## Sprint 6 — Frontend
 

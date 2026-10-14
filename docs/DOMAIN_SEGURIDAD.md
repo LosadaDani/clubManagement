@@ -69,7 +69,7 @@ Una petición sin autenticar a una ruta protegida responde `401` con el formato 
 
 ## Autorización por rol
 
-Implementado parcialmente — por entidad, a medida que se van completando las issues de la Sprint 5-6 ("Restringir operaciones según el rol").
+Implementado (Issues #59, #84, #85, #86 y #88 — Organizaciones, Personas, Perros, Licencias, Recibos y líneas de recibo).
 
 Regla común a todas las entidades: un rechazo por rol (`hasRole`/`hasAnyRole` en `SecurityConfig`) y un rechazo por "propios datos" (`AccessDeniedException` lanzada desde el Service) responden ambos `403` con el mismo formato `ErrorResponseDTO`: el primero a través de un `CustomAccessDeniedHandler` propio registrado en `SecurityConfig`, el segundo a través de `GlobalExceptionHandler`.
 
@@ -128,7 +128,7 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
 
 ### Recibos y líneas de recibo — Issue #88
 
-Pendiente de implementar (Issue #88). Las reglas de negocio de recibos y líneas están en `DOMAIN_RECIBOS.md`.
+Implementado (Issue #88). Las reglas de negocio de recibos y líneas están en `DOMAIN_RECIBOS.md`.
 
 USER y ENTRENADOR tienen exactamente los mismos permisos sobre recibos y líneas de recibo.
 

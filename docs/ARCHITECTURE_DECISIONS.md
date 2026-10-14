@@ -208,7 +208,7 @@ Garantizar que todas las modificaciones se completen correctamente o que, en cas
 
 ### Estado
 
-Decisión tomada. Pendiente de implementación (issue aún no codificada).
+Decisión tomada.
 
 ### Contexto
 
@@ -286,7 +286,7 @@ por defecto en JPA ya es `LAZY`.
 
 ### Estado
 
-Decisión tomada. Pendiente de implementación (Sprint 5 en curso).
+Decisión tomada e implementada (sprint 5).
 
 ### Contexto
 
