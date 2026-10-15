@@ -1,5 +1,6 @@
 package com.managementClub.managementClub.security;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -47,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/receipt/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/receipt-lines/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/receipt-lines/**").hasRole("ADMIN")
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
