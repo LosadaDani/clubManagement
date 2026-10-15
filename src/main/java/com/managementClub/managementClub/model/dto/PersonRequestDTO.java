@@ -44,7 +44,7 @@ public class PersonRequestDTO {
     private String email;
 
     @Schema(
-            description = "Fecha de alta de la persona. Si no se informa, se asignará la fecha actual.",
+            description = "En el alta, si no se informa se asigna la fecha actual; en la modificación, si no se informa se conserva la existente",
             example = "2026-07-10"
     )
     @PastOrPresent
