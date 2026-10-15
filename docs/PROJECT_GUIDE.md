@@ -143,7 +143,7 @@ Se evita introducir complejidad innecesaria.
 * Generación de una propuesta de recibo a partir de las líneas pendientes.
 * Inclusión de la cuota correspondiente como línea de recibo al generar el recibo.
 * Selección y deselección de líneas durante la preparación del recibo.
-* Posibilidad de aplazar líneas pendientes a un recibo posterior.
+* Las líneas no seleccionadas al generar un recibo permanecen pendientes para un recibo posterior. El aplazamiento de cuotas como funcionalidad propia no está implementado (ver `BACKLOG.md`).
 * Gestión de recibos devueltos.
 * Generación de la penalización correspondiente a un recibo devuelto.
 * Registro de líneas pendientes para su inclusión en recibos posteriores.

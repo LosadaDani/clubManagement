@@ -67,6 +67,12 @@ Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <
 
 Una petición sin autenticar a una ruta protegida responde `401` con el formato `ErrorResponseDTO` habitual de la API, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security.
 
+### Errores reenviados a `/error`
+
+Los errores que no resuelve ningún `@ExceptionHandler` de `GlobalExceptionHandler` (por ejemplo, una ruta inexistente) los reenvía Spring internamente a `/error`, y ese reenvío vuelve a pasar por la cadena de seguridad sin autenticar. Sin tratamiento, el cliente recibía un `401` en lugar del código real del error, aunque su token fuera válido. `SecurityConfig` lo evita con `dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()`, colocado antes de `anyRequest().authenticated()`. No abre ninguna ruta: la petición original ya ha pasado por la seguridad, o ha sido rechazada, antes del reenvío.
+
+Los errores de entrada más habituales tienen `@ExceptionHandler` propio con `ErrorResponseDTO` y responden `400`: cuerpo ilegible (`HttpMessageNotReadableException`), parámetro obligatorio ausente (`MissingServletRequestParameterException`) y restricción incumplida en un parámetro de la URL (`ConstraintViolationException`). El resto de errores sin handler (ruta inexistente, método o tipo de contenido no soportados, error de integridad de datos) devuelven su código correcto con el JSON por defecto de Spring Boot (ver `BACKLOG.md`).
+
 ## Autorización por rol
 
 Implementado (Issues #59, #84, #85, #86 y #88 — Organizaciones, Personas, Perros, Licencias, Recibos y líneas de recibo).
