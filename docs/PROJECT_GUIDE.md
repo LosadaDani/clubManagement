@@ -414,8 +414,7 @@ En Recibos, las operaciones de escritura y la propuesta son exclusivas de ADMIN;
 
 ### Pendientes técnicos
 
-Los pendientes derivados del sprint (cobertura de `HEAD` en Personas y Perros, tratamiento de errores sin handler, codificación de caracteres de los `401`/`403` del filtro, homogeneización de mensajes, cambio de contraseña) están en `BACKLOG.md`.
-
+Los pendientes derivados del sprint (cobertura de `HEAD` en Personas y Perros, tratamiento de errores sin handler, homogeneización de mensajes, cambio de contraseña) están en `BACKLOG.md`.
 ### Estado
 
 Completado.
