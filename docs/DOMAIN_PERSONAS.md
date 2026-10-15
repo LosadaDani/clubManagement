@@ -10,6 +10,17 @@
 
 ---
 
+## Fecha de alta (`memberSince`)
+
+Implementado.
+
+`memberSince` es la fecha en que la persona entró en el club. Es obligatoria en la base de datos, pero opcional en la petición, y no puede ser futura.
+
+- En el alta (`POST /api/persons`): si no se envía, se asigna la fecha del día.
+- En la modificación (`PUT /api/persons/{id}`): si no se envía, se conserva la fecha que ya tiene la persona; si se envía, se actualiza. Así se puede corregir una fecha mal introducida, y enviar el campo vacío nunca la borra.
+
+---
+
 ## Alta de personas — curso de iniciación
 
 Al dar de alta una persona con `MembershipType = INITIATION_TRAINING`, el sistema

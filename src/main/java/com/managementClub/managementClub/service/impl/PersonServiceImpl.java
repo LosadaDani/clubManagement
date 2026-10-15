@@ -130,6 +130,10 @@ public class PersonServiceImpl implements PersonService {
             }
         }
 
+        if (personRequest.getMemberSince() == null) {
+            personRequest.setMemberSince(existingPerson.getMemberSince());
+        }
+
         personMapper.updateEntity(existingPerson, personRequest);
 
         Person updatedPerson = personRepository.save(existingPerson);
