@@ -43,6 +43,12 @@ public class SecurityConfig {
                                 "/api/dogs/microchip/*",
                                 "/api/dogs/name/*",
                                 "/api/dogs").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.HEAD,
+                                "/api/persons",
+                                "/api/persons/search",
+                                "/api/dogs/microchip/*",
+                                "/api/dogs/name/*",
+                                "/api/dogs").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,
                                 "/api/organizations",
                                 "/api/receipt/**",

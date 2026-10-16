@@ -79,6 +79,8 @@ Implementado (Issues #59, #84, #85, #86 y #88 — Organizaciones, Personas, Perr
 
 Regla común a todas las entidades: un rechazo por rol (`hasRole`/`hasAnyRole` en `SecurityConfig`) y un rechazo por "propios datos" (`AccessDeniedException` lanzada desde el Service) responden ambos `403` con el mismo formato `ErrorResponseDTO`: el primero a través de un `CustomAccessDeniedHandler` propio registrado en `SecurityConfig`, el segundo a través de `GlobalExceptionHandler`.
 
+Los matchers de `SecurityConfig` se escriben por verbo. Un matcher `GET` no se aplica a `HEAD`, así que cada `GET` restringido a un rol lleva un `HEAD` con las mismas rutas (en `/api/receipt/proposal`, que solo tiene `GET`, basta un matcher sin verbo).
+
 ### Organizaciones
 
 Implementado (Issue #59).
