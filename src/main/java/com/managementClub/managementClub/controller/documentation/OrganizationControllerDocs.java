@@ -44,8 +44,8 @@ public interface OrganizationControllerDocs {
     ResponseEntity<OrganizationResponseDTO> createOrganization(@Valid OrganizationRequestDTO requestDto);
 
     @Operation(
-            summary = "Actualizar una organización",
-            description = "Actualiza los datos de una organización existente"
+            summary = "Modificar una organización",
+            description = "Modifica los datos de una organización existente"
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200",

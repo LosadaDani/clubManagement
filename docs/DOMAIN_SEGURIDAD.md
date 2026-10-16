@@ -83,10 +83,12 @@ Regla común a todas las entidades: un rechazo por rol (`hasRole`/`hasAnyRole` e
 
 Implementado (Issue #59).
 
-- ADMIN: puede crear (`POST`) y modificar (`PATCH`) organizaciones.
+- ADMIN: puede crear (`POST`) y modificar (`PUT`) organizaciones.
 - USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
 
 No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
+
+- Verbo: la modificación es `PUT` (sustituye el recurso completo, como en Personas, Perros y Licencias) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría modificar organizaciones.
 
 ### Personas
 

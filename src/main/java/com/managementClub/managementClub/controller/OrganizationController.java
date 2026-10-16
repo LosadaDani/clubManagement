@@ -27,7 +27,7 @@ public class OrganizationController implements OrganizationControllerDocs {
         return ResponseEntity.status(HttpStatus.CREATED).body(organization);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     @Override
     public ResponseEntity<OrganizationResponseDTO> updateOrganization(@PathVariable Long id, @Valid @RequestBody OrganizationRequestDTO requestDTO) {
         OrganizationResponseDTO responseDto = organizationService.updateOrganization(id, requestDTO);

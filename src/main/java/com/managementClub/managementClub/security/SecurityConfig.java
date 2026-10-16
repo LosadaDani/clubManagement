@@ -36,18 +36,28 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
                         ).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/organizations").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/organizations/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/persons", "/api/persons/search").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/persons").hasAnyRole("ADMIN","TRAINER")
-                        .requestMatchers(HttpMethod.PATCH, "/api/persons/*/status").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/dogs/microchip/*", "/api/dogs/name/*", "/api/dogs").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/competition-licenses/**").hasRole("ADMIN")
                         .requestMatchers( "/api/receipt/proposal").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/receipt/**", "/api/receipt-lines/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/api/receipt/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/receipt-lines/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/receipt-lines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/persons",
+                                "/api/persons/search",
+                                "/api/dogs/microchip/*",
+                                "/api/dogs/name/*",
+                                "/api/dogs").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/organizations",
+                                "/api/receipt/**",
+                                "/api/receipt-lines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/persons").hasAnyRole("ADMIN","TRAINER")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/organizations/**",
+                                "/api/competition-licenses/**",
+                                "/api/receipt-lines/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH,
+                                "/api/persons/*/status",
+                                "/api/receipt/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/receipt-lines/**").hasRole("ADMIN")
                         .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .anyRequest().authenticated()
                 )
