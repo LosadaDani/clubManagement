@@ -101,6 +101,8 @@ Mientras los casos de uso de creación y actualización compartan el mismo contr
 - Código limpio y legible.
 - Operaciones transaccionales mediante `@Transactional` cuando una operación implique múltiples modificaciones persistentes.
 
+Sobre Swagger: las respuestas `401` y `403` y el esquema de autenticación (`bearerAuth`) se declaran de forma global en `OpenApiConfig` (un `OperationCustomizer` las añade a todas las operaciones salvo las de `AuthController`, que es público). Por eso, en los `*ControllerDocs` cada endpoint documenta solo sus respuestas funcionales (`200`, `201`, `400`, `404`, `409`...) y no repite el `401` ni el `403`. Un controller público nuevo debería excluirse en ese mismo customizer.
+
 ---
 
 ## 3. Flujo de desarrollo

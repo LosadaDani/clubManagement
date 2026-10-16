@@ -49,7 +49,7 @@ public interface OrganizationControllerDocs {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200",
-                description = "Organización actualizada correctamente"),
+                description = "Organización modificada correctamente"),
             @ApiResponse(responseCode = "400",
                     description = "Los datos enviados no son válidos",
                     content = @Content(
