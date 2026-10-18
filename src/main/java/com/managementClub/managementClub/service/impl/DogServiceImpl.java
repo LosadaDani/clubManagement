@@ -46,14 +46,14 @@ public class DogServiceImpl implements DogService {
         }
 
         Person owner = personRepository.findById(dto.getOwnerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Propietario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + dto.getOwnerId() + " no encontrada."));
 
         if (dogRepository.findByMicrochip(dto.getMicrochip()).isPresent()) {
-            throw new ResourceAlreadyExistsException("Microchip existente");
+            throw new ResourceAlreadyExistsException("Ya existe un perro con el microchip indicado.");
         }
 
         if (dto.getPedigreeNumber() != null && !dto.getPedigreeNumber().isBlank() && dogRepository.findByPedigreeNumber(dto.getPedigreeNumber()).isPresent()) {
-            throw new ResourceAlreadyExistsException("Numero de pedigree existente");
+            throw new ResourceAlreadyExistsException("Ya existe un perro con el número de pedigree indicado.");
         }
 
         Dog dog = dogMapper.toEntity(dto, owner);
@@ -105,7 +105,7 @@ public class DogServiceImpl implements DogService {
     @Override
     public DogResponseDTO getDogByMicrochip(String microchip) {
         Dog dog = dogRepository.findByMicrochip(microchip)
-                .orElseThrow(() -> new ResourceNotFoundException("Perro con microchip " + microchip + " no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Perro con microchip " + microchip + " no encontrado."));
         return dogMapper.toResponseDto(dog);
     }
 

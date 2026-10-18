@@ -88,11 +88,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     public ReceiptResponseDTO generateReceipt(GenerateReceiptRequestDTO request) {
 
         Person person = personRepository.findById(request.getPersonId())
-                .orElseThrow(() -> new ResourceNotFoundException("La persona indicada con el id " + request.getPersonId() + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + request.getPersonId() + " no encontrada."));
 
         if ((request.getSelectedReceiptLineIds() == null || request.getSelectedReceiptLineIds().isEmpty())
                 && !request.getIncludeQuota()) {
-            throw new InvalidBusinessRuleException("No se puede generar un recibo sin líneas seleccionadas ni cuota incluida");
+            throw new InvalidBusinessRuleException("No se puede generar un recibo sin líneas seleccionadas ni cuota incluida.");
         }
 
         BigDecimal totalAmount = BigDecimal.ZERO;
@@ -108,14 +108,14 @@ public class ReceiptServiceImpl implements ReceiptService {
         if (request.getSelectedReceiptLineIds() != null && !request.getSelectedReceiptLineIds().isEmpty()) {
             for (Long lineId : request.getSelectedReceiptLineIds()) {
                 ReceiptLine receiptLine = receiptLineRepository.findById(lineId)
-                        .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + lineId + " no existe"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Línea de recibo con identificador " + lineId + " no encontrada."));
 
                 if (!receiptLine.getPerson().getId().equals(request.getPersonId())) {
-                    throw new ResourceNotFoundException("La línea " + lineId + " no pertenece a la persona " + request.getPersonId());
+                    throw new ResourceNotFoundException("La línea de recibo con identificador " + lineId + " no pertenece a la persona con identificador " + request.getPersonId() + ".");
                 }
 
                 if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
-                    throw new InvalidBusinessRuleException("La línea " + lineId + " no está en estado PENDING");
+                    throw new InvalidBusinessRuleException("La línea de recibo con identificador " + lineId + " no puede incluirse en un recibo porque no está en estado pendiente.");
                 }
 
                 totalAmount =totalAmount.add(receiptLine.getAmount());
@@ -145,7 +145,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         }
 
         if (lineCount == 0) {
-            throw new InvalidBusinessRuleException("No se puede generar un recibo sin líneas seleccionadas ni cuota incluida");
+            throw new InvalidBusinessRuleException("No se puede generar un recibo sin líneas seleccionadas ni cuota incluida.");
         }
         savedReceipt.setTotal(totalAmount);
         receiptRepository.save(savedReceipt);
@@ -164,7 +164,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         }
 
         if (!personRepository.existsById(personId)) {
-            throw new ResourceNotFoundException("La persona indicada con el id " + personId + " no existe");
+            throw new ResourceNotFoundException("Persona con identificador " + personId + " no encontrada.");
         }
 
         List<Receipt> receipts = receiptRepository.findByPersonIdOrderByIssueDateDescIdDesc(personId);
@@ -183,11 +183,11 @@ public class ReceiptServiceImpl implements ReceiptService {
                 .orElse(false);
 
         if (currentUser.getRole() != Role.ROLE_ADMIN && !isOwner) {
-            throw new AccessDeniedException("No tienes permiso para ver el recibo de esta persona.");
+            throw new AccessDeniedException("No tienes permiso para ver este recibo.");
         }
 
         Receipt receipt = receiptOptional.orElseThrow(() ->
-                new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+                new ResourceNotFoundException("Recibo con identificador " + receiptId + " no encontrado."));
 
         List<ReceiptLine> lines = receiptLineRepository.findByReceiptIdOrderByDateDescIdDesc(receiptId);
 
@@ -201,10 +201,10 @@ public class ReceiptServiceImpl implements ReceiptService {
     public ReceiptDetailResponseDTO markAsPaid(Long receiptId) {
 
         Receipt receipt = receiptRepository.findById(receiptId)
-                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Recibo con identificador " + receiptId + " no encontrado."));
 
         if (receipt.getStatus() != ReceiptStatus.ISSUED) {
-            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como pagado si no está en estado enviados");
+            throw new InvalidBusinessRuleException("El recibo con identificador " + receiptId + " no puede marcarse como pagado porque no está en estado enviado.");
         }
 
         receipt.setStatus(ReceiptStatus.PAID);
@@ -227,14 +227,14 @@ public class ReceiptServiceImpl implements ReceiptService {
     public ReceiptDetailResponseDTO markAsReturned(Long receiptId) {
 
         Receipt receipt = receiptRepository.findById(receiptId)
-                .orElseThrow(() -> new ResourceNotFoundException("El recibo indicado con el id " + receiptId + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Recibo con identificador " + receiptId + " no encontrado."));
 
         if (receipt.getStatus() != ReceiptStatus.ISSUED) {
-            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como devuelto si no está en estado enviados");
+            throw new InvalidBusinessRuleException("El recibo con identificador " + receiptId + " no puede marcarse como devuelto porque no está en estado enviado.");
         }
 
         if (receipt.getTotal().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidBusinessRuleException("El recibo no puede ser marcado como devuelto si no tiene un importe mayor a 0");
+            throw new InvalidBusinessRuleException("El recibo con identificador " + receiptId + " no puede marcarse como devuelto porque no tiene un importe mayor que 0.");
         }
 
         receipt.setStatus(ReceiptStatus.RETURNED);

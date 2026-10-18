@@ -43,7 +43,7 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     public ReceiptLineResponseDTO createReceiptLine(ReceiptLineRequestDTO receiptLineRequestDTO) {
 
         Person person = personRepository.findById(receiptLineRequestDTO.getPersonId()).
-                orElseThrow(() -> new ResourceNotFoundException("La persona indicada con el id " + receiptLineRequestDTO.getPersonId() + " no existe"));
+                orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + receiptLineRequestDTO.getPersonId() + " no encontrada."));
 
         ReceiptLine receiptLine = receiptLineMapper.toEntity(receiptLineRequestDTO, person);
         receiptLine.setStatus(ReceiptLineStatus.PENDING);
@@ -59,12 +59,12 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
 
         if (currentUser.getRole() != Role.ROLE_ADMIN
                 && !currentUser.getPerson().getId().equals(personId)) {
-            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+            throw new AccessDeniedException("No tienes permiso para ver las líneas de recibo de esta persona.");
         }
 
         Person person = personRepository.findById(personId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("La persona indicada con el id " + personId + " no existe"));
+                        new ResourceNotFoundException("Persona con identificador " + personId + " no encontrada."));
 
         if (status != null) {
             return receiptLineRepository.findByPersonAndStatusOrderByDateDesc(person, status)
@@ -83,10 +83,10 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     public ReceiptLineResponseDTO updateReceiptLine(Long id, ReceiptLineRequestDTO receiptLineRequestDTO) {
 
         ReceiptLine receiptLine = receiptLineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + id + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Línea de recibo con identificador " + id + " no encontrada."));
 
         if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
-            throw new InvalidBusinessRuleException("La linea de recibo indicada con el id " + id + " no se encuentra en estado PENDIENTE");
+            throw new InvalidBusinessRuleException("La línea de recibo con identificador " + id + " no puede modificarse porque no está en estado pendiente.");
         }
 
         receiptLine = receiptLineMapper.updateEntityFromDTO(receiptLineRequestDTO, receiptLine);
@@ -100,10 +100,10 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     public void deleteReceiptLine(Long id) {
 
         ReceiptLine receiptLine = receiptLineRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("La linea de recibo indicada con el id " + id + " no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Línea de recibo con identificador " + id + " no encontrada."));
 
         if (receiptLine.getStatus() != ReceiptLineStatus.PENDING) {
-            throw new InvalidBusinessRuleException("La linea de recibo indicada con el id " + id + " no se encuentra en estado PENDIENTE");
+            throw new InvalidBusinessRuleException("La línea de recibo con identificador " + id + " no puede eliminarse porque no está en estado pendiente.");
         }
 
         receiptLineRepository.delete(receiptLine);

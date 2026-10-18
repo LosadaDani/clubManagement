@@ -27,7 +27,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public OrganizationResponseDTO createOrganization(OrganizationRequestDTO organizationRequestDTO) {
 
         if (organizationRepository.findByShortName(organizationRequestDTO.getShortName()).isPresent()){
-                throw new ResourceAlreadyExistsException("La abreviatura de la organización ya existe.");
+                throw new ResourceAlreadyExistsException("Ya existe una organización con la abreviatura indicada.");
         }
 
         Organization organization = organizationMapper.toEntity(organizationRequestDTO);
@@ -44,7 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         if (!Objects.equals(existingOrganization.getShortName(), organizationRequestDTO.getShortName())) {
             organizationRepository.findByShortName(organizationRequestDTO.getShortName())
                     .ifPresent(o -> {
-                        throw new ResourceAlreadyExistsException("La abreviatura de la organización ya existe.");
+                        throw new ResourceAlreadyExistsException("Ya existe una organización con la abreviatura indicada.");
                     });
         }
 

@@ -35,14 +35,14 @@ public class AppUserServiceImpl implements AppUserService{
     public AppUserCreatedResponseDTO registerUser(AppUserRequestDTO appUserDto) {
 
         Person person = personRepository.findById(appUserDto.getPersonId())
-            .orElseThrow(() -> new ResourceNotFoundException("La persona indicada no existe"));
+            .orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + appUserDto.getPersonId() + " no encontrada."));
         
         if (appUserRepository.existsByPerson(person)){
-            throw new ResourceAlreadyExistsException("La persona indicada ya tiene un usuario asignado");
+            throw new ResourceAlreadyExistsException("La persona con identificador " + appUserDto.getPersonId() + " ya tiene un usuario asignado.");
         }
 
         if (appUserRepository.existsByUsername(appUserDto.getUsername())) {
-            throw new ResourceAlreadyExistsException("Ya existe un usuario con el UserName indicado");
+            throw new ResourceAlreadyExistsException("Ya existe un usuario con el nombre de usuario indicado.");
         }
 
         String plainPassword = UUID.randomUUID().toString().substring(0, 12);

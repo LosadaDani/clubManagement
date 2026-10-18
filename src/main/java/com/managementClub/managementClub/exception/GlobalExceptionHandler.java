@@ -96,7 +96,7 @@ public class GlobalExceptionHandler {
                 : "desconocido";
 
         String message = String.format(
-                "%s: el valor '%s' no es válido para el tipo %s",
+                "%s: el valor '%s' no es válido para el tipo %s.",
                 exception.getName(),
                 exception.getValue(),
                 requiredType
@@ -154,7 +154,7 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "El cuerpo de la petición no es válido o está mal formado",
+                "El cuerpo de la petición no es válido o está mal formado.",
                 request.getRequestURI()
         );
 
@@ -167,7 +167,7 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         String message = String.format(
-                "%s: el parámetro es obligatorio",
+                "%s: el parámetro es obligatorio.",
                 exception.getParameterName()
         );
 

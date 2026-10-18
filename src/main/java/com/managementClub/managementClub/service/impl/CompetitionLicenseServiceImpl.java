@@ -56,25 +56,25 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
         }
 
         Organization organization = organizationRepository.findById(competitionLicenseRequestDTO.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("La organización indicada no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Organización con identificador " + competitionLicenseRequestDTO.getOrganizationId() + " no encontrada."));
 
         Person person = personRepository.findById(competitionLicenseRequestDTO.getPersonId())
-                .orElseThrow(() -> new ResourceNotFoundException("La persona indicada no existe"));
+                .orElseThrow(() -> new ResourceNotFoundException("Persona con identificador " + competitionLicenseRequestDTO.getPersonId() + " no encontrada."));
 
         Dog dog = optionalDog.orElseThrow (() ->
                 new ResourceNotFoundException("Perro con identificador " + competitionLicenseRequestDTO.getDogId() + " no encontrado."));
 
         if (!Objects.equals(dog.getOwner().getId(), competitionLicenseRequestDTO.getPersonId())) {
-            throw new InvalidBusinessRuleException("El propietario del perro no coincide con el indicado en la licencia");
+            throw new InvalidBusinessRuleException("El propietario del perro no coincide con el indicado en la licencia.");
         }
 
         if (competitionLicenseRequestDTO.getStartDate().isAfter(competitionLicenseRequestDTO.getEndDate())) {
-            throw new InvalidBusinessRuleException("La fecha de inicio no puede ser posterior a la fecha de fin");
+            throw new InvalidBusinessRuleException("La fecha de inicio no puede ser posterior a la fecha de fin.");
         }
 
         if (competitionLicenseRepository.existsByOrganizationAndPersonAndDogAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
                 organization, person, dog, competitionLicenseRequestDTO.getEndDate(), competitionLicenseRequestDTO.getStartDate())) {
-            throw new ResourceAlreadyExistsException("Ya existe una licencia para la misma organización, persona y perro con periodo de vigencia solapado");
+            throw new ResourceAlreadyExistsException("Ya existe una licencia para la misma organización, persona y perro con periodo de vigencia solapado.");
         }
 
         CompetitionLicense competitionLicense = competitionLicenseMapper.toEntity(competitionLicenseRequestDTO, organization, person, dog);
@@ -106,15 +106,15 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
     public CompetitionLicenseResponseDTO updateCompetitionLicense(Long id, CompetitionLicenseUpdateRequestDTO competitionLicenseUpdateRequestDTO) {
 
         CompetitionLicense existingCompetitionLicense = competitionLicenseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("No existe ninguna licencia con el id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Licencia con identificador " + id + " no encontrada."));
 
         if (competitionLicenseUpdateRequestDTO.getStartDate().isAfter(competitionLicenseUpdateRequestDTO.getEndDate())) {
-            throw new InvalidBusinessRuleException("La fecha de inicio no puede ser posterior a la fecha de fin");
+            throw new InvalidBusinessRuleException("La fecha de inicio no puede ser posterior a la fecha de fin.");
         }
 
         if (competitionLicenseRepository.existsOverlappingLicenseExcludingId(existingCompetitionLicense.getOrganization(), existingCompetitionLicense.getPerson(), existingCompetitionLicense.getDog(),
                 competitionLicenseUpdateRequestDTO.getEndDate(), competitionLicenseUpdateRequestDTO.getStartDate(), id)) {
-            throw new ResourceAlreadyExistsException("Ya existe una licencia para la misma organización, persona y perro con periodo de vigencia solapado");
+            throw new ResourceAlreadyExistsException("Ya existe una licencia para la misma organización, persona y perro con periodo de vigencia solapado.");
         }
 
         competitionLicenseMapper.updateEntity(existingCompetitionLicense, competitionLicenseUpdateRequestDTO);

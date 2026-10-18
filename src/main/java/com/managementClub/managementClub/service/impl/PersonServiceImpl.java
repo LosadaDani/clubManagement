@@ -50,7 +50,7 @@ public class PersonServiceImpl implements PersonService {
         }
 
         if(personRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
+            throw new ResourceAlreadyExistsException("Ya existe una persona con el email indicado.");
         }
 
         Person person = personMapper.toEntity(dto);
@@ -76,12 +76,12 @@ public class PersonServiceImpl implements PersonService {
         AppUser currentUser = currentUserProvider.getCurrentAppUser();
 
         if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
-            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+            throw new AccessDeniedException("No tienes permiso para acceder a esta persona.");
         }
 
         Person person = personRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Persona con identificador " + id + " no encontrada"));
+                        new ResourceNotFoundException("Persona con identificador " + id + " no encontrada."));
 
         return  personMapper.toResponseDto(person);
     }
@@ -112,12 +112,12 @@ public class PersonServiceImpl implements PersonService {
         AppUser currentUser = currentUserProvider.getCurrentAppUser();
 
         if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
-            throw new AccessDeniedException("No tienes permiso para acceder a esta persona");
+            throw new AccessDeniedException("No tienes permiso para acceder a esta persona.");
         }
 
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+                        new ResourceNotFoundException("Persona con identificador " + id + " no encontrada."));
 
         if (currentUser.getRole() != Role.ROLE_ADMIN
             && personRequest.getMembershipType() != existingPerson.getMembershipType()) {
@@ -126,7 +126,7 @@ public class PersonServiceImpl implements PersonService {
 
         if (!existingPerson.getEmail().equalsIgnoreCase(personRequest.getEmail())) {
             if(personRepository.findByEmail(personRequest.getEmail()).isPresent()) {
-                throw new ResourceAlreadyExistsException("Ya existe una persona con ese mail");
+                throw new ResourceAlreadyExistsException("Ya existe una persona con el email indicado.");
             }
         }
 
@@ -146,7 +146,7 @@ public class PersonServiceImpl implements PersonService {
 
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("No existe ninguna persona con el id " + id));
+                        new ResourceNotFoundException("Persona con identificador " + id + " no encontrada."));
 
         if (existingPerson.getMembershipStatus() == dto.getMembershipStatus()) {
             return personMapper.toResponseDto(existingPerson);
