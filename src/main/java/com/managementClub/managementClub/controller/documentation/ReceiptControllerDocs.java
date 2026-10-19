@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -69,7 +70,7 @@ public interface ReceiptControllerDocs {
                     )
             )
     })
-    ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> requests);
+    ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@NotNull(message = "La lista no puede contener elementos nulos.") @Valid GenerateReceiptRequestDTO> requests);
 
     @Operation(
             summary = "Obtiene los recibos de una persona",

@@ -5,6 +5,7 @@ import com.managementClub.managementClub.model.dto.*;
 import com.managementClub.managementClub.service.ReceiptBatchService;
 import com.managementClub.managementClub.service.ReceiptService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class ReceiptController implements ReceiptControllerDocs {
 
     @Override
     @PostMapping("/generate-batch")
-    public ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@Valid GenerateReceiptRequestDTO> requests) {
+    public ResponseEntity<GenerateReceiptBatchResponseDTO> generateReceiptBatch(@Valid @RequestBody List<@NotNull(message = "La lista no puede contener elementos nulos.") @Valid GenerateReceiptRequestDTO> requests) {
         GenerateReceiptBatchResponseDTO response = receiptBatchService.generateReceiptBatch(requests);
         return ResponseEntity.ok(response);
     }
