@@ -103,6 +103,8 @@ Mientras los casos de uso de creación y actualización compartan el mismo contr
 
 Sobre Swagger: las respuestas `401` y `403` y el esquema de autenticación (`bearerAuth`) se declaran de forma global en `OpenApiConfig` (un `OperationCustomizer` las añade a todas las operaciones salvo las de `AuthController`, que es público). Por eso, en los `*ControllerDocs` cada endpoint documenta solo sus respuestas funcionales (`200`, `201`, `400`, `404`, `409`...) y no repite el `401` ni el `403`. Un controller público nuevo debería excluirse en ese mismo customizer.
 
+Sobre los mensajes de validación: cada restricción de Bean Validation lleva un `message` propio en español (frase completa, con mayúscula inicial y punto final, que nombra el dato afectado), porque el `message` de la respuesta de error contiene solo ese texto, sin el nombre del campo. Sin `message` propio, el texto por defecto (por ejemplo, "no debe ser nulo") no diría qué dato falta. Si la restricción está en un parámetro de un `*ControllerDocs`, el mismo `message` va en la interfaz y en la implementación.
+
 ---
 
 ## 3. Flujo de desarrollo

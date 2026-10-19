@@ -414,7 +414,7 @@ En Recibos, las operaciones de escritura y la propuesta son exclusivas de ADMIN;
 
 ### Pendientes técnicos
 
-Los pendientes derivados del sprint (tratamiento de errores sin handler, homogeneización de mensajes, cambio de contraseña) están en `BACKLOG.md`.
+Los pendientes derivados del sprint (tratamiento de errores sin handler, cambio de contraseña) están en `BACKLOG.md`..
 
 ### Estado
 
