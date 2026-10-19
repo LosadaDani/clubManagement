@@ -53,6 +53,8 @@ La contraseña no se recibe en la petición de alta: la genera el sistema de for
 
 Validaciones de la operación de alta, en este orden: la persona indicada debe existir (404 si no), la persona no debe tener ya un usuario asignado (409), y el `username` solicitado no debe estar ya en uso (409).
 
+Autorización: solo `ADMIN` puede dar de alta usuarios (`POST /api/app-users`), mediante un matcher `hasRole("ADMIN")` en `SecurityConfig`. USER y ENTRENADOR reciben `403` del filtro antes de llegar al Controller, incluso con cuerpo inválido, con una persona inexistente o con una persona que ya tiene usuario. El motivo es que la respuesta devuelve la contraseña generada: si cualquier usuario autenticado pudiera llamar al endpoint con la persona de otro socio, obtendría sus credenciales y podría actuar como él.
+
 *(Pendiente definir (backlog, prioridad alta): que la propia persona pueda cambiar su contraseña una vez tiene acceso, y forzar el cambio de contraseña en el primer login. Sin esto implementado, la contraseña generada por el sistema es la única que existe para ese usuario hasta que un ADMIN la regenere. La forma de generación actual (recorte de UUID) se revisará como parte de esa misma tarea.)*
 
 ## Autenticación
