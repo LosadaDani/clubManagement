@@ -9,10 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
@@ -200,5 +202,33 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponseDTO> handlerMethodValidationException (
+            HandlerMethodValidationException exception,
+            HttpServletRequest request) {
+
+        String message = exception.getParameterValidationResults().stream()
+                .flatMap(result ->
+                        result.getResolvableErrors().stream())
+                            .map(resolvable -> {
+                                String text = resolvable.getDefaultMessage();
+                                if (resolvable instanceof FieldError fieldError) {
+                                    return fieldError.getField() + ": " + text;
+                                }
+                                return text;
+                            })
+                .collect(Collectors.joining("; "));
+
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                message,
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
