@@ -13,7 +13,7 @@ public class PersonStatusDTO {
             description = "Nuevo estado que se asignará a la persona.",
             example = "INACTIVE"
     )
-    @NotNull(message = "El estado es obligatorio")
+    @NotNull(message = "El estado es obligatorio.")
     private MembershipStatus membershipStatus;
 
     public PersonStatusDTO() {

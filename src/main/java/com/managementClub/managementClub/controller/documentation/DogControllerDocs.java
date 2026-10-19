@@ -113,7 +113,7 @@ public interface DogControllerDocs {
             @ApiResponse(responseCode = "200",
                     description = "Listado de perros obtenido correctamente. Puede devolver una lista vacía si no existen perros registrados por el nombre indicado.")
     })
-    ResponseEntity<List<DogResponseDTO>> getDogByName(@Parameter(description = "Nombre del perro") @NotBlank String name);
+    ResponseEntity<List<DogResponseDTO>> getDogByName(@Parameter(description = "Nombre del perro") @NotBlank(message = "El nombre del perro es obligatorio.") String name);
 
     @Operation(
             summary = "Obtener todos los perros",

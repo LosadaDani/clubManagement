@@ -4,6 +4,7 @@ import com.managementClub.managementClub.model.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -74,8 +75,8 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         String message = exception.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
-                .collect(Collectors.joining("; "));
+                .map(FieldError::getDefaultMessage)
+                .collect(Collectors.joining(" "));
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 LocalDateTime.now(),
@@ -191,7 +192,7 @@ public class GlobalExceptionHandler {
 
         String message = exception.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
-                .collect(Collectors.joining("; "));
+                .collect(Collectors.joining(" "));
 
         ErrorResponseDTO error = new ErrorResponseDTO(
                 LocalDateTime.now(),
@@ -210,16 +211,9 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         String message = exception.getParameterValidationResults().stream()
-                .flatMap(result ->
-                        result.getResolvableErrors().stream())
-                            .map(resolvable -> {
-                                String text = resolvable.getDefaultMessage();
-                                if (resolvable instanceof FieldError fieldError) {
-                                    return fieldError.getField() + ": " + text;
-                                }
-                                return text;
-                            })
-                .collect(Collectors.joining("; "));
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(" "));
 
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 LocalDateTime.now(),

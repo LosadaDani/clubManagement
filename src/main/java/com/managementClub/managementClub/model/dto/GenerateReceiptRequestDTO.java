@@ -9,7 +9,7 @@ import java.util.List;
 public class GenerateReceiptRequestDTO {
     @Schema(description = "Identificador de la persona a la que se le creara el recibo",
             example = "1")
-    @NotNull(message = "El id de la persona es obligatorio")
+    @NotNull(message = "La persona es obligatoria.")
     private Long personId;
 
     @Schema(description = "Identificadores de las lineas de recibo seleccionadas",
@@ -18,7 +18,7 @@ public class GenerateReceiptRequestDTO {
 
     @Schema(description = "Indica si se incluye la cuota propuesta",
             example = "true")
-    @NotNull(message = "Debe especificarse si se incluye la cuota propuesta")
+    @NotNull(message = "Debe especificarse si se incluye la cuota propuesta.")
     private Boolean includeQuota;
 
     public GenerateReceiptRequestDTO() {

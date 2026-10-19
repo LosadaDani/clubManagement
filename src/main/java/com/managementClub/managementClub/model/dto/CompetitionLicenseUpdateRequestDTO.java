@@ -16,22 +16,22 @@ public class CompetitionLicenseUpdateRequestDTO {
             description = "El número de licencia de competición",
             example = "LC-2026-001"
     )
-    @NotBlank(message = "El número de licencia es obligatorio")
-    @Size(max = 50, message = "El número de licencia debe tener un máximo de 50 caracteres")
+    @NotBlank(message = "El número de licencia es obligatorio.")
+    @Size(max = 50, message = "El número de licencia debe tener un máximo de 50 caracteres.")
     private String licenseNumber;
 
     @Schema(
             description = "La fecha de inicio de vigencia de la licencia de competición",
             example = "2026-01-01"
     )
-    @NotNull(message = "La fecha de inicio es obligatoria")
+    @NotNull(message = "La fecha de inicio de la licencia es obligatoria.")
     private LocalDate startDate;
 
     @Schema(
             description = "La fecha de fin de vigencia de la licencia de competición",
             example = "2026-12-31"
     )
-    @NotNull(message = "La fecha de fin es obligatoria")
+    @NotNull(message = "La fecha de fin de la licencia es obligatoria.")
     private LocalDate endDate;
 
     public CompetitionLicenseUpdateRequestDTO() {

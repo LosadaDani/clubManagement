@@ -7,11 +7,11 @@ import jakarta.validation.constraints.NotBlank;
 public class LoginRequestDTO {
 
     @Schema(description = "Nombre de usuario.", example = "admin")
-    @NotBlank(message = "El nombre de usuario no puede ser nulo.")
+    @NotBlank(message = "El nombre de usuario es obligatorio.")
     private String username;
 
     @Schema(description = "Contraseña del usuario.", example = "admin123")
-    @NotBlank(message = "La contraseña no puede ser nula.")
+    @NotBlank(message = "La contraseña es obligatoria.")
     private String password;
 
     public LoginRequestDTO() {

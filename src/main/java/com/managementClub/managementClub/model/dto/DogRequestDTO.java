@@ -15,16 +15,16 @@ public class DogRequestDTO {
             description = "Nombre del perro.",
             example = "Rex"
     )
-    @NotBlank(message = "El nombre es obligatorio")
-    @Size(max = 50, message = "El nombre debe tener un máximo de 50 caracteres")
+    @NotBlank(message = "El nombre es obligatorio.")
+    @Size(max = 50, message = "El nombre debe tener un máximo de 50 caracteres.")
     private String name;
 
     @Schema(
             description = "Fecha de nacimiento del perro.",
             example = "2020-05-15"
     )
-    @NotNull
-    @Past
+    @NotNull(message = "La fecha de nacimiento es obligatoria.")
+    @Past(message = "La fecha de nacimiento debe ser anterior a hoy.")
     private LocalDate birthDate;
 
     @Schema(
@@ -37,29 +37,29 @@ public class DogRequestDTO {
             description = "Raza del perro.",
             example = "Golden Retriever"
     )
-    @Size(max = 50, message = "La raza debe tener un máximo de 50 caracteres")
+    @Size(max = 50, message = "La raza debe tener un máximo de 50 caracteres.")
     private String breed;
 
     @Schema(
             description = "Número de microchip (15 dígitos).",
             example = "123456789012345"
     )
-    @NotBlank(message = "El microchip es obligatorio")
-    @Pattern(regexp = "\\d{15}", message = "El microchip debe tener exactamente 15 digitos")
+    @NotBlank(message = "El microchip es obligatorio.")
+    @Pattern(regexp = "\\d{15}", message = "El microchip debe tener exactamente 15 dígitos.")
     private String microchip;
 
     @Schema(
             description = "Número de pedigree del perro.",
             example = "ES-2020-1234"
     )
-    @Size(max = 50, message = "El número de pedigree debe tener un máximo de 50 caracteres")
+    @Size(max = 50, message = "El número de pedigree debe tener un máximo de 50 caracteres.")
     private String pedigreeNumber;
 
     @Schema(
             description = "Identificador del propietario del perro.",
             example = "1"
     )
-    @NotNull
+    @NotNull(message = "El propietario es obligatorio.")
     private Long ownerId;
 
     public DogRequestDTO() {

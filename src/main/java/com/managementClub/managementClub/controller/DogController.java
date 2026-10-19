@@ -61,7 +61,7 @@ public class DogController implements DogControllerDocs {
 
     @GetMapping("/name/{name}")
     @Override
-    public ResponseEntity<List<DogResponseDTO>> getDogByName(@PathVariable @NotBlank String name) {
+    public ResponseEntity<List<DogResponseDTO>> getDogByName(@PathVariable @NotBlank(message = "El nombre del perro es obligatorio.") String name) {
         List<DogResponseDTO> response = dogService.getDogByName(name);
 
         return ResponseEntity.ok(response);

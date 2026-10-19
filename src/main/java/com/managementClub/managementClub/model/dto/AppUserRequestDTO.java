@@ -15,15 +15,15 @@ public class AppUserRequestDTO {
             description = "Nombre de usuario.",
             example = "johndoe"
     )
-    @NotBlank(message = "El nombre de usuario es obligatorio")
-    @Size(max = 50, message = "El nombre de usuario debe tener un máximo de 50 caracteres")
+    @NotBlank(message = "El nombre de usuario es obligatorio.")
+    @Size(max = 50, message = "El nombre de usuario debe tener un máximo de 50 caracteres.")
     private String username;
 
     @Schema(
             description = "Id de la persona a la que se le va a dar de alta el usuario.",
             example = "1"
     )
-    @NotNull(message = "El id de la persona es obligatorio")
+    @NotNull(message = "La persona es obligatoria.")
     private Long personId;
 
     public AppUserRequestDTO() {

@@ -16,43 +16,43 @@ public class CompetitionLicenseRequestDTO {
             description = "Identificador de la organización de la licencia.",
             example = "1"
     )
-    @NotNull(message = "La organización de la licencia es obligatoria")
+    @NotNull(message = "La organización de la licencia es obligatoria.")
     private Long organizationId;
 
     @Schema(
             description = "Identificador de la persona titular de la licencia.",
             example = "1"
     )
-    @NotNull(message = "La persona de la licencia es obligatoria")
+    @NotNull(message = "La persona de la licencia es obligatoria.")
     private Long personId;
 
     @Schema(
             description = "Identificador del perro asociado a la licencia.",
             example = "1"
     )
-    @NotNull(message = "El perro de la licencia es obligatorio")
+    @NotNull(message = "El perro de la licencia es obligatorio.")
     private Long dogId;
 
     @Schema(
             description = "Número de licencia de competición.",
             example = "LC-2026-001"
     )
-    @NotBlank(message = "El número de licencia es obligatorio")
-    @Size(max = 50, message = "El número de licencia debe tener un máximo de 50 caracteres")
+    @NotBlank(message = "El número de licencia es obligatorio.")
+    @Size(max = 50, message = "El número de licencia debe tener un máximo de 50 caracteres.")
     private String licenseNumber;
 
     @Schema(
             description = "Fecha de inicio de vigencia de la licencia.",
             example = "2026-01-01"
     )
-    @NotNull(message = "La fecha de inicio de la licencia es obligatoria")
+    @NotNull(message = "La fecha de inicio de la licencia es obligatoria.")
     private LocalDate startDate;
 
     @Schema(
             description = "Fecha de fin de vigencia de la licencia.",
             example = "2026-12-31"
     )
-    @NotNull(message = "La fecha de fin de la licencia es obligatoria")
+    @NotNull(message = "La fecha de fin de la licencia es obligatoria.")
     private LocalDate endDate;
 
     public CompetitionLicenseRequestDTO() {
