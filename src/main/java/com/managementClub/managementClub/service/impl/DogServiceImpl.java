@@ -5,10 +5,8 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.DogMapper;
 import com.managementClub.managementClub.model.dto.DogRequestDTO;
 import com.managementClub.managementClub.model.dto.DogResponseDTO;
-import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Dog;
 import com.managementClub.managementClub.model.entity.Person;
-import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.security.CurrentUserProvider;
@@ -38,10 +36,7 @@ public class DogServiceImpl implements DogService {
     @Override
     public DogResponseDTO createDog(DogRequestDTO dto) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN
-                && !currentUser.getPerson().getId().equals(dto.getOwnerId())) {
+        if (!currentUserProvider.isAdminOrOwner(dto.getOwnerId())) {
             throw new AccessDeniedException("No tienes permiso para crear perros para esta persona.");
         }
 
@@ -67,13 +62,11 @@ public class DogServiceImpl implements DogService {
     public DogResponseDTO getDogById(Long id) {
 
         Optional<Dog> dogOptional = dogRepository.findById(id);
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+        Long ownerId = dogOptional
+                .map(dog -> dog.getOwner().getId())
+                .orElse(null);
 
-        boolean isOwner = dogOptional
-                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
-                .orElse(false);
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN && !isOwner) {
+        if (!currentUserProvider.isAdminOrOwner(ownerId)) {
             throw new AccessDeniedException("No tienes permiso para ver este perro.");
         }
 
@@ -86,10 +79,7 @@ public class DogServiceImpl implements DogService {
     @Override
     public List<DogResponseDTO> getDogsByPersonId(Long personId) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN
-                && !currentUser.getPerson().getId().equals(personId)) {
+        if (!currentUserProvider.isAdminOrOwner(personId)) {
             throw new AccessDeniedException("No tienes permiso para ver los perros de esta persona.");
         }
         personRepository.findById(personId)
@@ -130,13 +120,11 @@ public class DogServiceImpl implements DogService {
     public DogResponseDTO updateDog(Long id, DogRequestDTO dogRequest) {
 
         Optional<Dog> dogOptional = dogRepository.findById(id);
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+        Long ownerId = dogOptional
+                .map(dog -> dog.getOwner().getId())
+                .orElse(null);
 
-        boolean isOwner = dogOptional
-                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
-                .orElse(false);
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN && !isOwner) {
+        if (!currentUserProvider.isAdminOrOwner(ownerId)) {
             throw new AccessDeniedException("No tienes permiso para modificar este perro.");
         }
 

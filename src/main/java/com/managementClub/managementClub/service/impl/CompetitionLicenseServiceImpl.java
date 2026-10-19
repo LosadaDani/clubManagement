@@ -7,8 +7,10 @@ import com.managementClub.managementClub.mapper.CompetitionLicenseMapper;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseRequestDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseResponseDTO;
 import com.managementClub.managementClub.model.dto.CompetitionLicenseUpdateRequestDTO;
-import com.managementClub.managementClub.model.entity.*;
-import com.managementClub.managementClub.model.enums.Role;
+import com.managementClub.managementClub.model.entity.CompetitionLicense;
+import com.managementClub.managementClub.model.entity.Dog;
+import com.managementClub.managementClub.model.entity.Organization;
+import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.repository.CompetitionLicenseRepository;
 import com.managementClub.managementClub.repository.DogRepository;
 import com.managementClub.managementClub.repository.OrganizationRepository;
@@ -43,15 +45,13 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
     @Override
     public CompetitionLicenseResponseDTO createCompetitionLicense(CompetitionLicenseRequestDTO competitionLicenseRequestDTO) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
         Optional<Dog> optionalDog = dogRepository.findById(competitionLicenseRequestDTO.getDogId());
+        Long dogOwnerId = optionalDog
+                .map(dog -> dog.getOwner().getId())
+                .orElse(null);
 
-        boolean isOwner = optionalDog
-                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
-                .orElse(false);
-
-        if (!currentUser.getRole().equals(Role.ROLE_ADMIN)
-                && (!competitionLicenseRequestDTO.getPersonId().equals(currentUser.getPerson().getId()) || !isOwner)) {
+        if (!currentUserProvider.isAdminOrOwner(competitionLicenseRequestDTO.getPersonId())
+                || !currentUserProvider.isAdminOrOwner(dogOwnerId)) {
             throw new AccessDeniedException("No tienes permiso para crear esta licencia.");
         }
 
@@ -125,13 +125,11 @@ public class CompetitionLicenseServiceImpl implements CompetitionLicenseService 
     private Dog getAuthorizedDog(Long dogId) {
 
         Optional<Dog> optionalDog = dogRepository.findById(dogId);
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+        Long ownerId = optionalDog
+                .map(dog -> dog.getOwner().getId())
+                .orElse(null);
 
-        boolean isOwner = optionalDog
-                .map(dog -> dog.getOwner().getId().equals(currentUser.getPerson().getId()))
-                .orElse(false);
-
-        if (!currentUser.getRole().equals(Role.ROLE_ADMIN) && !isOwner ) {
+        if (!currentUserProvider.isAdminOrOwner(ownerId)) {
             throw new AccessDeniedException("No tienes permiso para acceder a las licencias de este perro.");
         }
 

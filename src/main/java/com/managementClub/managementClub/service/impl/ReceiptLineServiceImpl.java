@@ -5,11 +5,9 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.model.dto.ReceiptLineRequestDTO;
 import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
-import com.managementClub.managementClub.model.entity.AppUser;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.ReceiptLine;
 import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
-import com.managementClub.managementClub.model.enums.Role;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.security.CurrentUserProvider;
@@ -55,10 +53,7 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     @Override
     public List<ReceiptLineResponseDTO> findByPerson(Long personId, ReceiptLineStatus status) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN
-                && !currentUser.getPerson().getId().equals(personId)) {
+        if (!currentUserProvider.isAdminOrOwner(personId)) {
             throw new AccessDeniedException("No tienes permiso para ver las líneas de recibo de esta persona.");
         }
 

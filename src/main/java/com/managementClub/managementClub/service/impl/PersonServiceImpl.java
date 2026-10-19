@@ -73,9 +73,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO getPersonById(Long id) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
+        if (!currentUserProvider.isAdminOrOwner(id)) {
             throw new AccessDeniedException("No tienes permiso para acceder a esta persona.");
         }
 
@@ -109,9 +107,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public PersonResponseDTO updatePerson(Long id, PersonRequestDTO personRequest) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN && !currentUser.getPerson().getId().equals(id)) {
+        if (!currentUserProvider.isAdminOrOwner(id)) {
             throw new AccessDeniedException("No tienes permiso para acceder a esta persona.");
         }
 
@@ -119,7 +115,7 @@ public class PersonServiceImpl implements PersonService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Persona con identificador " + id + " no encontrada."));
 
-        if (currentUser.getRole() != Role.ROLE_ADMIN
+        if (!currentUserProvider.isAdmin()
             && personRequest.getMembershipType() != existingPerson.getMembershipType()) {
             throw new AccessDeniedException("No tienes permiso para modificar tu tipo de membresía.");
         }

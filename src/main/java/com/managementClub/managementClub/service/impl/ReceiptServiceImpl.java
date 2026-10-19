@@ -5,10 +5,7 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.mapper.ReceiptMapper;
 import com.managementClub.managementClub.model.dto.*;
-import com.managementClub.managementClub.model.entity.AppUser;
-import com.managementClub.managementClub.model.entity.Person;
-import com.managementClub.managementClub.model.entity.Receipt;
-import com.managementClub.managementClub.model.entity.ReceiptLine;
+import com.managementClub.managementClub.model.entity.*;
 import com.managementClub.managementClub.model.enums.*;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
@@ -156,10 +153,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public List<ReceiptResponseDTO> getReceiptsByPersonId(Long personId) {
 
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN
-                && !currentUser.getPerson().getId().equals(personId)) {
+        if (!currentUserProvider.isAdminOrOwner(personId)) {
             throw new AccessDeniedException("No tienes permiso para ver los recibos de esta persona.");
         }
 
@@ -176,13 +170,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     public ReceiptDetailResponseDTO getReceiptDetail(Long receiptId) {
 
         Optional<Receipt> receiptOptional = receiptRepository.findById(receiptId);
-        AppUser currentUser = currentUserProvider.getCurrentAppUser();
+        Long ownerId = receiptOptional
+                .map(receipt -> receipt.getPerson().getId())
+                .orElse(null);
 
-        boolean isOwner = receiptOptional
-                .map(receipt -> receipt.getPerson().getId().equals(currentUser.getPerson().getId()))
-                .orElse(false);
-
-        if (currentUser.getRole() != Role.ROLE_ADMIN && !isOwner) {
+        if (!currentUserProvider.isAdminOrOwner(ownerId)) {
             throw new AccessDeniedException("No tienes permiso para ver este recibo.");
         }
 
