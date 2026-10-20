@@ -2,24 +2,25 @@
 
 Este documento recoge las principales decisiones de arquitectura adoptadas durante el desarrollo del proyecto.
 
-| ADR     | Decisión                                        |
-|---------|-------------------------------------------------|
-| ADR-001 | DTO separados                                   |
-| ADR-002 | Mapper manual                                   |
-| ADR-003 | Sin Lombok                                      |
-| ADR-004 | Validaciones en RequestDTO                      |
-| ADR-005 | Constructor injection                           |
-| ADR-006 | Excepciones personalizadas                      |
-| ADR-007 | GlobalExceptionHandler                          |
-| ADR-008 | Baja lógica de personas                         |
-| ADR-009 | Simplicidad sobre complejidad                   |
-| ADR-010 | SummaryDTO para relaciones                      |
-| ADR-011 | Relaciones JPA mediante objetos                 |
-| ADR-012 | Clasificación de DTO (Request/Response/Summary) |
-| ADR-013 | Operaciones transaccionales                     |
-| ADR-014 | Cuotas hardcodeadas mediante lógica condicional, sin entidad de configuración                 |
-| ADR-015 | Fetch type explícito LAZY en relaciones @ManyToOne                 |
-| ADR-016 | Autenticación stateless con JWT                 |
+| ADR     | Decisión                                                                      |
+|---------|-------------------------------------------------------------------------------|
+| ADR-001 | DTO separados                                                                 |
+| ADR-002 | Mapper manual                                                                 |
+| ADR-003 | Sin Lombok                                                                    |
+| ADR-004 | Validaciones en RequestDTO                                                    |
+| ADR-005 | Constructor injection                                                         |
+| ADR-006 | Excepciones personalizadas                                                    |
+| ADR-007 | GlobalExceptionHandler                                                        |
+| ADR-008 | Baja lógica de personas                                                       |
+| ADR-009 | Simplicidad sobre complejidad                                                 |
+| ADR-010 | SummaryDTO para relaciones                                                    |
+| ADR-011 | Relaciones JPA mediante objetos                                               |
+| ADR-012 | Clasificación de DTO (Request/Response/Summary)                               |
+| ADR-013 | Operaciones transaccionales                                                   |
+| ADR-014 | Cuotas hardcodeadas mediante lógica condicional, sin entidad de configuración |
+| ADR-015 | Fetch type explícito LAZY en relaciones @ManyToOne                            |
+| ADR-016 | Autenticación stateless con JWT                                               |
+| ADR-017 | Frontend con Thymeleaf servido desde la API                                   |
 
 
 ---
@@ -296,6 +297,12 @@ El frontend del proyecto (Sprint 6) se implementará con Spring, sin cerrar aún
 
 Motivación adicional para esta decisión: JWT es el mecanismo de autenticación más habitual en APIs REST en el entorno profesional, y forma parte de los objetivos de aprendizaje del proyecto (ver PROJECT_OVERVIEW.md).
 
+> Nota (Sprint 6): la parte pendiente de este contexto, si el frontend sería el
+> mismo proceso o una aplicación independiente, quedó resuelta para la web
+> pública en ADR-017 (mismo proceso, Thymeleaf). Esto no cambia la decisión de
+> JWT. La tecnología del backoffice y dónde se guarda el token siguen pendientes
+> (ver `docs/FRONTEND.md`).
+
 ### Decisión
 
 Se utilizará autenticación stateless mediante JWT: el backend valida credenciales en el login, genera un token firmado, y lo valida en cada petición posterior mediante un filtro propio. No se usa HttpSession para mantener el estado de autenticación.
@@ -317,3 +324,76 @@ La clave de firma del token y su tiempo de expiración son configuración sensib
 Sesión con cookie (formLogin + HttpSession). Habría sido la opción más simple si el frontend compartiera proceso con el backend, pero se descarta a favor de JWT por la motivación de aprendizaje explicada arriba y porque no ata la decisión a cómo se resuelva el frontend en Sprint 6.
 
 ---
+
+## ADR-017 — Frontend con Thymeleaf servido desde la API
+
+### Estado
+
+Decisión tomada (Sprint 6).
+
+### Contexto
+
+El Sprint 6 incorpora una web pública para el club. El frontend se sirve desde
+la propia API (mismo proceso, sin CORS). Había dos opciones: HTML estático en
+`static/`, o plantillas Thymeleaf renderizadas en servidor.
+
+El proyecto prioriza el aprendizaje de tecnologías usadas en el entorno
+profesional (ver `PROJECT_OVERVIEW.md`). Thymeleaf se usa en aplicaciones
+Spring reales, y además permite compartir cabecera y pie entre páginas sin
+duplicarlos.
+
+Se prevé rehacer el frontend más adelante con React o Angular. Esa migración
+no se ve condicionada por esta decisión: la API REST no cambia.
+
+### Decisión
+
+La web pública se construye con Thymeleaf:
+
+* Plantillas en `src/main/resources/templates/`.
+* CSS, imágenes y JS en `src/main/resources/static/`.
+* Cabecera, pie y menú como fragmentos (`th:fragment` / `th:replace`) del
+  sistema estándar de Thymeleaf. No se usa Layout Dialect.
+* Los Controllers web devuelven nombres de vista, no `ResponseEntity`. Viven en
+  un paquete propio (`controller.web`), sin lógica de negocio, y nunca pasan
+  entidades JPA a las plantillas.
+* Los Controllers REST (`/api/**`) no cambian.
+
+### Excepción documentada
+
+`DEVELOPMENT_GUIDE.md` dice que el Controller devuelve `ResponseEntity`. Esa
+regla sigue valiendo para la API REST. Los Controllers web son una excepción
+explícita y limitada a la web pública.
+
+### Seguridad
+
+`SecurityConfig` mantiene `anyRequest().authenticated()`. Cada ruta pública se
+añade con `permitAll` solo cuando exista su página, por lista explícita y sin
+patrones amplios. Los matchers de las páginas no llevan verbo, o cubren `GET` y
+`HEAD`. Los recursos estáticos públicos (`/css/**`, `/js/**`, `/img/**`,
+`/favicon.ico`) se permiten por prefijo: nada que no sea público debe colocarse
+en `static/`.
+
+### Idioma
+
+La aplicación tiene el idioma fijado a español (`spring.web.locale=es_ES`,
+`locale-resolver=fixed`) por los mensajes de validación de la API. La primera
+versión de la web es solo en catalán, con los textos en las plantillas. El
+castellano se decidirá después, con URLs propias por idioma (`/es/...`) por
+motivos de SEO, sin modificar la configuración de idioma de la API.
+
+### Alternativas descartadas
+
+* HTML estático puro: más simple, pero repite cabecera y pie en cada página y
+  aporta menos aprendizaje transferible.
+* Layout Dialect (librería de terceros): dependencia extra que no se necesita
+  con 5 páginas. Se reevaluará como decisión nueva si el layout se queda corto.
+
+### Consecuencias
+
+* Nueva dependencia: `spring-boot-starter-thymeleaf`.
+* Las rutas de la web son rutas de Controller, no archivos. En Spring MVC
+  actual `/escola` y `/escola/` ya no son la misma ruta por defecto: hay que
+  decidir cómo tratar la barra final (ver `docs/FRONTEND.md`).
+* Si se migra a React o Angular, las plantillas se sustituyen; la API no se toca.
+* Esto no decide el backoffice: su tecnología y el almacenamiento del token
+  siguen pendientes.

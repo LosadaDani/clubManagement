@@ -63,6 +63,7 @@ Cada capa tiene una única responsabilidad.
 * H2 Database
 * MySQL (futuro entorno de producción)
 * Swagger / OpenAPI
+* Thymeleaf (web pública; ver ADR-017)
 
 ---
 
@@ -177,15 +178,14 @@ Se evita introducir complejidad innecesaria.
 
 ## Sprint 6 — Frontend
 
-### Web pública / comercial
+### Web pública (primera versión)
 
-* Página principal
-* Información del club
-* Actividades
-* Competiciones
-* Información de contacto
-* Noticias o comunicaciones, si se consideran necesarias
-* Diseño responsive
+* Inicio, El club, Qué es el Agility, Formación y Contacto
+* Solo en catalán; castellano en una fase posterior
+* Diseño responsive y SEO técnico básico
+* Página 404 personalizada
+
+> Decisiones y pendientes en `docs/FRONTEND.md`. Tecnología: Thymeleaf (ADR-017).
 
 ### Backoffice
 
@@ -206,7 +206,7 @@ Se evita introducir complejidad innecesaria.
 >
 > El objetivo inicial de este sprint será disponer de una web sencilla y publicable para el club.
 >
-> La primera versión se desarrollará utilizando una solución sencilla que permita poner en producción la web sin introducir todavía un framework frontend que pueda condicionar el aprendizaje posterior.
+> La primera versión usa plantillas Thymeleaf servidas desde la API. El backoffice se decidirá después.
 
 ## Sprint 7 — Auditoría
 
@@ -268,7 +268,7 @@ Cada Sprint finaliza con:
 
 Actualmente se encuentran completados los Sprints 1, 2, 3, 4 y 5.
 
-El siguiente paso es el Sprint 6 — Frontend. Antes de abordarlo se revisan los pendientes técnicos recogidos en `BACKLOG.md`.
+El siguiente paso pasa a ser la web pública del Sprint 6 .
 
 ---
 
