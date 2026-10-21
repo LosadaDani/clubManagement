@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
                         ).permitAll()
+                        .requestMatchers("/").permitAll()
                         .requestMatchers( "/api/receipt/proposal").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/persons",

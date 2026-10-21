@@ -24,7 +24,10 @@ noticias, formulario de contacto, backoffice y versión en castellano.
 * Thymeleaf servido desde la API, mismo proceso, sin CORS (ADR-017).
 * Fragmentos estándar para cabecera, pie y menú. Sin Layout Dialect.
 * Permisos `permitAll` página a página; nunca patrones amplios.
-* Los recursos estáticos se permiten por prefijo.
+* La portada se abrió con un matcher exacto (`"/"`), en su propia línea de`SecurityConfig`, separada de login, Swagger y H2. Los recursos estáticos (`/css/**`, `/js/**`, `/img/**`, `/favicon.ico`) se permitirán por prefijo cuando existan (#92).
+* Con un `Authorization` inválido, caducado o de firma incorrecta,`JwtAuthenticationFilter` registra la excepción y trata la petición como anónima: una ruta pública responde `200` y una protegida `401`. Verificado en la #91 (`GET /` con `Bearer abc` devuelve `200`).
+* Los Controllers web no aparecen en Swagger (verificado con `GET /`) y no usan interfaz `*ControllerDocs`.
+* Si existe `templates/index.html`, Spring Boot registra además una *welcome page* para `/`. El `@GetMapping("/")` del Controller web tiene prioridad, así que el resultado es el mismo; conviene saberlo al depurar.
 * Catalán primero. Castellano después, con URLs `/es/...` y `hreflang`.
 * Sin fechas de eventos en la web (se quedan obsoletas).
 * Contacto como texto y enlaces (`mailto:` y `tel:`), sin formulario.
@@ -52,13 +55,12 @@ afiliación, salvo que se confirme).
 ## Pendiente de decidir
 
 * Barra final de las URLs. Propuesta: mapear `/escola` y `/escola/` al mismo
-  método y declarar una sola versión como `canonical`. A validar en la issue 2.
-* Comportamiento ante un token caducado o inválido en una ruta pública.
-  Verificar el comportamiento actual y documentarlo. No afecta a la web pública
-  mientras el token vaya en cabecera, pero sí si se guardara en cookie.
-* Dónde se guarda el token en el backoffice (memoria, localStorage o cookie).
+  método y declarar una sola versión como `canonical`. No se puede validar con `/`: se decide en la primera issue con una página distinta de la raíz (#94, El club). Si se mapean las dos variantes, el matcher `permitAll`también debe cubrir las dos.
+* Rutas inexistentes sin token: reciben `401` en JSON, no `404`, porque la seguridad actúa antes que Spring MVC. La página 404 personalizada (#98) no se vería para un visitante anónimo. Decidir cómo combinarla con`anyRequest().authenticated()`.
+* Experiencia del backoffice ante un token caducado (ir al login o al inicio). El backend ya lo trata como anónimo; con el token en cabecera no afecta a la web pública, pero cambiaría si se guardara en cookie.
+* Dónde se guarda el token en el backoffice (memoria, localStorage o cookie). Si el token se leyera de un sitio donde pueda llegar vacío (por ejemplo una cookie), tratar el token vacío como inválido: `JwtAuthenticationFilter` solo captura `JwtException` y un token vacío lanza `IllegalArgumentException`. Con la cabecera `Authorization` no se llega a ese caso: el servidor recorta el espacio final (deducido, no verificado en el código de Tomcat).
 * Mecanismo del castellano (plantillas por idioma, o bundles con idioma
-  explícito solo para la web). Ver ADR-017.
+  explícito solo para la web). Ver ADR-017. La portada responde hoy con `Content-Language: es-ES` (por el idioma fijo de la aplicación) aunque la plantilla declara `lang="ca"`; decidir cómo fija el idioma la web sin cambiar el de la API.
 * Tecnología del backoffice.
 * Aviso legal.
 * Logo, fotos y textos definitivos.

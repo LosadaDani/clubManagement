@@ -63,11 +63,20 @@ Implementado (Issues #56-#59 del Sprint 5 — login, generación de JWT, validac
 
 Login: `POST /api/auth/login`, público, recibe `username`/`password` y devuelve `username`, `role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
 
-Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`) y la consola H2 (`/h2-console/**`, solo entorno de desarrollo).
+Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`), la consola H2 (`/h2-console/**`, solo entorno de desarrollo) y las páginas de la web pública (ver "Web pública" más abajo).
 
 Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <token>` (regla por defecto `anyRequest().authenticated()` en `SecurityConfig`). Sin token, o con uno inválido/caducado, la petición no queda autenticada.
 
+`JwtAuthenticationFilter` captura la excepción de un token inválido, caducado o con firma incorrecta, la registra y deja seguir la petición como anónima: en una ruta pública responde con normalidad y en una protegida responde `401`.
+
 Una petición sin autenticar a una ruta protegida responde `401` con el formato `ErrorResponseDTO` habitual de la API, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security.
+
+### Web pública
+
+Implementado (Issue #91 del Sprint 6 — base Thymeleaf y primera ruta pública).
+
+Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy solo está abierta la portada (`/`); el resto se añaden con su página (ver `docs/FRONTEND.md`). Los recursos estáticos se abrirán por prefijo cuando existan.
+
 
 ### Errores reenviados a `/error`
 
@@ -77,7 +86,7 @@ Los errores de entrada más habituales tienen `@ExceptionHandler` propio con `Er
 
 En todos los errores de validación (cuerpo, parámetros de la URL y elementos de una lista), el `message` contiene únicamente los textos de las restricciones incumplidas, unidos por un espacio, sin nombre de campo ni posición del elemento. Por eso cada restricción lleva un `message` propio en español, que nombra el dato afectado, con mayúscula inicial y punto final. El idioma de la aplicación está fijado a español (`spring.web.locale=es_ES` y `spring.web.locale-resolver=fixed`), así que no depende de la cabecera `Accept-Language` ni de la JVM del servidor. El orden de los textos cuando hay varios errores no está garantizado.
 
-El resto de errores sin handler (ruta inexistente, método o tipo de contenido no soportados, error de integridad de datos) devuelven su código correcto con el JSON por defecto de Spring Boot (ver `BACKLOG.md`).
+El resto de errores sin handler (ruta inexistente, método o tipo de contenido no soportados, error de integridad de datos) devuelven su código correcto con el JSON por defecto de Spring Boot (ver `BACKLOG.md`). Sin token, una ruta inexistente responde `401` y no `404`, porque la seguridad actúa antes que Spring MVC (ver `docs/FRONTEND.md`).
 
 ## Autorización por rol
 

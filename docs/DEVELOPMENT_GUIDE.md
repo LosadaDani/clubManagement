@@ -106,6 +106,7 @@ Mientras los casos de uso de creación y actualización compartan el mismo contr
 - Operaciones transaccionales mediante `@Transactional` cuando una operación implique múltiples modificaciones persistentes.
 
 Sobre Swagger: las respuestas `401` y `403` y el esquema de autenticación (`bearerAuth`) se declaran de forma global en `OpenApiConfig` (un `OperationCustomizer` las añade a todas las operaciones salvo las de `AuthController`, que es público). Por eso, en los `*ControllerDocs` cada endpoint documenta solo sus respuestas funcionales (`200`, `201`, `400`, `404`, `409`...) y no repite el `401` ni el `403`. Un controller público nuevo debería excluirse en ese mismo customizer.
+Los Controllers web no aparecen en Swagger, así que no necesitan exclusión.
 
 Sobre los mensajes de validación: cada restricción de Bean Validation lleva un `message` propio en español (frase completa, con mayúscula inicial y punto final, que nombra el dato afectado), porque el `message` de la respuesta de error contiene solo ese texto, sin el nombre del campo. Sin `message` propio, el texto por defecto (por ejemplo, "no debe ser nulo") no diría qué dato falta. Si la restricción está en un parámetro de un `*ControllerDocs`, el mismo `message` va en la interfaz y en la implementación.
 
@@ -133,7 +134,7 @@ Cada nueva funcionalidad sigue el siguiente orden:
 
 Cuando la funcionalidad añada o cambie un endpoint, antes de las pruebas con Postman se revisa su protección: qué matcher de `SecurityConfig` lo cubre y si necesita comprobación de propiedad en el Service. Un endpoint sin matcher de rol cae en `anyRequest().authenticated()` y queda accesible a cualquier usuario autenticado, y un matcher con `HttpMethod.GET` no se aplica a `HEAD`. Si se cambia el verbo o la ruta de un endpoint, hay que cambiar también su matcher. Las pruebas incluyen siempre a USER y ENTRENADOR, además de ADMIN (ver `DOMAIN_SEGURIDAD.md`).
 
-Cuando la funcionalidad añada o cambie una página de la web pública (Controller web, ver ADR-017), la revisión es la inversa: la ruta debe tener su propio matcher `permitAll` en `SecurityConfig`, sin verbo o cubriendo `GET` y `HEAD`, y sin patrones amplios. Sin matcher, la página cae en `anyRequest().authenticated()`y devuelve `401` a los visitantes. Las pruebas incluyen la ruta sin token, con `HEAD` y con barra final, y comprueban que `/api/**` sigue protegido.
+Cuando la funcionalidad añada o cambie una página de la web pública (Controller web, ver ADR-017), la revisión es la inversa: la ruta debe tener su propio matcher `permitAll` en `SecurityConfig`, sin verbo o cubriendo `GET` y `HEAD`, y sin patrones amplios. Sin matcher, la página cae en `anyRequest().authenticated()` y devuelve `401` a los visitantes. Las pruebas incluyen la ruta sin token, con `HEAD` y con barra final, y comprueban que `/api/**` sigue protegido.
 
 ---
 

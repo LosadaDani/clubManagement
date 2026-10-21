@@ -209,7 +209,7 @@ Garantizar que todas las modificaciones se completen correctamente o que, en cas
 
 ### Estado
 
-Decisión tomada.
+Decisión tomada e implementada.
 
 ### Contexto
 
@@ -287,7 +287,7 @@ por defecto en JPA ya es `LAZY`.
 
 ### Estado
 
-Decisión tomada e implementada (sprint 5).
+Decisión tomada e implementada (Sprint 5).
 
 ### Contexto
 
@@ -364,14 +364,17 @@ La web pública se construye con Thymeleaf:
 regla sigue valiendo para la API REST. Los Controllers web son una excepción
 explícita y limitada a la web pública.
 
+Los Controllers web no usan interfaz `*ControllerDocs` porque no forman parte de la API documentada.
+
 ### Seguridad
 
 `SecurityConfig` mantiene `anyRequest().authenticated()`. Cada ruta pública se
 añade con `permitAll` solo cuando exista su página, por lista explícita y sin
 patrones amplios. Los matchers de las páginas no llevan verbo, o cubren `GET` y
-`HEAD`. Los recursos estáticos públicos (`/css/**`, `/js/**`, `/img/**`,
-`/favicon.ico`) se permiten por prefijo: nada que no sea público debe colocarse
-en `static/`.
+`HEAD`. Las rutas públicas de la web van en su propio bloque de `SecurityConfig`,
+separado del de la API. Los recursos estáticos públicos (`/css/**`, `/js/**`,
+`/img/**`, `/favicon.ico`) se permiten por prefijo cuando existan: nada que no
+sea público debe colocarse en `static/`.
 
 ### Idioma
 
@@ -395,5 +398,8 @@ motivos de SEO, sin modificar la configuración de idioma de la API.
   actual `/escola` y `/escola/` ya no son la misma ruta por defecto: hay que
   decidir cómo tratar la barra final (ver `docs/FRONTEND.md`).
 * Si se migra a React o Angular, las plantillas se sustituyen; la API no se toca.
+* Una ruta inexistente sin token recibe `401` (la seguridad actúa antes que
+Spring MVC), no `404`. Afecta a la página 404 personalizada (ver
+`docs/FRONTEND.md`).
 * Esto no decide el backoffice: su tecnología y el almacenamiento del token
   siguen pendientes.

@@ -185,6 +185,8 @@ Se evita introducir complejidad innecesaria.
 * Diseño responsive y SEO técnico básico
 * Página 404 personalizada
 
+**Estado: En curso**
+
 > Decisiones y pendientes en `docs/FRONTEND.md`. Tecnología: Thymeleaf (ADR-017).
 
 ### Backoffice
@@ -268,7 +270,7 @@ Cada Sprint finaliza con:
 
 Actualmente se encuentran completados los Sprints 1, 2, 3, 4 y 5.
 
-El siguiente paso pasa a ser la web pública del Sprint 6 .
+El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/FRONTEND.md`).
 
 ---
 
@@ -332,7 +334,7 @@ El siguiente paso pasa a ser la web pública del Sprint 6 .
 
 * Una licencia debe estar asociada a una organización, una persona y un perro existentes.
 * El perro debe pertenecer a la persona indicada en la licencia.
-* La fecha de inicio debe ser anterior a la fecha de fin.
+* La fecha de inicio no puede ser posterior a la fecha de fin (pueden coincidir).
 * No pueden existir licencias incompatibles por solapamiento de periodos según las reglas definidas para el dominio.
 * Al actualizar una licencia, la comprobación de solapamiento excluye la propia licencia modificada.
 * Las licencias existentes se conservan para poder consultar el histórico de licencias de un perro.
@@ -414,7 +416,7 @@ En Recibos, las operaciones de escritura y la propuesta son exclusivas de ADMIN;
 
 ### Pendientes técnicos
 
-Los pendientes derivados del sprint (tratamiento de errores sin handler, cambio de contraseña) están en `BACKLOG.md`..
+Los pendientes derivados del sprint (tratamiento de errores sin handler, cambio de contraseña) están en `BACKLOG.md`.
 
 ### Estado
 
