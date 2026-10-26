@@ -25,10 +25,23 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Thymeleaf servido desde la API, mismo proceso, sin CORS (ADR-017).
 * Fragmentos estándar para cabecera, pie y menú. Sin Layout Dialect.
 * Permisos `permitAll` página a página; nunca patrones amplios.
-* La portada se abrió con un matcher exacto (`"/"`), en su propia línea de
-  `SecurityConfig`, separada de login, Swagger y H2. Los recursos estáticos
-  (`/css/**`, `/js/**`, `/img/**`, `/fonts/**`, `/favicon.ico`) se permitirán
-  por prefijo cuando existan (#92).
+* Las páginas y los recursos estáticos tienen cada uno su línea en
+  `SecurityConfig`, separadas de login, Swagger y H2: matchers exactos para las
+  páginas (hoy `"/"`) y por prefijo para los recursos (`/css/**`, `/img/**`,
+  `/fonts/**` y `/favicon.ico`). No hay `/js/**` porque la web no lleva
+  JavaScript (#92).
+* Estructura de plantillas (#92): `templates/index.html` y los fragmentos
+  `templates/fragments/head.html`, `header.html` y `footer.html`. Los
+  fragmentos reciben parámetros (`head(titol, descripcio)` y `header(activa)`,
+  que marca la página actual con `aria-current="page"`). Los enlaces y recursos
+  usan `@{...}`. Los `srcset` se construyen con `th:srcset` por concatenación,
+  porque la sustitución literal `|...|` no admite `@{...}`.
+* Verificado con la aplicación en marcha (#92): la portada responde `200` a
+  `GET` y `HEAD` sin token; el HTML servido no contiene atributos `th:` ni
+  `xmlns:th`; los 17 recursos se sirven con el `Content-Type` correcto
+  (`image/webp`, `font/ttf`, `image/x-icon`, `text/css`); no hay listado de
+  directorios; las páginas aún no creadas (`/el-club`, `/agility`, `/escola` y
+  `/contactans`) responden `401`; y `/api/**` sigue protegido.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -156,7 +169,10 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 * Rutas inexistentes sin token: reciben `401` en JSON, no `404`, porque la
   seguridad actúa antes que Spring MVC. La página 404 personalizada (#98)
   no se vería para un visitante anónimo. Decidir cómo combinarla con
-  `anyRequest().authenticated()`.
+  `anyRequest().authenticated()`. Los recursos estáticos inexistentes
+  (por ejemplo `/css/no-existe.css`) sí responden `404`, pero con el JSON por
+  defecto de Spring Boot, no con `ErrorResponseDTO`, y el mensaje expone la
+  ruta interna del recurso.
 * Experiencia del backoffice ante un token caducado (ir al login o al inicio).
   El backend ya lo trata como anónimo; con el token en cabecera no afecta a la
   web pública, pero cambiaría si se guardara en cookie.
@@ -201,6 +217,18 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 
 * Cerrar o restringir a ADMIN Swagger y la consola H2 en producción.
 * Externalizar clave de firma y expiración del JWT (ADR-016).
+* Perfiles de configuración: hoy todo está en un único `application.properties`.
+  Separar desarrollo y producción (por ejemplo `application-dev.properties` y
+  `application-prod.properties`). Lo que cambia entre ellos: `spring.thymeleaf.cache`
+  (`false` solo en desarrollo; `true` en producción), consola H2, `show-sql` y
+  `format_sql`, `ddl-auto` (`update` no es adecuado en producción) y la base de
+  datos (H2 en memoria a MySQL).
+* Fuentes: convertir los TTF de `static/fonts/` a WOFF2 con subconjunto latino
+  (requiere `fonttools` y `brotli`). Hoy suponen el 36 % del peso de `static/`.
+* Caché de los estáticos: en desarrollo salen con `Cache-Control: no-store`
+  (por devtools, deducido). Al separar perfiles, fijar `spring.web.resources.cache.*`
+  (caché larga, con versión en el nombre de los archivos) y comprobar las
+  cabeceras sin devtools, que no se han verificado.
 * Dominio `agilitymaresme.com`: registro DNS apuntando al servidor, servidor
   web o proxy inverso delante de la aplicación (puertos 80 y 443), certificado
   HTTPS, redirección de HTTP a HTTPS, y elegir una sola versión (con o sin

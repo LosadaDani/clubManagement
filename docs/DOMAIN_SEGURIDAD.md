@@ -63,7 +63,7 @@ Implementado (Issues #56-#59 del Sprint 5 — login, generación de JWT, validac
 
 Login: `POST /api/auth/login`, público, recibe `username`/`password` y devuelve `username`, `role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
 
-Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`), la consola H2 (`/h2-console/**`, solo entorno de desarrollo) y las páginas de la web pública (ver "Web pública" más abajo).
+Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`), la consola H2 (`/h2-console/**`, solo entorno de desarrollo) y las páginas de la web pública con sus recursos estáticos (ver "Web pública" más abajo).
 
 Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <token>` (regla por defecto `anyRequest().authenticated()` en `SecurityConfig`). Sin token, o con uno inválido/caducado, la petición no queda autenticada.
 
@@ -73,9 +73,11 @@ Una petición sin autenticar a una ruta protegida responde `401` con el formato 
 
 ### Web pública
 
-Implementado (Issue #91 del Sprint 6 — base Thymeleaf y primera ruta pública).
+Implementado (Issues #91 y #92 del Sprint 6 — base Thymeleaf, portada y recursos estáticos).
 
-Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy solo está abierta la portada (`/`); el resto se añaden con su página (ver `docs/FRONTEND.md`). Los recursos estáticos se abrirán por prefijo cuando existan.
+Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy solo está abierta la portada (`/`); el resto se añaden con su página (ver `docs/FRONTEND.md`).
+
+Los recursos estáticos se abren por prefijo, en una línea propia: `/css/**`, `/img/**`, `/fonts/**` y `/favicon.ico`. No hay `/js/**` porque la web no lleva JavaScript. Todo lo que cuelga de esos prefijos es público, así que nada que no deba verse puede colocarse en `static/`. Un recurso estático inexistente responde `404` con el JSON por defecto de Spring Boot (no con `ErrorResponseDTO`), mientras que una página inexistente sin token responde `401`.
 
 
 ### Errores reenviados a `/error`

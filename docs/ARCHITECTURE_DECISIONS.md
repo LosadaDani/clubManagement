@@ -373,8 +373,9 @@ añade con `permitAll` solo cuando exista su página, por lista explícita y sin
 patrones amplios. Los matchers de las páginas no llevan verbo, o cubren `GET` y
 `HEAD`. Las rutas públicas de la web van en su propio bloque de `SecurityConfig`,
 separado del de la API. Los recursos estáticos públicos (`/css/**`, `/js/**`,
-`/img/**`, `/favicon.ico`) se permiten por prefijo cuando existan: nada que no
-sea público debe colocarse en `static/`.
+`/img/**`, `/fonts/**`, `/favicon.ico`) se permiten por prefijo, en su propia
+línea; no hay `/js/**` mientras la web no lleve JavaScript. Nada que no sea
+público debe colocarse en `static/`.
 
 ### Idioma
 

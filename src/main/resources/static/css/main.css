@@ -1,0 +1,273 @@
+/* =====================================================================
+   Club d'Agility Maresme · estils de la web pública
+   Parteix del CSS de docs/design/maqueta-portada-v3.html.
+   Mòbil primer: les regles base són per a pantalla estreta i les
+   @media (min-width: ...) del final les amplien.
+   ===================================================================== */
+
+/* ---------- Fonts (allotjades al projecte, llicència OFL) ----------
+   Una família per tipus de lletra i un @font-face per pes real del fitxer.
+   De moment són TTF: falta passar-les a WOFF2 amb subconjunt llatí
+   (veure docs/reviews/portada-thymeleaf.md). */
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("../fonts/barlow-condensed/BarlowCondensed-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter/Inter_18pt-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("../fonts/inter/Inter_18pt-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Variables ----------
+   Paleta de docs/reviews/estilos-botones.md. Al costat, on es pot fer servir cada color. */
+:root {
+  --marino: #0F1839;          /* fons de capçalera, banda i peu; text sobre clar */
+  --azul-logo: #21417A;       /* text sobre clar; NO com a text sobre marino (1,74:1) */
+  --azul-vivo: #085195;       /* enllaços sobre clar */
+  --azul-medio: #2159A4;      /* només decoratiu sobre marino */
+  --azul-gris: #6A81AB;       /* només decoratiu sobre clar (3,70:1) */
+  --azul-hielo: #9EAFC1;      /* text secundari sobre marino */
+  --azul-niebla: #DDE5EF;     /* text secundari sobre marino, fons suaus */
+  --blanco: #FFFFFF;
+  --claro: #F7F8FC;           /* fons del cos */
+  --naranja: #F28C28;         /* accent NOMÉS sobre fosc */
+  --naranja-claro: #F6B27A;   /* hover del botó principal */
+  --naranja-oscuro: #B45309;  /* accent sobre clar */
+
+  /* Titulars: Barlow Condensed 700. Text, menú i botons: Inter 400 i 600. */
+  --fuente-titulos: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --fuente-texto: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --radio: 8px;
+  --amplada: 1200px;
+  /* Marca d'aigua del gos. Al 16 % el taronja sobre el contorn blanc no arriba
+     a 4,5:1: cap text pot quedar a sobre de la marca (docs/FRONTEND.md). */
+  --marca-opacitat: .16;
+}
+
+/* ---------- Base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  -webkit-text-size-adjust: 100%;
+  font-synthesis: none;       /* sense negretes ni cursives falses: només els pesos carregats */
+}
+body {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--marino);
+  background: var(--claro);
+}
+h1, h2 { font-family: var(--fuente-titulos); font-weight: 700; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: var(--azul-vivo); }
+.contenidor { width: 100%; max-width: var(--amplada); margin: 0 auto; padding: 0 16px; }
+
+/* Focus visible: marino sobre clar, blanc sobre fosc. */
+:focus-visible { outline: 3px solid var(--marino); outline-offset: 3px; }
+.fosc :focus-visible { outline-color: var(--blanco); }
+
+/* ---------- Capçalera ---------- */
+.capcalera { background: var(--marino); color: var(--blanco); }
+.capcalera .contenidor {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 24px; padding-top: 10px; padding-bottom: 10px;
+}
+.marca {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--blanco); text-decoration: none;
+}
+.marca img { width: 112px; height: auto; }
+.marca span {
+  font-family: var(--fuente-titulos); font-weight: 700;
+  font-size: 1.125rem; line-height: 1.2; letter-spacing: .01em;
+}
+.menu ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 2px 4px;
+}
+.menu a {
+  display: block; padding: 10px 10px;
+  color: var(--blanco); text-decoration: none; font-weight: 600;
+  border-bottom: 3px solid transparent;
+}
+.menu a:hover { border-bottom-color: var(--naranja); }
+.menu a[aria-current="page"] { border-bottom-color: var(--naranja); }   /* pàgina activa */
+
+/* ---------- Hero ----------
+   Mòbil: foto a dalt i panell de text a sota, que hi puja amb una diagonal.
+   Escriptori: veure la @media de 900 px. */
+.hero { position: relative; background: var(--marino); color: var(--blanco); overflow: hidden; }
+.hero-foto { position: relative; aspect-ratio: 3 / 2; }
+.hero-foto img { width: 100%; height: 100%; object-fit: cover; object-position: 58% 50%; }
+
+.hero-text {
+  position: relative;
+  margin-top: -48px;             /* puja sobre la foto amb la diagonal */
+  padding: 64px 16px 72px;
+  background: var(--marino);
+  clip-path: polygon(0 48px, 100% 0, 100% 100%, 0 100%);
+}
+.hero-text h1 {
+  margin: 0 0 24px;
+  font-size: clamp(2rem, 6vw, 3.25rem);
+  line-height: 1.05;
+  letter-spacing: -.01em;
+}
+.hero-text .lloc {
+  margin: 0 0 4px; color: var(--naranja); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .06em; font-size: .875rem;
+}
+/* z-index 1: el text queda per sobre de la marca d'aigua (z-index 0). */
+.hero-text .contingut { position: relative; z-index: 1; max-width: var(--amplada); margin: 0 auto; }
+
+/* ---------- Marca d'aigua ----------
+   El gos del logo, decoratiu (aria-hidden i alt buit), per darrere del text. */
+.marca-aigua {
+  position: absolute; z-index: 0; display: block;
+  pointer-events: none; opacity: var(--marca-opacitat);
+}
+.marca-aigua img { width: 100%; height: auto; }
+.hero .marca-aigua { right: -40px; bottom: -20px; width: 320px; }
+
+/* ---------- Botó principal: taronja sòlid, text marino ---------- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 24px; border-radius: var(--radio);
+  font: inherit; font-weight: 600; text-decoration: none;
+  background: var(--naranja); color: var(--marino);
+  border: 2px solid var(--naranja);
+  transition: background-color .15s, border-color .15s;
+}
+.btn:hover { background: var(--naranja-claro); border-color: var(--naranja-claro); }
+.btn:active { transform: translateY(1px); }
+
+/* ---------- Mosaic de tessel·les ---------- */
+.mosaic { padding: 56px 0 72px; }
+.mosaic h2 {
+  margin: 0 0 24px; font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.15;
+}
+.mosaic h2::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 10px;
+  background: var(--naranja-oscuro);
+}
+.tesseles { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
+.tessela a {
+  position: relative; display: block; overflow: hidden;
+  border-radius: var(--radio); text-decoration: none; color: var(--blanco);
+  background: var(--marino);
+}
+/* Les fotos ja són 4:3 (800x600): aspect-ratio només reserva l'espai. */
+.tessela img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform .3s; }
+.tessela a:hover img { transform: scale(1.03); }
+.etiqueta {
+  position: absolute; left: 0; bottom: 0;
+  padding: 12px 40px 12px 16px;
+  background: var(--marino);
+  clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 100%, 0 100%);
+  border-left: 4px solid var(--naranja);
+}
+.etiqueta strong {
+  display: block; font-family: var(--fuente-titulos); font-weight: 700;
+  font-size: 1.25rem; line-height: 1.2;
+}
+.etiqueta small { display: block; color: var(--azul-niebla); font-size: .875rem; }
+.tessela a:focus-visible { outline-color: var(--marino); }
+
+/* ---------- Banda fosca ---------- */
+.banda {
+  position: relative; color: var(--blanco); background: var(--marino);
+  clip-path: polygon(0 40px, 100% 0, 100% 100%, 0 100%);
+  margin-top: -40px;
+  overflow: hidden;
+}
+.banda img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 55%;
+}
+.banda::before {
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  /* --marino al 88 %: amb la foto en blanc pur (els focus) el text taronja
+     queda en 4,98:1 i el blanc en 12,23:1 (docs/reviews/maqueta-portada-v2.md). */
+  background: rgba(15, 24, 57, .88);
+}
+.banda .contenidor { position: relative; z-index: 2; padding-top: 112px; padding-bottom: 96px; }
+.banda .frase {
+  margin: 0; max-width: 22ch;
+  font-family: var(--fuente-titulos); font-weight: 700;
+  font-size: clamp(1.5rem, 4.5vw, 2.5rem); line-height: 1.2;
+}
+.banda .frase span { color: var(--naranja); white-space: nowrap; }   /* «des de 1992.» no es parteix */
+/* Marca: per sobre del vel (z-index 1, però va després de ::before a l'HTML) i
+   per sota del text (z-index 2). Per sota de 900 px quedaria darrere de la frase:
+   s'amaga, i el <source> buit de l'HTML evita que es descarregui. */
+.banda .marca-aigua { display: none; z-index: 1; }
+.banda .marca-aigua img { position: static; height: auto; }   /* anul·la .banda img (la foto de fons) */
+
+/* ---------- Peu ---------- */
+.peu { background: var(--marino); color: var(--azul-niebla); padding: 40px 0 32px; }
+.peu .contenidor { display: grid; gap: 24px; }
+.peu h2 { margin: 0 0 8px; color: var(--blanco); font-size: 1.125rem; }
+.peu address { font-style: normal; }
+.peu ul { list-style: none; margin: 0; padding: 0; }
+.peu li { margin: 0 0 6px; }
+.peu a { color: var(--blanco); text-underline-offset: 3px; }
+.peu a:hover { color: var(--naranja); }
+.peu .peu-final { border-top: 1px solid var(--azul-logo); padding-top: 16px; font-size: .875rem; color: var(--azul-hielo); }
+
+/* ---------- Pantalles mitjanes ---------- */
+@media (min-width: 640px) {
+  .tesseles { grid-template-columns: 1fr 1fr; gap: 20px; }
+  .tessela:nth-child(even) { transform: translateY(24px); }   /* ritme esglaonat */
+  .mosaic { padding-bottom: 96px; }
+  .peu .contenidor { grid-template-columns: 1fr 1fr; }
+  .peu .peu-final { grid-column: 1 / -1; }
+}
+
+/* ---------- Escriptori: text a l'esquerra, foto a la dreta amb diagonal ---------- */
+@media (min-width: 900px) {
+  .marca img { width: 140px; }
+  .marca span { font-size: 1.25rem; }
+  .hero { display: grid; grid-template-columns: 42% 58%; min-height: 520px; }
+  .hero-foto { grid-column: 2; grid-row: 1; aspect-ratio: auto; margin-left: -12%; }
+  .hero-text {
+    grid-column: 1; grid-row: 1; z-index: 1;
+    /* El text deixa a la dreta el 18 % que ocupa la diagonal més 40 px d'aire. */
+    margin: 0; padding: 72px calc(18% + 40px) 88px clamp(24px, 4vw, 64px);
+    clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+    display: flex; align-items: center;
+  }
+  .hero-text .contingut { margin: 0; }
+  /* Com a màxim el 54 % del panell, perquè el cap del gos acabi abans de la diagonal. */
+  .hero .marca-aigua { right: auto; left: 24%; bottom: -20px; width: min(360px, 54%); }
+  .hero-text h1 { font-size: clamp(2rem, 3.4vw, 3.25rem); }
+  .banda { clip-path: polygon(0 72px, 100% 0, 100% 100%, 0 100%); margin-top: -72px; }
+  .banda img { object-position: 50% 50%; }
+  /* El text no passa del 75 % de l'amplada: a la dreta es deixa veure la foto. */
+  .banda::before {
+    background: linear-gradient(90deg, rgba(15, 24, 57, .88) 0%, rgba(15, 24, 57, .88) 75%, rgba(15, 24, 57, .55) 100%);
+  }
+  .banda .contenidor { padding-top: 160px; padding-bottom: 120px; }
+  /* Tope de 36vw: amb 520 px fixos, a 900 px el contorn blanc quedava darrere de la frase. */
+  .banda .marca-aigua { display: block; right: -40px; bottom: 0; width: min(520px, 36vw); }
+  .peu .contenidor { grid-template-columns: 2fr 1fr 1fr; }
+}
+
+/* Moviment reduït: !important perquè ha de guanyar a totes les transicions
+   dels components, siguin quines siguin les seves regles. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
+}

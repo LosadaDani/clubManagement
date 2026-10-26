@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Capçalera comuna. Paràmetre: pàgina activa ('inici', 'el-club', 'agility',
+     'escola' o 'contactans'), que marca l'enllaç del menú amb aria-current="page". -->
+<header th:fragment="header(activa)" class="capcalera fosc">
+    <div class="contenidor">
+        <a class="marca" th:href="@{/}">
+            <img th:src="@{/img/logo-maresme-480.webp}" width="480" height="248"
+                 alt="Logotip del club: un gos blau en ple salt">
+            <span>Club d'Agility Maresme</span>
+        </a>
+        <nav class="menu" aria-label="Menú principal">
+            <ul>
+                <li><a th:href="@{/}" th:attr="aria-current=${activa == 'inici' ? 'page' : null}">Inici</a></li>
+                <li><a th:href="@{/el-club}" th:attr="aria-current=${activa == 'el-club' ? 'page' : null}">El club</a></li>
+                <li><a th:href="@{/agility}" th:attr="aria-current=${activa == 'agility' ? 'page' : null}">Agility</a></li>
+                <li><a th:href="@{/escola}" th:attr="aria-current=${activa == 'escola' ? 'page' : null}">Formació</a></li>
+                <li><a th:href="@{/contactans}" th:attr="aria-current=${activa == 'contactans' ? 'page' : null}">Contacte</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+</body>
+</html>

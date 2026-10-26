@@ -1,12 +1,90 @@
 <!DOCTYPE html>
-<html lang="ca">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Club Agility Maresme</title>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Club d\'Agility Maresme · Agility a Argentona', 'Club d\'Agility Maresme, a Argentona (Barcelona), des de 1992. Curs d\'iniciació a l\'agility.')}">
 </head>
 <body>
-    <h1>Club Agility Maresme</h1>
-    <p>Pàgina de prova: el frontend amb Thymeleaf funciona correctament.</p>
+
+<header th:replace="~{fragments/header :: header('inici')}"></header>
+
+<main>
+    <section class="hero fosc" aria-labelledby="titol">
+        <div class="hero-foto">
+            <img th:src="@{/img/hero-atardecer-1920.webp}"
+                 th:srcset="@{/img/hero-atardecer-960.webp} + ' 960w, ' + @{/img/hero-atardecer-1920.webp} + ' 1920w'"
+                 sizes="(min-width: 900px) 66vw, 100vw" width="1920" height="960" fetchpriority="high"
+                 alt="Un caniche de color canyella salta una tanca blava i blanca a la posta de sol, mentre el seu guia corre al darrere">
+        </div>
+        <div class="hero-text">
+            <div class="contingut">
+                <p class="lloc">Argentona · Barcelona · Des de 1992</p>
+                <h1 id="titol">Club d'Agility Maresme</h1>
+                <a class="btn" th:href="@{/contactans}">Contacta'ns <span aria-hidden="true">→</span></a>
+            </div>
+            <picture class="marca-aigua" aria-hidden="true">
+                <img th:src="@{/img/marca-perro.webp}" width="570" height="292" alt="">
+            </picture>
+        </div>
+    </section>
+
+    <section class="mosaic" aria-labelledby="titol-mosaic">
+        <div class="contenidor">
+            <h2 id="titol-mosaic">Descobreix el club</h2>
+            <ul class="tesseles">
+                <li class="tessela">
+                    <a th:href="@{/agility}">
+                        <img th:src="@{/img/tesela-agility-800.webp}" width="800" height="600" loading="lazy"
+                             alt="Un guia vestit de blau indica el camí a un gos marró i blanc que baixa d'un salt d'una rampa groga i vermella, sobre una pista blava">
+                        <span class="etiqueta"><strong>L'agility</strong><small>Què és l'agility</small></span>
+                    </a>
+                </li>
+                <li class="tessela">
+                    <a th:href="@{/el-club}">
+                        <img th:src="@{/img/tesela-club-800.webp}" width="800" height="600" loading="lazy"
+                             alt="La pista de gespa natural del club al vespre, il·luminada amb focus i amb obstacles d'agility repartits">
+                        <span class="etiqueta"><strong>El club</strong><small>Qui som</small></span>
+                    </a>
+                </li>
+                <li class="tessela">
+                    <a th:href="@{/escola}">
+                        <img th:src="@{/img/tesela-formacio-800.webp}" width="800" height="600" loading="lazy"
+                             alt="Dos cadells juguen junts sobre la gespa de la pista: un de color canyella i un de negre">
+                        <span class="etiqueta"><strong>Formació</strong><small>Curs d'iniciació a l'agility</small></span>
+                    </a>
+                </li>
+                <li class="tessela">
+                    <a th:href="@{/contactans}">
+                        <img th:src="@{/img/tesela-contacte-800.webp}" width="800" height="600" loading="lazy"
+                             alt="Foto de grup de socis del club amb samarretes blaves i els seus gossos, a la gespa">
+                        <span class="etiqueta"><strong>Contacte</strong><small>Escriu-nos o truca'ns</small></span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="banda fosc" aria-label="El club">
+        <!-- A partir de 900 px, el retall d'escriptori; per sota, el de mòbil. -->
+        <picture>
+            <source media="(min-width: 900px)"
+                    th:srcset="@{/img/banda-escritorio-960.webp} + ' 960w, ' + @{/img/banda-escritorio-1920.webp} + ' 1920w'"
+                    sizes="100vw" width="1920" height="800">
+            <img th:src="@{/img/banda-1920.webp}"
+                 th:srcset="@{/img/banda-960.webp} + ' 960w, ' + @{/img/banda-1920.webp} + ' 1920w'"
+                 sizes="100vw" width="1920" height="800" loading="lazy"
+                 alt="La pista de gespa artificial del club de nit, amb focus encesos, tanques vermelles i túnels de colors">
+        </picture>
+        <!-- Per sota de 900 px la marca s'amaga (CSS) i aquest GIF buit de 1 px evita descarregar-la. -->
+        <picture class="marca-aigua" aria-hidden="true">
+            <source media="(max-width: 899px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+            <img th:src="@{/img/marca-perro.webp}" width="570" height="292" loading="lazy" alt="">
+        </picture>
+        <div class="contenidor">
+            <p class="frase">Club d'Agility Maresme, <span>des de 1992.</span></p>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
 </body>
 </html>
