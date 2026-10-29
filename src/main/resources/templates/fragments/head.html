@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<!-- Fragment <head> comú. Paràmetres: títol i meta description de cada pàgina. -->
-<head th:fragment="head(titol, descripcio)">
+<!-- Fragment <head> comú. Paràmetres: títol, meta description i ruta canònica de cada pàgina
+     ('/' o '/el-club', sense barra final). La URL base de la canònica només s'escriu aquí. -->
+<head th:fragment="head(titol, descripcio, ruta)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${titol}">Club d'Agility Maresme</title>
     <meta name="description" th:content="${descripcio}">
+    <link rel="canonical" th:href="'https://agilitymaresme.com' + ${ruta}">
     <link rel="icon" th:href="@{/favicon.ico}" sizes="any">
     <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>

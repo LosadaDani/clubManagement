@@ -355,7 +355,7 @@ La web pública se construye con Thymeleaf:
   sistema estándar de Thymeleaf. No se usa Layout Dialect.
 * Los Controllers web devuelven nombres de vista, no `ResponseEntity`. Viven en
   un paquete propio (`controller.web`), sin lógica de negocio, y nunca pasan
-  entidades JPA a las plantillas.
+  entidades JPA a las plantillas. Mientras sean vistas sin lógica, un único Controller (`PublicWebController`) agrupa las páginas públicas.
 * Los Controllers REST (`/api/**`) no cambian.
 
 ### Excepción documentada
@@ -371,7 +371,8 @@ Los Controllers web no usan interfaz `*ControllerDocs` porque no forman parte de
 `SecurityConfig` mantiene `anyRequest().authenticated()`. Cada ruta pública se
 añade con `permitAll` solo cuando exista su página, por lista explícita y sin
 patrones amplios. Los matchers de las páginas no llevan verbo, o cubren `GET` y
-`HEAD`. Las rutas públicas de la web van en su propio bloque de `SecurityConfig`,
+`HEAD`. Cada página lista las dos variantes de su ruta, con y sin barra
+final. Las rutas públicas de la web van en su propio bloque de `SecurityConfig`,
 separado del de la API. Los recursos estáticos públicos (`/css/**`, `/js/**`,
 `/img/**`, `/fonts/**`, `/favicon.ico`) se permiten por prefijo, en su propia
 línea; no hay `/js/**` mientras la web no lleve JavaScript. Nada que no sea
@@ -396,8 +397,7 @@ motivos de SEO, sin modificar la configuración de idioma de la API.
 
 * Nueva dependencia: `spring-boot-starter-thymeleaf`.
 * Las rutas de la web son rutas de Controller, no archivos. En Spring MVC
-  actual `/escola` y `/escola/` ya no son la misma ruta por defecto: hay que
-  decidir cómo tratar la barra final (ver `docs/FRONTEND.md`).
+  actual `/escola` y `/escola/` ya no son la misma ruta por defecto. Cada página acepta las dos (mapeo y matcher con las dos rutas) y declara como canónica la versión sin barra con `<link rel="canonical">`. Una redirección `301` de una a otra, si se quiere, se hace en el servidor web delantero (ver`docs/FRONTEND.md`).
 * Si se migra a React o Angular, las plantillas se sustituyen; la API no se toca.
 * Una ruta inexistente sin token recibe `401` (la seguridad actúa antes que
 Spring MVC), no `404`. Afecta a la página 404 personalizada (ver

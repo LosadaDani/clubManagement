@@ -271,3 +271,69 @@ a { color: var(--azul-vivo); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; }
 }
+
+/* =====================================================================
+   Pàgina de text: El club (/el-club, templates/club.html)
+   Regles de docs/design/maqueta-club-v1f.html, amb els mateixos valors
+   (mesures a docs/reviews/maqueta-club-v1f.md). Mòbil primer: una
+   columna de 35rem; des de 900 px, una sola graella de dues columnes.
+   ===================================================================== */
+.pagina { padding: 40px 0 72px; }
+.pagina h1 {
+  margin: 0 0 28px;
+  font-size: clamp(2.25rem, 7vw, 3.25rem); line-height: 1.05; letter-spacing: -.01em;
+}
+.pagina h1::after {     /* el mateix filet que el h2 del mosaic de la portada */
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 12px;
+  background: var(--naranja-oscuro);
+}
+/* 35rem (560 px) amb Inter a 17 px: 66 lletres per línia de mitjana, entre 58 i 74 (mesurat a Chrome). */
+.text { max-width: 35rem; }
+.text p { margin: 0 0 1.25em; font-size: 1.0625rem; line-height: 1.65; }
+.foto { width: 100%; border-radius: var(--radio); }
+.foto-grup { margin: 32px 0; }
+.pistes { display: grid; gap: 16px; margin: 32px 0 0; }
+
+/* Adreça i botó: bloc fosc, perquè el botó taronja no es perdi sobre el fons clar. */
+.visita {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 16px 32px; margin-top: 40px; padding: 24px;
+  background: var(--marino); color: var(--blanco); border-radius: var(--radio);
+}
+.visita address { font-style: normal; font-size: 1.0625rem; }
+/* Text només per a lectors de pantalla (l'avís de pestanya nova del botó). */
+.visualment-amagat {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+@media (min-width: 560px) {
+  .pistes { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 900px) {
+  .pagina { padding: 56px 0 96px; }
+  .text { max-width: none; }
+  /* Una sola graella per a tots els blocs: dues columnes iguals i 3rem de buit, el mateix
+     que el column-gap de P3/P4. Columnes de 410 px a 900, 472 a 1024, 510 a 1100 i 560
+     a partir de 1232 (el contenidor ja no creix). */
+  .entrada, .pistes { display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem; }
+  /* Bloc 1: entradeta a l'esquerra i foto de grup a la dreta, a tota la columna, alineades
+     a dalt. Lletra 1,25 vegades la del text fins a 1099 px i 1,2 des de 1100, on la foto
+     passa a ser la panoràmica (més baixa): és la mida que deixa menys buit sota el més
+     curt a cada tram. */
+  .entrada { align-items: start; }
+  .entradeta p { font-size: calc(1.0625rem * 1.25); line-height: 1.5; }
+  .entradeta p:last-child { margin-bottom: 0; }
+  .entrada .foto-grup { margin: 0; }
+  /* Bloc 2: P3 i P4 en dues columnes. P3 es pot partir perquè les dues acabin a la mateixa
+     altura; P4 no. Amb el widows: 2 per defecte, la segona columna havia de dur com a
+     mínim dues línies de P3 a més de tot P4, i quedava fins a 56 px més llarga (o P3
+     sencer a la primera); amb 1, la diferència baixa a 21 px com a molt. */
+  .cos { column-count: 2; column-gap: 3rem; margin-top: 40px; }
+  .cos p:first-child { widows: 1; }
+  .cos p:last-child { break-inside: avoid; margin-bottom: 0; }
+  /* Bloc 3: cada pista ocupa una columna de la graella. */
+}
+@media (min-width: 1100px) {
+  .entradeta p { font-size: calc(1.0625rem * 1.2); }
+}

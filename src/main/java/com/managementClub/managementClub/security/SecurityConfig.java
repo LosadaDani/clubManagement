@@ -36,8 +36,13 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/h2-console/**"
                         ).permitAll()
-                        .requestMatchers( "/css/**", "/img/**", "/fonts/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/").permitAll()
+                        .requestMatchers( "/css/**",
+                                "/img/**",
+                                "/fonts/**",
+                                "/favicon.ico").permitAll()
+                        .requestMatchers("/",
+                                "/el-club",
+                                "/el-club/").permitAll()
                         .requestMatchers( "/api/receipt/proposal").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/persons",

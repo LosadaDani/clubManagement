@@ -32,7 +32,7 @@ de socios y sus perros (ver «Pendiente de decidir»).
   JavaScript (#92).
 * Estructura de plantillas (#92): `templates/index.html` y los fragmentos
   `templates/fragments/head.html`, `header.html` y `footer.html`. Los
-  fragmentos reciben parámetros (`head(titol, descripcio)` y `header(activa)`,
+  fragmentos reciben parámetros (`head(titol, descripcio, ruta)` y `header(activa)`,
   que marca la página actual con `aria-current="page"`). Los enlaces y recursos
   usan `@{...}`. Los `srcset` se construyen con `th:srcset` por concatenación,
   porque la sustitución literal `|...|` no admite `@{...}`.
@@ -40,8 +40,67 @@ de socios y sus perros (ver «Pendiente de decidir»).
   `GET` y `HEAD` sin token; el HTML servido no contiene atributos `th:` ni
   `xmlns:th`; los 17 recursos se sirven con el `Content-Type` correcto
   (`image/webp`, `font/ttf`, `image/x-icon`, `text/css`); no hay listado de
-  directorios; las páginas aún no creadas (`/el-club`, `/agility`, `/escola` y
-  `/contactans`) responden `401`; y `/api/**` sigue protegido.
+  directorios; las páginas aún no creadas responden `401`; y `/api/**` sigue
+  protegido.
+* Barra final de las URLs (#94): para Spring MVC, `/el-club` y `/el-club/` son
+  rutas distintas. Cada página acepta las dos: su `@GetMapping` lleva las dos
+  rutas (`{"/el-club", "/el-club/"}`) y el matcher `permitAll` de
+  `SecurityConfig` también. La versión oficial es la que no lleva barra, y se
+  declara con `<link rel="canonical">`. Una redirección `301` de una a otra, si
+  se quiere, se hace en el servidor web delantero (ver «Para la publicación»).
+  Verificado en #94: `GET` y `HEAD` a las dos variantes dan `200` y sirven
+  exactamente el mismo HTML.
+* Etiqueta canónica (#94): el fragmento `head` recibe la ruta
+  (`head(titol, descripcio, ruta)`) y escribe
+  `<link rel="canonical" href="https://agilitymaresme.com" + ruta>`. La URL base
+  está en un solo sitio, el propio fragmento. Cada plantilla pasa su ruta sin
+  barra final (`'/'` en la portada y `'/el-club'` en El club), también cuando se
+  visita la variante con barra.
+* Un único Controller web (`PublicWebController`, paquete `controller.web`)
+  agrupa las páginas públicas: son vistas sin lógica ni datos, y un Controller
+  por página no aportaría nada.
+* El club (#94), texto en catalán en `club.html`: fundación en 1992 («un dels
+  primers clubs d'agility d'Espanya», dato real aportado por el club), club
+  social esportiu, federado en la FCAG (participa en sus competiciones y
+  organiza pruebas), colaboración con la RSCE, dos pistas de competición y dos
+  recintos cerrados pequeños, palmarés resumido sin nombres ni fechas (con
+  permiso de los socios) y dirección. No se incluye lo que solo tenía sentido
+  para organizar pruebas (iluminación, cronómetro, aparcamiento y pernocta).
+  Fotos: grupo, pista natural y pista artificial.
+* Maquetación de El club (#94): el texto va primero. Rejilla común de dos
+  columnas iguales desde 900 px: entradilla (P1 y P2) con la foto de grupo a su
+  lado (panorámica recortada en píxeles desde 1100 px; por debajo, la
+  original), P3 y P4 en dos columnas CSS, las dos pistas una por columna, y
+  dirección con botón. Por debajo de 900 px, una sola columna con el mismo
+  orden del HTML. Se compararon antes otras disposiciones en maquetas
+  (`docs/design/maqueta-club-*.html`, informes en `docs/reviews/`); se
+  descartaron las que dejaban huecos grandes o empujaban el texto bajo el
+  pliegue (con la foto de grupo a ancho completo, a 1280x800 el primer párrafo
+  quedaba fuera de la primera pantalla).
+* Texto sin justificar y sin separación silábica (#94): se probó
+  `text-align: justify` con `hyphens: auto` desde 1100 px y se descartó. Chrome
+  parte palabras de forma distinta según el ancho, parte una palabra entre dos
+  columnas («Bri-tish») y, en una prueba aparte, puede partir «col·laborem» por
+  el punto volado (`col·-` / `laborem`), que no es la forma normativa. No usar
+  `hyphens: auto` en el texto en catalán sin resolver antes ese caso.
+* Dirección y mapa (#94): botón «Com arribar» a Google Maps
+  (`target="_blank"`, `rel="noopener noreferrer"`, con aviso oculto de pestaña
+  nueva), sobre un bloque azul marino que da contraste suficiente al botón
+  naranja (7,07:1). No se incrusta ningún mapa: un `iframe` de Google contacta
+  con sus servidores al cargar la página y chocaría con la decisión de no usar
+  cookies ni terceros.
+* Imágenes de El club (#94): pistas con `srcset` de 800 y 1200 px (pantallas
+  2x); foto de grupo de 800 y 1477 px (el original no da más, y a 2x se verá
+  algo blanda). WebP sin EXIF ni GPS. `loading="lazy"` solo en las imágenes
+  que no se ven al cargar.
+* CSS: los nombres de clase de la página de El club (`.text`, `.foto`, `.cos`,
+  `.pistes`, `.visita`, `.pagina`) son globales en `main.css`. No chocan con
+  nada hoy; no reutilizarlos con otro significado en otras páginas.
+* Verificado con la aplicación en marcha (#94): las cuatro combinaciones (con y
+  sin barra, `GET` y `HEAD`) dan `200`; una sola canónica en cada página; el
+  HTML de la portada solo cambia en la canónica; todos los recursos dan `200`;
+  sin desbordamiento horizontal de 360 a 1440 px; el primer párrafo se ve sin
+  hacer scroll a 1280x800; se cargan las tres fuentes. Solo comprobado en Chrome.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -69,7 +128,6 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Sin testimonios, cifras ni datos inventados: solo contenido real del club.
 * Sin analítica ni cookies de seguimiento en la primera versión (por tanto,
   sin banner de cookies).
-
 ## Dirección de diseño
 
 * Tono: mezcla de deportivo (energía del logo) y familiar (cercanía, grupo),
@@ -110,10 +168,25 @@ de socios y sus perros (ver «Pendiente de decidir»).
     (`formacio-cadells`), en lugar del caniche saltando.
   * Teselas «El club» y «Contacte» sin intercambiar. «Contacte» sigue con la
     foto de grupo, provisional hasta repetirla.
+  * Tesela «Agility» con la foto de un border negro saltando una valla
+    (`tesela-agility-border-800.webp`, recortada en píxeles a 4:3), que sustituye
+    a la anterior. `tesela-agility-800.webp` queda sin uso en `static/img/`;
+    decidir si se borra.
   * Alineación del texto de la cabecera con el logo: se deja como está en la
     maqueta.
   * Textos de la maqueta en catalán revisados por Dani, que los da por
     correctos. Siguen siendo provisionales hasta los textos definitivos.
+* Fotos de perros: no repetir un perro dentro de una misma página ni entre
+  páginas de contenido. La portada es una excepción aceptada. No se publican
+  fotos con terceros reconocibles (por ejemplo, público de fondo) salvo permiso
+  o recorte.
+* Repeticiones entre la portada y El club (aceptadas hasta tener todas las
+  secciones): `club-natural` es también la tesela «El club», la foto de grupo es
+  la tesela «Contacte» y la pista artificial es la banda nocturna.
+* Página de Agility (#95, previsto): imagen de apertura con la foto del
+  Shetland corriendo (la alternativa descartada para la cabecera de la portada)
+  y debajo seis fotos, una por obstáculo (túnel, A, slalom, balancín, pasarela y
+  salto), de perros distintos.
 * Marca de agua y contraste: con la marca al 16 %, el texto naranja sobre el
   contorno blanco del perro no cumple 4,5:1 (4,36:1 en la cabecera, 3,04:1 en
   la banda). En la maqueta ningún texto se solapa con la marca, y por eso todo
@@ -121,7 +194,6 @@ de socios y sus perros (ver «Pendiente de decidir»).
   (por ejemplo, con una máscara que deje limpia la zona del texto) y volver a
   medir si cambian la frase, el tamaño de letra o la opacidad. La marca solo
   incluye la mitad delantera del perro, recortada del JPEG del logo.
-
 ## Datos del club
 
 * Nombre: Club d'Agility Maresme
@@ -130,11 +202,11 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Teléfono: 600 434 201
 * Fundado el 4 de octubre de 1992 (en la web se presenta como «Des de 1992»)
 * Formación: curso de iniciación al agility
-* Colaboración con FCAG y RSCE
-
-Los datos están confirmados por el club. El código postal es el del municipio
-de Argentona (08310, según la web del Ajuntament); no se ha comprobado un
-código distinto para el paraje de Sot de Can Calopa.
+* Federado en la FCAG (participa en sus competiciones y organiza pruebas) y
+  colaboración con la RSCE (participa y organiza pruebas de ambas entidades)
+  Los datos están confirmados por el club. El código postal es el del municipio
+  de Argentona (08310, según la web del Ajuntament); no se ha comprobado un
+  código distinto para el paraje de Sot de Can Calopa.
 
 ## Fotos: autoría, permisos y marcas
 
@@ -152,20 +224,16 @@ imagen.
 | Interior con collie negro y guía (`96CB0B50`, no usada en la maqueta) | Firma «Antonio Luna · Fotografía creativa» abajo, en el centro, grande | No usar sin permiso y crédito, o sin su aceptación a recortarla |
 | `agility-collie-azul` (collie y guía en pista azul) | Sin firma de fotógrafo vista | Autoría por confirmar |
 | `fuchur-jump-2` (caniche saltando, fondo verde) | Sin firma vista (zoom en la esquina inferior) | Autoría por confirmar |
-| `grupo-club` (foto de grupo) | Incluye a una menor | Autorización del padre pendiente; repetir la foto |
+| `grupo-club` (foto de grupo) | Incluye a una menor | Autorización del padre confirmada. Repetir la foto con más socios y sustituirla |
 | `9EB7979A` (selección, camiseta del presidente) | Sin firma vista | Uso aprobado por el club; autoría por confirmar |
-| `club-natural` y `club-artificial` (pista) | Fotos de iPhone, sin firma vista | Autoría por confirmar |
+| `club-natural` y `club-artificial` (pista) | Hechas por Dani con iPhone; sin firma | Publicables. Se exportan sin EXIF ni GPS |
+| Fotos de perros en acción (tesela de Agility de la portada, las de la página de Agility y la del Shetland) | Sin metadatos de autoría (llegaron por mensajería) | Permiso de los autores y de los dueños de los perros confirmado por el club. Sin crédito de momento (ver «Pendiente de decidir») |
 | `caniche-pasarela`, `caniche-salto-valla`, `caniche-rosette`, `_DSC7092`, `IMG-20240630-WA0017`, `1141AAAA` | Sin firma vista en el tercio inferior | Autoría por confirmar. `caniche-rosette` conserva GPS en el original; se elimina al exportar |
 
 Todas las imágenes web se exportan sin EXIF ni GPS.
 
 ## Pendiente de decidir
 
-* Barra final de las URLs. Propuesta: mapear `/escola` y `/escola/` al mismo
-  método y declarar una sola versión como `canonical`. No se puede validar con
-  `/`: se decide en la primera issue con una página distinta de la raíz
-  (#94, El club). Si se mapean las dos variantes, el matcher `permitAll`
-  también debe cubrir las dos.
 * Rutas inexistentes sin token: reciben `401` en JSON, no `404`, porque la
   seguridad actúa antes que Spring MVC. La página 404 personalizada (#98)
   no se vería para un visitante anónimo. Decidir cómo combinarla con
@@ -192,15 +260,21 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   transparente, calidad a cualquier tamaño y el perro entero para la marca de
   agua. Sin él, vectorizar el perro por capas de color.
 * Selección de fotos para cada página, con la autoría y los permisos de
-  «Fotos: autoría, permisos y marcas». Más adelante, fotos de la entrada, de
-  iniciación y primeros planos de obstáculos.
+  «Fotos: autoría, permisos y marcas». Hechas la portada y El club; faltan
+  Agility (previsto en «Dirección de diseño»), Escola y Contacte. Más adelante,
+  fotos de la entrada, de iniciación y primeros planos de obstáculos.
 * Crédito de fotógrafos en la página (por ejemplo, en el pie): decidir
   formato y confirmar el permiso de cada autor antes de publicar. La foto del
   atardecer ya es la definitiva de la portada y está recortada sin la firma.
   El permiso de Lucía Marín se está gestionando; de momento se sigue adelante
-  con esa foto.
-* Redacción exacta de la relación con FCAG y RSCE (colaboración, no afiliación,
-  salvo que se confirme).
+  con esa foto. De momento las páginas se publican sin crédito.
+* Portada, a revisar en #100: a 360 y 768 px una imagen no termina de cargar
+  (`currentSrc` vacío). Es de antes de #94; probablemente sea la marca de agua
+  de la banda, oculta a propósito con un `<source>` vacío, pero no está
+  comprobado.
+* El hover del botón «Com arribar» (contraste 9,56:1 según la maqueta) no se
+  ha vuelto a medir en la página real. La página de El club solo se ha
+  probado en Chrome (no en Firefox ni Safari).
 * Página de socios y sus perros (foto y palmarés). Propuesta: fuera de la
   primera versión; cuando se haga, página aparte enlazada desde «El club», no
   una sección dentro de ella. Condiciones: consentimiento de cada socio para
@@ -212,7 +286,6 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 * Tecnología del backoffice.
 * Aviso legal.
 * Textos definitivos.
-
 ## Para la publicación
 
 * Cerrar o restringir a ADMIN Swagger y la consola H2 en producción.
@@ -223,6 +296,14 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   (`false` solo en desarrollo; `true` en producción), consola H2, `show-sql` y
   `format_sql`, `ddl-auto` (`update` no es adecuado en producción) y la base de
   datos (H2 en memoria a MySQL).
+* Maven wrapper: `./mvnw` no funciona (falta
+  `.mvn/wrapper/maven-wrapper.properties`). Regenerarlo o quitarlo antes de
+  cualquier despliegue o integración continua; sin él, solo se puede compilar
+  con un Maven instalado o desde el IDE.
+* Etiqueta canónica: si cambia el dominio, actualizar `https://agilitymaresme.com`
+  en `fragments/head.html` (es el único sitio).
+* Barra final: la aplicación sirve las dos variantes. Si se quiere, redirigir
+  `/x/` a `/x` con un `301` en el servidor web delantero.
 * Fuentes: convertir los TTF de `static/fonts/` a WOFF2 con subconjunto latino
   (requiere `fonttools` y `brotli`). Hoy suponen el 36 % del peso de `static/`.
 * Caché de los estáticos: en desarrollo salen con `Cache-Control: no-store`
@@ -240,3 +321,4 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   `/video-agility-maresme/`, `/lliga-interna/`) a la página más parecida.
 * Alta del sitemap en Google Search Console y ficha de Google Business Profile.
 * Revisión del aviso legal.
+ 

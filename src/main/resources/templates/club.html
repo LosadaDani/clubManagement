@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('El club · Club d\'Agility Maresme', 'Club social esportiu d\'agility fundat a Argentona el 1992. Dues pistes de competició al Sot de Can Calopa.', '/el-club')}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header('el-club')}"></header>
+
+<!-- Disseny i mesures: docs/design/maqueta-club-v1f.html i docs/reviews/maqueta-club-v1f.md. -->
+<main class="pagina">
+    <div class="contenidor">
+        <div class="text">
+            <h1 id="titol">El club</h1>
+
+            <div class="entrada">
+                <div class="entradeta">
+                    <p>El 4 d'octubre de 1992 es va fundar a Argentona un dels primers clubs d'agility d'Espanya. Som un club social esportiu dedicat a la pràctica de l'agility, un esport caní.</p>
+
+                    <p>Al Maresme l'agility es viu en equip. El club és de tots els socis, i el que més valorem és el companyerisme: ens ajudem, ens animem i gaudim junts de l'esport amb els nostres gossos.</p>
+                </div>
+
+                <!-- Des de 1100 px, la foto retallada en panoràmica; per sota, la sencera. -->
+                <picture>
+                    <source media="(min-width: 1100px)"
+                            th:srcset="@{/img/club-grup-pano-800.webp} + ' 800w, ' + @{/img/club-grup-pano-1477.webp} + ' 1477w'"
+                            sizes="(min-width: 1232px) 560px, calc(50vw - 40px)" width="1477" height="671">
+                    <img class="foto foto-grup" th:src="@{/img/club-grup-800.webp}"
+                         th:srcset="@{/img/club-grup-800.webp} + ' 800w, ' + @{/img/club-grup-1477.webp} + ' 1477w'"
+                         sizes="(min-width: 900px) calc(50vw - 40px), (min-width: 592px) 560px, calc(100vw - 32px)" width="800" height="562"
+                         alt="Foto de grup de socis del club amb samarretes blaves, drets i asseguts a la gespa amb els seus gossos">
+                </picture>
+            </div>
+
+            <div class="cos">
+                <p>Som un club federat a la Federació Catalana d'Agility (FCAG) i col·laborem amb la Real Sociedad Canina de España (RSCE). Participem en proves d'ambdues entitats i en organitzem. La nostra activitat competitiva ha donat bons resultats: entre els nostres socis hi ha un campió del món, campions i campiones de Catalunya i d'Espanya, guanyadores de la Copa Catalunya, un campió de la Copa d'Espanya de la raça Shetland i participants en competicions internacionals com The Kennel Club British Open i el Cruft's.</p>
+
+                <p>Les nostres instal·lacions, al Sot de Can Calopa (Argentona), tenen dues pistes de competició, una de gespa artificial i una de gespa natural, equipades amb obstacles que compleixen les mesures i especificacions reglamentàries de la FCI. A més, disposem de dos recintes tancats més petits on els socis poden jugar amb els seus gossos.</p>
+            </div>
+
+            <div class="pistes">
+                <img class="foto" th:src="@{/img/club-artificial-800.webp}"
+                     th:srcset="@{/img/club-artificial-800.webp} + ' 800w, ' + @{/img/club-artificial-1200.webp} + ' 1200w'"
+                     sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 272px, (min-width: 560px) calc(50vw - 24px), calc(100vw - 32px)"
+                     width="800" height="600" loading="lazy"
+                     alt="La pista de gespa artificial del club de nit, amb els focus encesos, tanques vermelles, un túnel de colors i una passarel·la">
+                <img class="foto" th:src="@{/img/club-natural-800.webp}"
+                     th:srcset="@{/img/club-natural-800.webp} + ' 800w, ' + @{/img/club-natural-1200.webp} + ' 1200w'"
+                     sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 272px, (min-width: 560px) calc(50vw - 24px), calc(100vw - 32px)"
+                     width="800" height="600" loading="lazy"
+                     alt="La pista de gespa natural del club al vespre, il·luminada amb focus, amb tanques, túnels i una rampa d'agility">
+            </div>
+
+            <div class="visita fosc">
+                <address>Sot de Can Calopa, s/n<br>08310 Argentona (Barcelona)</address>
+                <a class="btn" href="https://maps.app.goo.gl/SG5r5HNzNGTjyVmNA" target="_blank" rel="noopener noreferrer">Com arribar <span aria-hidden="true">↗</span><span class="visualment-amagat"> (s'obre en una pestanya nova)</span></a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>
