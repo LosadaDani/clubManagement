@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/head :: head('Club d\'Agility Maresme · Agility a Argentona', 'Club d\'Agility Maresme, a Argentona (Barcelona), des de 1992. Curs d\'iniciació a l\'agility.')}">
+<head th:replace="~{fragments/head :: head('Club d\'Agility Maresme · Agility a Argentona', 'Club d\'Agility Maresme, a Argentona (Barcelona), des de 1992. Curs d\'iniciació a l\'agility.', '/')}">
 </head>
 <body>
 
@@ -32,8 +32,8 @@
             <ul class="tesseles">
                 <li class="tessela">
                     <a th:href="@{/agility}">
-                        <img th:src="@{/img/tesela-agility-800.webp}" width="800" height="600" loading="lazy"
-                             alt="Un guia vestit de blau indica el camí a un gos marró i blanc que baixa d'un salt d'una rampa groga i vermella, sobre una pista blava">
+                        <img th:src="@{/img/tesela-agility-border-800.webp}" width="800" height="600" loading="lazy"
+                             alt="Un gos negre amb el pit blanc salta una tanca d'ales verdes i blanques sobre una pista de gespa artificial">
                         <span class="etiqueta"><strong>L'agility</strong><small>Què és l'agility</small></span>
                     </a>
                 </li>
