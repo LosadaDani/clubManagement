@@ -27,7 +27,7 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Permisos `permitAll` página a página; nunca patrones amplios.
 * Las páginas y los recursos estáticos tienen cada uno su línea en
   `SecurityConfig`, separadas de login, Swagger y H2: matchers exactos para las
-  páginas (hoy `"/"`) y por prefijo para los recursos (`/css/**`, `/img/**`,
+  páginas (hoy `"/"`, `"/el-club"`, `"/agility"` y la variante con barra de las dos últimas) y por prefijo para los recursos (`/css/**`, `/img/**`,
   `/fonts/**` y `/favicon.ico`). No hay `/js/**` porque la web no lleva
   JavaScript (#92).
 * Estructura de plantillas (#92): `templates/index.html` y los fragmentos
@@ -101,6 +101,53 @@ de socios y sus perros (ver «Pendiente de decidir»).
   HTML de la portada solo cambia en la canónica; todos los recursos dan `200`;
   sin desbordamiento horizontal de 360 a 1440 px; el primer párrafo se ve sin
   hacer scroll a 1280x800; se cargan las tres fuentes. Solo comprobado en Chrome.
+* Agility (#95), texto en catalán en `agility.html`, escrito para quien no
+  conoce el agility o lo practica poco. Secciones: qué es (con el vínculo entre
+  el gos y su guía como idea central), los obstáculos (16 a 22 según el nivel,
+  numerados; salto de barra, doble y de longitud, mur y roda; túneles
+  flexibles; eslalon de 12 palos; passarel·la, balancí y empalissada, con
+  «A-frame» entre paréntesis), la competición (dos pistas, agility con todos
+  los obstáculos y jumping sin los de contacto; gana quien suma menos faltas
+  y refusadas y más velocidad entre las dos pistas), para qué perros (cualquier
+  raza o cruzado; cuatro alturas, petita, mitjana, intermèdia y gran, con los
+  nombres de la RSCE entre paréntesis; competición desde los 18 meses),
+  campeonatos (FCAG en liga con Copa Catalunya; RFEC con ligas autonómicas o
+  zonales y Campeonato de España; RSCE con niveles y puntos en pruebas
+  puntuables) y cómo empezar (curso de iniciación, enlace a Escola). No se
+  detallan los niveles de cada entidad. Los datos del texto los ha confirmado
+  el club.
+* Maquetación de Agility (#95), a partir de tres maquetas comparadas (A: tira
+  de las seis fotos en una banda azul; B: fotos repartidas junto al texto; C:
+  tira dentro de la sección). Se elige la B. Apertura en dos columnas desde 1100
+  px (título y entradilla sobre azul marino a la izquierda, foto hasta el borde
+  a la derecha), porque con la foto a ancho completo el primer párrafo quedaba
+  fuera de la primera pantalla. Cada sección es una fila de texto (hasta 35rem)
+  con una foto de 22rem a la derecha desde 900 px; una columna por debajo. La
+  foto va siempre a la derecha para que el orden del HTML sea el visual en todos
+  los anchos. «Els obstacles» ocupa todo el ancho en dos columnas CSS, un
+  párrafo por columna (`break-inside: avoid`), con las dos fotos debajo, cada
+  una bajo su columna. Diferencia máxima entre columnas: una línea.
+* Sin cursivas ni pies de foto (#95): el proyecto solo tiene Inter 400 y 600
+  rectas y `font-synthesis: none`, por lo que los términos extranjeros van
+  rectos. No se añade Inter Italic. Los pies de foto se quitaron; la
+  información queda en el `alt`.
+* «A-frame» no se parte en el guion a ningún ancho (`span` con
+  `white-space: nowrap`, no `&#8209;`, porque no se ha comprobado que Inter
+  tenga ese glifo).
+* Margen del texto de la apertura sin `100vw` (#95): `100vw` incluye la barra de
+  desplazamiento y descuadra el texto unos 7 px respecto al logo con barra
+  clásica. Se usa `container-type: inline-size` y la unidad `cqw`. Navegadores
+  anteriores a 2022 (Chrome < 105, Safari < 16, Firefox < 110) ignorarían esa
+  declaración y el texto quedaría a 16 px del borde, legible pero sin alinear.
+* Título de las páginas: «Titular · Club d'Agility Maresme» (como El club).
+* Verificado con la aplicación en marcha (#95): `/agility` y `/agility/` dan
+  `200` con `GET` y `HEAD` y el mismo HTML; una sola canónica
+  (`https://agilitymaresme.com/agility`) en las dos; sin atributos `th:`; texto
+  servido idéntico al de la plantilla; las 14 imágenes dan `200` e
+  `image/webp`; sin desbordamiento horizontal de 360 a 1440 px; el primer
+  párrafo se ve sin scroll a 1280x800; a 2x la apertura elige la versión de
+  1600 px; navegación con Tab completa con contorno visible (17,35:1);
+  `/escola` responde `401`, que es lo esperado hasta su issue. Solo en Chrome.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -183,10 +230,14 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Repeticiones entre la portada y El club (aceptadas hasta tener todas las
   secciones): `club-natural` es también la tesela «El club», la foto de grupo es
   la tesela «Contacte» y la pista artificial es la banda nocturna.
-* Página de Agility (#95, previsto): imagen de apertura con la foto del
-  Shetland corriendo (la alternativa descartada para la cabecera de la portada)
-  y debajo seis fotos, una por obstáculo (túnel, A, slalom, balancín, pasarela y
-  salto), de perros distintos.
+* Página de Agility (#95): apertura con la foto del Shetland corriendo (la
+  alternativa descartada para la cabecera de la portada), y seis fotos de
+  perros distintos repartidas entre las secciones: eslalon y empalissada en
+  «Els obstacles», salto de longitud en «La competició», balancí en «Per a quins
+  gossos», passarel·la en «Campionats» y túnel en «Com començar». La foto de la
+  passarel·la no ilustra el texto de «Campionats» y se mantiene por equilibrio
+  visual. Se descartó la foto de túnel de un perro que ya salía en la
+  empalissada.
 * Marca de agua y contraste: con la marca al 16 %, el texto naranja sobre el
   contorno blanco del perro no cumple 4,5:1 (4,36:1 en la cabecera, 3,04:1 en
   la banda). En la maqueta ningún texto se solapa con la marca, y por eso todo
@@ -227,7 +278,7 @@ imagen.
 | `grupo-club` (foto de grupo) | Incluye a una menor | Autorización del padre confirmada. Repetir la foto con más socios y sustituirla |
 | `9EB7979A` (selección, camiseta del presidente) | Sin firma vista | Uso aprobado por el club; autoría por confirmar |
 | `club-natural` y `club-artificial` (pista) | Hechas por Dani con iPhone; sin firma | Publicables. Se exportan sin EXIF ni GPS |
-| Fotos de perros en acción (tesela de Agility de la portada, las de la página de Agility y la del Shetland) | Sin metadatos de autoría (llegaron por mensajería) | Permiso de los autores y de los dueños de los perros confirmado por el club. Sin crédito de momento (ver «Pendiente de decidir») |
+| Fotos de perros en acción (tesela de Agility de la portada, las de la página de Agility y la del Shetland) | Sin metadatos de autoría (llegaron por mensajería) | Permiso de los autores y de los dueños de los perros confirmado por el club. Sin crédito de momento (ver «Pendiente de decidir»). En las de Agility: perros distintos comprobados por el club; la guía de la apertura es la propietaria del perro; en la del túnel se ve de fondo a personas no reconocibles |
 | `caniche-pasarela`, `caniche-salto-valla`, `caniche-rosette`, `_DSC7092`, `IMG-20240630-WA0017`, `1141AAAA` | Sin firma vista en el tercio inferior | Autoría por confirmar. `caniche-rosette` conserva GPS en el original; se elimina al exportar |
 
 Todas las imágenes web se exportan sin EXIF ni GPS.
@@ -260,8 +311,8 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   transparente, calidad a cualquier tamaño y el perro entero para la marca de
   agua. Sin él, vectorizar el perro por capas de color.
 * Selección de fotos para cada página, con la autoría y los permisos de
-  «Fotos: autoría, permisos y marcas». Hechas la portada y El club; faltan
-  Agility (previsto en «Dirección de diseño»), Escola y Contacte. Más adelante,
+  «Fotos: autoría, permisos y marcas». Hechas la portada, El club y Agility;
+  faltan Escola y Contacte. Más adelante,
   fotos de la entrada, de iniciación y primeros planos de obstáculos.
 * Crédito de fotógrafos en la página (por ejemplo, en el pie): decidir
   formato y confirmar el permiso de cada autor antes de publicar. La foto del
@@ -272,6 +323,12 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   (`currentSrc` vacío). Es de antes de #94; probablemente sea la marca de agua
   de la banda, oculta a propósito con un `<source>` vacío, pero no está
   comprobado.
+* Agility (#95): la foto de la empalissada solo tiene versión de 800 px (el
+  original mide 1080x720) y en pantallas 2x se verá algo blanda. Sustituirla por
+  una de mayor resolución cuando haya una.
+* `/escola` responde `401` en JSON hasta que exista su página (#96), y desde
+  Agility y el menú un visitante que pulse «Coneix l'escola» o «Formació» lo
+  vería. Priorizar #96 si tarda.
 * El hover del botón «Com arribar» (contraste 9,56:1 según la maqueta) no se
   ha vuelto a medir en la página real. La página de El club solo se ha
   probado en Chrome (no en Firefox ni Safari).

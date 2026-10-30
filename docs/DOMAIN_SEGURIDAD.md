@@ -73,9 +73,9 @@ Una petición sin autenticar a una ruta protegida responde `401` con el formato 
 
 ### Web pública
 
-Implementado (Issues #91 a #94 del Sprint 6 — base Thymeleaf, portada, recursos estáticos y página El club).
+Implementado (Issues #91 a #95 del Sprint 6 — base Thymeleaf, portada, recursos estáticos y páginas El club y Agility).
 
-Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy están abiertas la portada (`/`) y El club (`/el-club`); el resto se añaden con su página (ver `docs/FRONTEND.md`). Cada página lista en su matcher las dos variantes de su ruta, con y sin barra final (`/el-club` y `/el-club/`), porque Spring MVC las trata como rutas distintas: si solo se permitiera una, la otra caería en `anyRequest().authenticated()` y respondería `401`.
+Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy están abiertas la portada (`/`), El club (`/el-club`) y Agility (`/agility`); el resto se añaden con su página (ver `docs/FRONTEND.md`). Cada página lista en su matcher las dos variantes de su ruta, con y sin barra final (por ejemplo, `/agility` y `/agility/`), porque Spring MVC las trata como rutas distintas: si solo se permitiera una, la otra caería en `anyRequest().authenticated()` y respondería `401`.
 
 Los recursos estáticos se abren por prefijo, en una línea propia: `/css/**`, `/img/**`, `/fonts/**` y `/favicon.ico`. No hay `/js/**` porque la web no lleva JavaScript. Todo lo que cuelga de esos prefijos es público, así que nada que no deba verse puede colocarse en `static/`. Un recurso estático inexistente responde `404` con el JSON por defecto de Spring Boot (no con `ErrorResponseDTO`), mientras que una página inexistente sin token responde `401`.
 

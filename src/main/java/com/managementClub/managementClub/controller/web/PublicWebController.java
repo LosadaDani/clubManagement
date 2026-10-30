@@ -15,4 +15,9 @@ public class PublicWebController {
     public String club() {
         return "club";
     }
+
+    @GetMapping({"/agility", "/agility/"})
+    public String agility() {
+        return "agility";
+    }
 }

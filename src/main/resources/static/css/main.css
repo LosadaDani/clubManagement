@@ -337,3 +337,77 @@ a { color: var(--azul-vivo); }
 @media (min-width: 1100px) {
   .entradeta p { font-size: calc(1.0625rem * 1.2); }
 }
+
+/* =====================================================================
+   Pàgina Agility (/agility, templates/agility.html)
+   Regles de docs/design/maqueta-agility-b2.html (mesures a
+   docs/reviews/agility-b2.md), amb prefix ag-. Mòbil primer: una columna
+   amb l'ordre de l'HTML; des de 900 px, text a l'esquerra i foto a la
+   dreta, i des de 1100 px l'obertura en dues columnes.
+   ===================================================================== */
+/* Obertura: h1 i entradeta sobre marí; la foto, a sota (al costat des de 1100 px). */
+.ag-obertura { background: var(--marino); color: var(--blanco); }
+.ag-obertura-text { max-width: var(--amplada); margin: 0 auto; padding: 40px 16px 32px; }
+.ag-obertura h1 {
+  margin: 0 0 24px;
+  font-size: clamp(2.25rem, 7vw, 3.25rem); line-height: 1.05; letter-spacing: -.01em;
+}
+.ag-obertura h1::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 12px;
+  background: var(--naranja);
+}
+.ag-obertura p { max-width: 35rem; margin: 0; font-size: 1.0625rem; line-height: 1.65; }
+.ag-obertura img { width: 100%; }
+
+/* Cos: una fila per secció. */
+.ag-cos { padding-top: 8px; padding-bottom: 72px; }
+.ag-fila { margin-top: 48px; }
+.ag-text { max-width: 35rem; }
+.ag-text h2 {
+  margin: 0 0 16px;
+  font-size: clamp(1.625rem, 4.5vw, 2.125rem); line-height: 1.15;
+}
+.ag-text p { margin: 0 0 1.25em; font-size: 1.0625rem; line-height: 1.65; }
+.ag-text p:last-child { margin-bottom: 0; }
+.ag-fila img { width: 100%; border-radius: var(--radio); }
+.ag-fila > img { max-width: 35rem; margin-top: 24px; }
+/* «Els obstacles»: dues fotos en parella sota el text, del mateix ample que el text. */
+.ag-parella { display: grid; gap: 16px; max-width: 35rem; margin-top: 24px; }
+/* «A-frame» no es parteix pel guionet. */
+.ag-sense-tall { white-space: nowrap; }
+
+/* Com començar: bloc fosc perquè el botó taronja tingui contrast. */
+.ag-comencar { padding: 24px; background: var(--marino); color: var(--blanco); border-radius: var(--radio); }
+.ag-comencar .btn { margin-top: 24px; }
+
+@media (min-width: 560px) {
+  .ag-parella { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 900px) {
+  .ag-cos { padding-bottom: 96px; }
+  /* Text fins a 35rem a l'esquerra i foto fins a 22rem a la dreta, alineada a dalt amb el
+     títol: a 1232 px o més, 560 + 352 px i la resta d'espai entre les dues. */
+  .ag-fila { display: grid; grid-template-columns: minmax(0, 35rem) minmax(0, 22rem);
+             justify-content: space-between; column-gap: 3rem; align-items: start; }
+  .ag-fila > img { margin-top: 0; }
+  /* «Els obstacles»: el text a tot l'ample del contenidor, en dues columnes iguals amb 3rem
+     de buit, com P3/P4 d'El club (columnes de 410 px a 900 i 560 des de 1232). Cap dels
+     dos paràgrafs es parteix: un a cada columna. Les fotos fan servir el mateix buit, i
+     cada una queda sota una columna. */
+  .ag-fila-obstacles { display: block; }
+  .ag-fila-obstacles .ag-text { max-width: none; }
+  .ag-columnes { column-count: 2; column-gap: 3rem; }
+  .ag-columnes p { break-inside: avoid; }
+  .ag-parella { max-width: none; column-gap: 3rem; }
+  .ag-comencar { padding: 32px; }
+}
+@media (min-width: 1100px) {
+  /* Obertura en dues columnes: text a l'esquerra, foto fins a la vora dreta. El marge
+     esquerre del text el posa a la mateixa x que el logo i el contenidor:
+     (ample − 1200 px) / 2 + 16 px, i 16 px com a mínim. L'ample es pren de la mateixa
+     obertura amb cqw (1cqw = 1 % de l'ample del contenidor de consulta), i no amb vw, que
+     inclou la barra de desplaçament i desplaçaria el text uns 7 px si n'hi ha. */
+  .ag-obertura { display: grid; grid-template-columns: minmax(0, 9fr) minmax(0, 11fr); align-items: center;
+                 container-type: inline-size; }
+  .ag-obertura-text { margin: 0; padding: 40px 48px 40px max(16px, calc(50cqw - var(--amplada) / 2 + 16px)); }
+}

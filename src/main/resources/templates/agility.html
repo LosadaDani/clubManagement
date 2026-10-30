@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Què és l\'agility · Club d\'Agility Maresme','Què és l\'agility, com són els obstacles i la competició, quins gossos poden practicar-lo i com començar al Club d\'Agility Maresme, a Argentona.', '/agility')}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header('agility')}"></header>
+
+<!-- Disseny i mesures: docs/design/maqueta-agility-b2.html i docs/reviews/agility-b2.md. -->
+<main>
+    <div class="ag-obertura fosc">
+        <div class="ag-obertura-text">
+            <h1 id="titol">Què és l'agility</h1>
+            <p>L'agility és un esport en què un gos i el seu guia recorren junts una pista amb obstacles, en un ordre establert i el més ràpid i net possible. El guia no pot tocar el gos ni els obstacles: només el dirigeix amb la veu, els gestos i el llenguatge corporal. Per això és un esport d'equip, i el més important és el vincle entre el gos i el seu guia: la confiança, l'atenció i la comunicació entre els dos.</p>
+        </div>
+        <img th:src="@{/img/agility-obertura-800.webp}"
+             th:srcset="@{/img/agility-obertura-800.webp} + ' 800w, ' + @{/img/agility-obertura-1200.webp} + ' 1200w, ' + @{/img/agility-obertura-1600.webp} + ' 1600w'"
+             sizes="(min-width: 1100px) 55vw, 100vw" width="800" height="533"
+             alt="Una guia corre per la pista mentre un gos petit blanc i negre salta una tanca de barra vermella i blanca">
+    </div>
+
+    <div class="contenidor ag-cos">
+        <section class="ag-fila ag-fila-obstacles" aria-labelledby="obstacles">
+            <div class="ag-text">
+                <h2 id="obstacles">Els obstacles</h2>
+                <div class="ag-columnes">
+                    <p>Cada pista té un recorregut diferent, dissenyat pel jutge, amb entre 16 i 22 obstacles segons el nivell, numerats en l'ordre en què el gos els ha de fer. Hi ha diversos tipus de salts: la barra, el salt doble, el salt de longitud, el mur i la roda. També hi ha els túnels flexibles i l'eslàlom, una fila de dotze pals que s'han de passar en zigzag.</p>
+                    <p>Finalment, els obstacles de contacte (la passarel·la, el balancí i l'empalissada o <span class="ag-sense-tall">A-frame</span>), on el gos ha de trepitjar unes zones marcades en pujar i en baixar. Si el gos no trepitja una d'aquestes zones, es penalitza com una falta. Són els únics obstacles que no hi ha a la pista de jumping.</p>
+                </div>
+            </div>
+            <!-- Sense lazy: a 1100 px es veuen a la primera pantalla. -->
+            <div class="ag-parella">
+                <img th:src="@{/img/agility-eslalom-800.webp}"
+                     th:srcset="@{/img/agility-eslalom-800.webp} + ' 800w, ' + @{/img/agility-eslalom-1200.webp} + ' 1200w'"
+                     sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 272px, (min-width: 560px) calc(50vw - 24px), calc(100vw - 32px)"
+                     width="800" height="600"
+                     alt="Un gos blanc i negre gira arran dels pals de l'eslàlom, ajupit i amb la boca oberta">
+                <img th:src="@{/img/agility-empalissada-800.webp}" width="800" height="600"
+                     alt="Un gos de color crema i gris baixa per la rampa de l'empalissada">
+            </div>
+        </section>
+
+        <section class="ag-fila" aria-labelledby="competicio">
+            <div class="ag-text">
+                <h2 id="competicio">La competició</h2>
+                <p>En una competició es fan dues pistes diferents. La d'agility inclou tots els obstacles; la de jumping no porta els obstacles de contacte, i per això és més ràpida i fluida. Es compta el temps i es penalitzen les faltes, com una barra tombada o una refusada, que és quan el gos s'atura o es nega a passar un obstacle. Guanya qui, sumant les dues pistes, fa menys faltes i refusades i és més ràpid.</p>
+            </div>
+            <img th:src="@{/img/agility-salt-800.webp}"
+                 th:srcset="@{/img/agility-salt-800.webp} + ' 800w, ' + @{/img/agility-salt-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 900px) 352px, (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600" loading="lazy"
+                 alt="Un gos negre estirat en l'aire mentre fa el salt de longitud, entre quatre pals blancs i blaus">
+        </section>
+
+        <section class="ag-fila" aria-labelledby="gossos">
+            <div class="ag-text">
+                <h2 id="gossos">Per a quins gossos</h2>
+                <p>Qualsevol gos pot practicar agility, de qualsevol raça o creuat, sempre que estigui sa. Els gossos es classifiquen en quatre alçades: petita, mitjana, intermèdia i gran (a la RSCE, mini, midi, intermediate i large), perquè els petits i els grans no competeixin en les mateixes condicions. Es pot competir a partir dels 18 mesos, quan el cos ja està format; abans només es treballa amb exercicis que no perjudiquin el seu creixement.</p>
+            </div>
+            <img th:src="@{/img/agility-balanci-800.webp}"
+                 th:srcset="@{/img/agility-balanci-800.webp} + ' 800w, ' + @{/img/agility-balanci-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 900px) 352px, (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600" loading="lazy"
+                 alt="Un gos de pèl arrissat color albercoc s'atura a l'extrem del balancí, sobre la zona de contacte groga">
+        </section>
+
+        <section class="ag-fila" aria-labelledby="campionats">
+            <div class="ag-text">
+                <h2 id="campionats">Campionats</h2>
+                <p>A Espanya les competicions les organitzen tres entitats, cadascuna amb el seu sistema. La Federació Catalana d'Agility (FCAG) funciona en format de lliga, amb una Copa Catalunya a final de temporada. La Real Federación Española de Caza (RFEC) organitza lligues autonòmiques o zonals i un Campionat d'Espanya al final de la temporada. La Real Sociedad Canina de España (RSCE) té un sistema de nivells i punts, que es guanyen en proves puntuables per al Campionat d'Espanya final.</p>
+            </div>
+            <img th:src="@{/img/agility-passarela-800.webp}"
+                 th:srcset="@{/img/agility-passarela-800.webp} + ' 800w, ' + @{/img/agility-passarela-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 900px) 352px, (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600" loading="lazy"
+                 alt="Un gos marró i blanc corre per damunt de la passarel·la, amb el cos estirat i el fons verd desenfocat">
+        </section>
+
+        <section class="ag-fila" aria-labelledby="comencar">
+            <div class="ag-text ag-comencar fosc">
+                <h2 id="comencar">Com començar</h2>
+                <p>No cal tenir un gos preparat ni experiència prèvia. Al club oferim un curs d'iniciació a l'agility, on el gos i el seu guia aprenen els obstacles i les bases del treball en equip, a poc a poc i sense pressa.</p>
+                <a class="btn" th:href="@{/escola}">Coneix l'escola</a>
+            </div>
+            <img th:src="@{/img/agility-tunel-800.webp}" width="800" height="600" loading="lazy"
+                 alt="Un gos blanc amb taques negres surt corrent d'un túnel flexible rosa i taronja, amb la boca oberta">
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

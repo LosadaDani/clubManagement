@@ -42,7 +42,9 @@ public class SecurityConfig {
                                 "/favicon.ico").permitAll()
                         .requestMatchers("/",
                                 "/el-club",
-                                "/el-club/").permitAll()
+                                "/el-club/",
+                                "/agility",
+                                "/agility/").permitAll()
                         .requestMatchers( "/api/receipt/proposal").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/persons",
