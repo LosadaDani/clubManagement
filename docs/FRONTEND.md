@@ -224,6 +224,48 @@ de socios y sus perros (ver «Pendiente de decidir»).
   JSON de Spring con `No static resource css/no-existe.css.` (la ruta que pidió
   el visitante, no una interna); con `Accept: text/html`, la página 404. Solo en
   Chrome.
+* Títulos (#99): de las cinco páginas, se ajustaron los de El club («El club ·
+  Club d'Agility Maresme a Argentona», 44 caracteres), Escola («Escola d'agility
+  a Argentona · Club d'Agility Maresme», 53) y Contacte («Contacte i com
+  arribar · Club d'Agility Maresme», 47) para incluir la búsqueda local. La
+  portada y Agility no cambian. Las descripciones se mantienen (entre 91 y 143
+  caracteres). Inventario previo: ninguna página repetía título ni descripción
+  y solo llevaban `alt` vacío las dos copias de la marca de agua, que es
+  decorativa y va con `aria-hidden`.
+* `robots.txt` y `sitemap.xml` (#99): archivos estáticos en `static/`, abiertos
+  en `SecurityConfig` en la línea de los recursos estáticos (rutas exactas).
+  `robots.txt` permite todo, bloquea `/api/` y apunta al sitemap. No lista
+  Swagger ni la consola H2 (no deben existir en producción y listarlas las
+  anunciaría) ni la página 404 (su `noindex` solo funciona si Google puede
+  leerla). `sitemap.xml` tiene las cinco URL canónicas (la portada con barra,
+  el resto sin ella), sin `lastmod`, `changefreq` ni `priority`.
+* Open Graph (#99): `head.html` escribe 11 etiquetas `og:*` (`type`,
+  `site_name`, `locale` = `ca_ES`, `title`, `description`, `url`, `image` y los
+  datos de la imagen: `type`, `width`, `height`, `alt`). Título y descripción
+  son los mismos que los de la página, y `og:url` coincide con la canónica.
+  La URL base se define una vez en el fragmento (`th:with` en su elemento raíz)
+  y la usan la canónica, `og:url` y `og:image`. Sin `twitter:*`. La 404 tiene
+  su propio `<head>` y no lleva `og:*`.
+* Imagen para compartir (#99): `static/img/og-maresme-1200.jpg`, 1200x630, JPEG
+  de calidad 80, 30 KB, sin EXIF, ICC ni XMP. Es la variante C de las maquetas:
+  fondo azul marino liso y el logo centrado (520x254, reducido, nunca
+  ampliado), sin texto. Se prefirió a una con la foto de la pista porque en la
+  miniatura cuadrada de WhatsApp el logo se ve entero y no depende de permisos
+  de fotografías ni muestra viviendas del fondo. Sustituirla cuando haya logo
+  vectorial. Si cambia el contenido, cambiar también el nombre, porque las
+  plataformas guardan la vista previa de cada URL.
+* Verificado con la aplicación en marcha (#99): `/robots.txt` y `/sitemap.xml`
+  dan `200` (`text/plain` y `application/xml`) con y sin token, con `GET` y
+  `HEAD`, con cualquier `Accept`; el XML está bien formado (`xmllint`) y las
+  cinco `<loc>` coinciden con las canónicas servidas; los tres títulos nuevos
+  son los acordados; las cinco páginas solo cambian en las 11 líneas `og:*`
+  (diff del HTML antes y después) y en los tres `<title>`; la 404 sigue igual
+  byte a byte, sin `og:*` ni canónica; `og:title`, `og:description` y `og:url`
+  coinciden con el título, la descripción y la canónica; la imagen se sirve con
+  `200`, `image/jpeg` y los mismos bytes que el archivo. No se ha podido
+  comprobar la vista previa real en WhatsApp, Telegram ni Facebook (la web no
+  está publicada y `og:image` apunta a producción) ni la validación del sitemap
+  contra el esquema oficial. Solo en Chrome y con `curl`.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -247,7 +289,12 @@ de socios y sus perros (ver «Pendiente de decidir»).
   producción: archivos WOFF2 con subconjunto latino en `static/fonts/`, con su
   `OFL.txt`. Pruebas en `docs/design/tipografias.html`.
 * Texto y SEO: una intención de búsqueda por página, un solo `<h1>`, `title` y
-  `meta description` propios, `alt` en todas las imágenes.
+  `meta description` propios, `alt` en todas las imágenes. Longitudes de
+  referencia: título hasta unos 60 caracteres y descripción hasta unos 155
+  (Google corta por píxeles, no por caracteres, y reescribe la descripción
+  con frecuencia). Patrón del título: «Página · Club d'Agility Maresme»; la
+  portada pone la marca primero. Sin cifras, precios ni fechas que no estén ya
+  publicadas.
 * El texto es provisional y se irá refinando.
 * Sin testimonios, cifras ni datos inventados: solo contenido real del club.
 * Sin analítica ni cookies de seguimiento en la primera versión (por tanto,
@@ -374,6 +421,10 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   tocar los dos); la alternativa es `th:if="${ruta != null}"` en la canónica del
   fragmento. Y los comentarios HTML de las plantillas se sirven al visitante;
   pasarlos a comentarios de Thymeleaf (`<!--/* */-->`).
+* Footer y encabezados (#99, a revisar en #100): los tres `<h2>` del pie salen
+  en todas las páginas y dos coinciden con el `<h1>` de la página («Contacte»
+  en `/contacte` y «Club d'Agility Maresme» en la portada). No es un error,
+  pero conviene revisar la jerarquía de encabezados.
 * Backoffice y rutas fuera de `/api/` (#98): un anónimo que pida una ruta no
   pública fuera de `/api/` recibe `404`, no `401`. Si el backoffice se sirve
   con páginas fuera de `/api/`, decidir allí cómo se lleva al visitante al
@@ -442,8 +493,13 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   `.mvn/wrapper/maven-wrapper.properties`). Regenerarlo o quitarlo antes de
   cualquier despliegue o integración continua; sin él, solo se puede compilar
   con un Maven instalado o desde el IDE.
-* Etiqueta canónica: si cambia el dominio, actualizar `https://agilitymaresme.com`
-  en `fragments/head.html` (es el único sitio).
+* Dominio en el código: si cambia el dominio, actualizar `https://agilitymaresme.com`
+  en tres archivos: `fragments/head.html` (variable `base`, que usan la
+  canónica y las `og:*`), `static/sitemap.xml` (las cinco `<loc>`) y
+  `static/robots.txt` (la línea `Sitemap:`). Un entorno de pruebas
+  (`beta.`) servirá canónicas y `og:image` de producción; para que no se
+  indexe, protegerlo con contraseña o con la cabecera `X-Robots-Tag: noindex`
+  en el servidor delantero.
 * Barra final: la aplicación sirve las dos variantes. Si se quiere, redirigir
   `/x/` a `/x` con un `301` en el servidor web delantero.
 * Fuentes: convertir los TTF de `static/fonts/` a WOFF2 con subconjunto latino
@@ -459,16 +515,26 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   proxy use el host y el esquema originales (`server.forward-headers-strategy`).
   Sin esto, los enlaces y las redirecciones de la web pueden salir con
   `http` y con el puerto interno.
-* Redirecciones `301` de las URLs antiguas a la página más parecida:
-  `/contactans` a `/contacte`, y `/horaris/`, `/competicio/`,
-  `/video-agility-maresme/` y `/lliga-interna/`. Mientras tanto, `/contactans`
-  responde `401` en JSON.
+* Redirecciones `301` de las URLs antiguas, a decidir en esta issue: en la
+  aplicación o en el servidor delantero (un solo sitio, nunca los dos).
+  Decididas: `/contactans` a `/contacte`, `/horaris` a `/escola`,
+  `/competicio` a `/agility` y `/lliga-interna` a `/el-club`, cada una con y sin
+  barra final. `/video-agility-maresme/` desaparece y se deja en `404`: no se
+  redirige a una página sin relación (Google lo trata como un error) y a esta
+  escala no compensa un `410`. Mientras tanto, esas rutas responden `404` con
+  la página 404. En la aplicación se harían con métodos de
+  `PublicWebController` que devuelvan `ResponseEntity<Void>` con
+  `HttpStatus.MOVED_PERMANENTLY` y `Location` relativa (`"redirect:"` da `302`),
+  más un `permitAll` por ruta y variante en `SecurityConfig`. En el servidor
+  delantero, una línea por redirección. Los navegadores guardan los `301` en
+  caché casi para siempre: probar con `curl -i` o en una ventana privada.
 * Primera versión solo con la web pública (sin base de datos real): la
   aplicación necesita un `DataSource` para arrancar, así que sirve H2 en memoria
   en el perfil de producción, sin datos de prueba (comprobar que no hay un
   `data.sql` con usuarios y contraseñas conocidas). El servidor delantero solo
   debe dejar pasar las rutas públicas (`/`, las cinco páginas con sus variantes
-  con barra, `/css`, `/img`, `/fonts` y `/favicon.ico`) y bloquear `/api/**`,
+  con barra, `/css`, `/img`, `/fonts`, `/favicon.ico`, `/robots.txt` y
+  `/sitemap.xml`) y bloquear `/api/**`,
   Swagger y la consola H2, que además se desactivan en producción.
 * Correo del dominio: el correo del club usa `agilitymaresme.com`. Al mover la
   web, cambiar solo los registros que apuntan a ella (el dominio sin `www` y
@@ -482,5 +548,6 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   Hay que saber quién gestiona el dominio y el DNS (hoy lo gestiona una
   persona de contacto), dónde está alojada la web actual y cuándo caducan el
   dominio y el alojamiento.
-* Alta del sitemap en Google Search Console y ficha de Google Business Profile.
+* Alta del sitemap (`https://agilitymaresme.com/sitemap.xml`) en Google Search
+  Console y ficha de Google Business Profile.
 * Revisión del aviso legal.

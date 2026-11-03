@@ -374,8 +374,8 @@ patrones amplios. Los matchers de las páginas no llevan verbo, o cubren `GET` y
 `HEAD`. Cada página lista las dos variantes de su ruta, con y sin barra
 final. Las rutas públicas de la web van en su propio bloque de `SecurityConfig`,
 separado del de la API. Los recursos estáticos públicos (`/css/**`, `/js/**`,
-`/img/**`, `/fonts/**`, `/favicon.ico`) se permiten por prefijo, en su propia
-línea; no hay `/js/**` mientras la web no lleve JavaScript. Nada que no sea
+`/img/**`, `/fonts/**`, y las rutas exactas `/favicon.ico`, `/robots.txt` y `/sitemap.xml`) se
+permiten en su propia línea; no hay `/js/**` mientras la web no lleve JavaScript. Nada que no sea
 público debe colocarse en `static/`.
 
 ### Idioma

@@ -39,7 +39,9 @@ public class SecurityConfig {
                         .requestMatchers( "/css/**",
                                 "/img/**",
                                 "/fonts/**",
-                                "/favicon.ico").permitAll()
+                                "/favicon.ico",
+                                "/robots.txt",
+                                "/sitemap.xml").permitAll()
                         .requestMatchers("/",
                                 "/el-club",
                                 "/el-club/",
