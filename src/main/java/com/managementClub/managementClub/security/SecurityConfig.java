@@ -44,7 +44,11 @@ public class SecurityConfig {
                                 "/el-club",
                                 "/el-club/",
                                 "/agility",
-                                "/agility/").permitAll()
+                                "/agility/",
+                                "/escola",
+                                "/escola/",
+                                "/contacte",
+                                "/contacte/").permitAll()
                         .requestMatchers( "/api/receipt/proposal").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET,
                                 "/api/persons",

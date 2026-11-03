@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Contacte · Club d\'Agility Maresme','Adreça, telèfon, correu i WhatsApp del Club d\'Agility Maresme, a Argentona, i com arribar-hi.', '/contacte')}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header('contacte')}"></header>
+
+<!-- Disseny i mesures: docs/design/maqueta-contacte.html i docs/reviews/escola-contacte-definitiu.md.
+     Cap càrrega de tercers: ni mapa incrustat ni scripts. -->
+<main>
+    <div class="ob-simple fosc">
+        <div class="contenidor">
+            <h1>Contacte</h1>
+            <p>Escriu-nos o truca'ns i t'expliquem com funciona el curs d'iniciació.</p>
+        </div>
+    </div>
+
+    <div class="contenidor co-cos">
+        <div class="co-fila">
+            <div class="co-bloc fosc">
+                <address class="co-dades">
+                    <dl>
+                        <div>
+                            <dt>Adreça</dt>
+                            <dd>Sot de Can Calopa, s/n<br>08310 Argentona (Barcelona)</dd>
+                        </div>
+                        <div>
+                            <dt>Telèfon</dt>
+                            <dd><a href="tel:+34600434201">600 434 201</a></dd>
+                        </div>
+                        <div>
+                            <dt>Correu</dt>
+                            <dd><a href="mailto:info@agilitymaresme.com">info@agilitymaresme.com</a></dd>
+                        </div>
+                    </dl>
+                </address>
+                <div class="co-botons">
+                    <a class="btn" href="https://wa.me/34600434201?text=Hola%21%20Voldria%20informaci%C3%B3%20sobre%20el%20curs%20d%27iniciaci%C3%B3%20a%20l%27agility.%0AEl%20meu%20nom%20%C3%A9s%3A%20%5Bescriu%20aqu%C3%AD%20el%20teu%20nom%5D%0AEl%20meu%20gos%20es%20diu%3A%20%5Bescriu%20aqu%C3%AD%20el%20nom%20del%20gos%5D%0ASobre%20el%20gos%20%28ra%C3%A7a%2C%20edat%2C%20car%C3%A0cter%E2%80%A6%29%3A%20%5Bexplica%27ns%20com%20%C3%A9s%20el%20teu%20gos%5D%0AQu%C3%A8%20busco%20al%20club%3A%20%5Bexplica%27ns%20qu%C3%A8%20necessites%5D" target="_blank" rel="noopener noreferrer">Escriu-nos per WhatsApp <span aria-hidden="true">↗</span><span class="visualment-amagat"> (s'obre en una pestanya nova)</span></a>
+                    <a class="btn" href="https://maps.app.goo.gl/SG5r5HNzNGTjyVmNA" target="_blank" rel="noopener noreferrer">Com arribar <span aria-hidden="true">↗</span><span class="visualment-amagat"> (s'obre en una pestanya nova)</span></a>
+                </div>
+            </div>
+            <!-- Sense lazy: es veu a la primera pantalla a partir de 768 px. -->
+            <img th:src="@{/img/contacte-800.webp}"
+                 th:srcset="@{/img/contacte-800.webp} + ' 800w, ' + @{/img/contacte-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600"
+                 alt="Un gos de pèl llarg negre i blanc salta una tanca de barra vermella i blanca, amb les potes davanteres plegades i un túnel al fons">
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

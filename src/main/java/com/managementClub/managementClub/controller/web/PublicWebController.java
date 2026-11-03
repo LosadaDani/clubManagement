@@ -20,4 +20,14 @@ public class PublicWebController {
     public String agility() {
         return "agility";
     }
+
+    @GetMapping({"/escola", "/escola/"})
+    public String escola() {
+        return "escola";
+    }
+
+    @GetMapping({"/contacte", "/contacte/"})
+    public String contacte() {
+        return "contacte";
+    }
 }

@@ -411,3 +411,157 @@ a { color: var(--azul-vivo); }
                  container-type: inline-size; }
   .ag-obertura-text { margin: 0; padding: 40px 48px 40px max(16px, calc(50cqw - var(--amplada) / 2 + 16px)); }
 }
+
+/* =====================================================================
+   Obertura sense foto (Escola i Contacte)
+   Títol i entradeta sobre marí, com l'obertura d'Agility sense la foto.
+   Regles de docs/design/maqueta-escola.html i maqueta-contacte.html
+   (.es-obertura i .co-obertura, iguals), unificades en una sola classe.
+   ===================================================================== */
+.ob-simple { background: var(--marino); color: var(--blanco); }
+/* 32 px per sota de 900: a Contacte, perquè les dades càpiguen senceres
+   a 360x640 (la capçalera ja hi fa 182 px d'alt). */
+.ob-simple .contenidor { padding-top: 32px; padding-bottom: 32px; }
+.ob-simple h1 {
+  margin: 0 0 24px;
+  font-size: clamp(2.25rem, 7vw, 3.25rem); line-height: 1.05;
+  letter-spacing: -.01em;
+}
+.ob-simple h1::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 12px;
+  background: var(--naranja);
+}
+.ob-simple p {
+  max-width: 35rem; margin: 0; font-size: 1.0625rem; line-height: 1.65;
+}
+
+@media (min-width: 900px) {
+  .ob-simple .contenidor { padding-top: 48px; padding-bottom: 48px; }
+}
+
+/* =====================================================================
+   Pàgina Escola (/escola, templates/escola.html)
+   Regles de docs/design/maqueta-escola.html, amb prefix es-. Mateix patró
+   que Agility: una columna amb l'ordre de l'HTML; des de 900 px, text a
+   l'esquerra i foto a la dreta. «Com començar», des de 900 px, a tot
+   l'ample del contenidor.
+   ===================================================================== */
+.es-cos { padding-top: 8px; padding-bottom: 72px; }
+.es-fila { margin-top: 48px; }
+.es-text { max-width: 35rem; }
+.es-text h2 {
+  margin: 0 0 16px;
+  font-size: clamp(1.625rem, 4.5vw, 2.125rem); line-height: 1.15;
+}
+.es-text p { margin: 0 0 1.25em; font-size: 1.0625rem; line-height: 1.65; }
+.es-text p:last-child { margin-bottom: 0; }
+.es-fila > img {
+  width: 100%; max-width: 35rem; margin-top: 24px;
+  border-radius: var(--radio);
+}
+
+/* Com començar: bloc fosc perquè el botó taronja tingui contrast. Per sota
+   de 900 px, de l'ample del text (35rem); el text va en un .es-text. */
+.es-comencar {
+  max-width: 35rem; padding: 24px;
+  background: var(--marino); color: var(--blanco);
+  border-radius: var(--radio);
+}
+.es-comencar .btn { margin-top: 24px; }
+
+@media (min-width: 900px) {
+  .es-cos { padding-bottom: 96px; }
+  /* Text fins a 35rem a l'esquerra i foto fins a 22rem a la dreta,
+     alineada a dalt amb el títol (com .ag-fila). */
+  .es-fila {
+    display: grid; grid-template-columns: minmax(0, 35rem) minmax(0, 22rem);
+    justify-content: space-between; column-gap: 3rem; align-items: start;
+  }
+  .es-fila > img { margin-top: 0; }
+  /* Com començar: el bloc ocupa tot el contenidor; el text, a 35rem. */
+  .es-fila-comencar { display: block; }
+  .es-comencar { max-width: none; padding: 32px; }
+}
+
+/* =====================================================================
+   Pàgina Contacte (/contacte, templates/contacte.html)
+   Regles de docs/design/maqueta-contacte.html, amb prefix co-. Per sota
+   de 900 px, una columna amb l'ordre de l'HTML; des de 900 px, dades i
+   foto en dues columnes iguals amb 3rem de buit, com l'entrada d'El club.
+   ===================================================================== */
+.co-cos { padding-top: 8px; padding-bottom: 72px; }
+/* Menys separació que a Agility per sota de 900 px: l'obertura, just a
+   sobre, ja és marina i fa de separació; així les dades caben a 360x640. */
+.co-fila { margin-top: 24px; }
+.co-bloc {
+  max-width: 35rem; padding: 24px;
+  background: var(--marino); color: var(--blanco);
+  border-radius: var(--radio);
+}
+/* Dades: etiqueta petita a sobre i el valor a sota. Sense cursiva. */
+.co-dades { font-style: normal; }
+.co-dades dl { margin: 0; }
+.co-dades div + div { margin-top: 12px; }
+.co-dades dt {
+  font-size: .875rem; font-weight: 600; color: var(--azul-hielo);
+}
+.co-dades dd { margin: 2px 0 0; font-size: 1.0625rem; line-height: 1.5; }
+.co-dades a { color: var(--blanco); text-underline-offset: 3px; }
+.co-dades a:hover { color: var(--naranja); }
+/* Botons: un sota l'altre en mòbil i en línia quan hi caben. */
+.co-botons {
+  display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 24px;
+}
+.co-fila > img {
+  width: 100%; max-width: 35rem; margin-top: 24px;
+  border-radius: var(--radio);
+}
+
+@media (min-width: 900px) {
+  .co-cos { padding-bottom: 96px; }
+  .co-dades div + div { margin-top: 16px; }
+  /* Dues columnes iguals i 3rem de buit, alineades a dalt: 410 px a 900,
+     510 a 1100 i 560 a partir de 1232 (el contenidor ja no creix). */
+  .co-fila {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 3rem;
+    align-items: start; margin-top: 48px;
+  }
+  .co-fila > img { max-width: none; margin-top: 0; }
+  .co-bloc { max-width: none; padding: 32px; }
+}
+
+/* ---------- Escola: ajustos ----------
+   Obertura com la d'El club (.pagina, .pagina h1, .text p i .entradeta p,
+   amb els mateixos valors): títol i entradeta sobre el fons clar, ratlla
+   taronja fosc i entradeta més gran des de 900 px. Classes pròpies es-. */
+.es-obertura { padding-top: 40px; }
+.es-obertura h1 {
+  margin: 0 0 28px;
+  font-size: clamp(2.25rem, 7vw, 3.25rem); line-height: 1.05;
+  letter-spacing: -.01em;
+}
+.es-obertura h1::after {
+  content: ""; display: block; width: 56px; height: 4px; margin-top: 12px;
+  background: var(--naranja-oscuro);
+}
+.es-entradeta {
+  max-width: 35rem; margin: 0; font-size: 1.0625rem; line-height: 1.65;
+}
+
+@media (min-width: 900px) {
+  .es-obertura { padding-top: 56px; }
+  .es-entradeta { font-size: calc(1.0625rem * 1.25); line-height: 1.5; }
+  /* Files amb foto: dues columnes iguals i 3rem de buit (com .co-fila); la
+     foto ocupa la seva columna: 410 px a 900, 510 a 1100, 560 des de 1232. */
+  .es-fila { grid-template-columns: 1fr 1fr; justify-content: normal; }
+  .es-fila > img { max-width: none; }
+}
+@media (min-width: 1100px) {
+  .es-entradeta { font-size: calc(1.0625rem * 1.2); }
+}
+
+/* ---------- Fons del llenç ----------
+   Quan la finestra és més alta que la pàgina, la franja sota el peu
+   continua el peu (marí) en lloc de quedar clara. El body manté el seu
+   fons clar. */
+html { background: var(--marino); }

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Escola d\'agility · Club d\'Agility Maresme','Curs d\'iniciació a l\'agility de 10 sessions i classes per nivells per als socis del Club d\'Agility Maresme, a Argentona.', '/escola')}">
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header('escola')}"></header>
+
+<!-- Disseny i mesures: docs/design/maqueta-escola.html i docs/reviews/escola-contacte-definitiu.md. -->
+<main>
+    <!-- Obertura com la d'El club: títol i entradeta sobre fons clar. -->
+    <div class="contenidor es-obertura">
+        <h1>Escola d'agility</h1>
+        <p class="es-entradeta">Al Club d'Agility Maresme tothom comença pel mateix lloc: el curs d'iniciació a l'agility, que és obligatori per formar part del club.</p>
+    </div>
+
+    <div class="contenidor es-cos">
+        <!-- Sense lazy: la primera foto es veu a la primera pantalla a partir de 768 px, i la segona, des de 900 px
+             d'ample, en finestres de més de 863 px d'alt (comença a 860–863 px segons l'ample). -->
+        <section class="es-fila" aria-labelledby="iniciacio">
+            <div class="es-text">
+                <h2 id="iniciacio">Curs d'iniciació</h2>
+                <p>El curs consta de 10 sessions. Hi presentem els obstacles al gos i ensenyem al guia a conduir-lo per la pista i a formar el seu company amb nous reptes. També inclou una part d'obediència: és bàsica, però essencial per practicar el nostre esport.</p>
+                <p>Es fa una o dues sessions per setmana, segons es convingui, i s'adapten a cada gos. Els grups són reduïts. El gos pot començar a partir dels 3 mesos, sempre que tingui les vacunes al dia, tot i que recomanem començar a partir dels 6 mesos: ja hi ha un vincle amb el guia i els entrenaments es poden allargar una mica més.</p>
+            </div>
+            <img th:src="@{/img/escola-iniciacio-800.webp}"
+                 th:srcset="@{/img/escola-iniciacio-800.webp} + ' 800w, ' + @{/img/escola-iniciacio-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600"
+                 alt="Un cadell negre amb el pit blanc avança cap a la càmera entre els pals blancs i blaus de l'eslàlom, amb les orelles dretes">
+        </section>
+
+        <section class="es-fila" aria-labelledby="nivells">
+            <div class="es-text">
+                <h2 id="nivells">Classes per nivells</h2>
+                <p>Els socis del club continuen formant-se amb classes de nivells superiors. Normalment les dividim entre gossos que encara no han competit i gossos competidors.</p>
+            </div>
+            <img th:src="@{/img/escola-nivells-800.webp}"
+                 th:srcset="@{/img/escola-nivells-800.webp} + ' 800w, ' + @{/img/escola-nivells-1200.webp} + ' 1200w'"
+                 sizes="(min-width: 1232px) 560px, (min-width: 900px) calc(50vw - 40px), (min-width: 592px) 560px, calc(100vw - 32px)"
+                 width="800" height="600"
+                 alt="Un gos de pèl arrissat color crema salta una tanca de barra vermella i blanca, amb un túnel de colors al fons">
+        </section>
+
+        <section class="es-fila es-fila-comencar" aria-labelledby="comencar">
+            <div class="es-comencar fosc">
+                <div class="es-text">
+                    <h2 id="comencar">Com començar</h2>
+                    <p>Per informar-te o apuntar-te al curs, contacta amb nosaltres.</p>
+                    <a class="btn" th:href="@{/contacte}">Contacta'ns</a>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

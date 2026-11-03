@@ -14,7 +14,7 @@ Cinco páginas, solo en catalán, sin endpoints públicos nuevos de API:
 | El club             | `/el-club`     | Nueva                                   |
 | Qué es el Agility   | `/agility`     | Nueva                                   |
 | Formación           | `/escola`      | Reutiliza la URL de la web actual       |
-| Contacto            | `/contactans`  | Reutiliza la URL de la web actual       |
+| Contacto            | `/contacte`    | Nueva; `/contactans` (web actual) se redirige |
 
 Fuera de la primera versión: Horarios, Vídeos, Lliga interna, Competición,
 noticias, formulario de contacto, backoffice, versión en castellano y página
@@ -148,6 +148,56 @@ de socios y sus perros (ver «Pendiente de decidir»).
   párrafo se ve sin scroll a 1280x800; a 2x la apertura elige la versión de
   1600 px; navegación con Tab completa con contorno visible (17,35:1);
   `/escola` responde `401`, que es lo esperado hasta su issue. Solo en Chrome.
+* URL de Contacte (#97): `/contacte`, no la `/contactans` de la web actual. La
+  clave con la que el menú marca la página activa es `'contacte'` (la etiqueta
+  que manda la página y compara `header.html`; deben coincidir). `/contactans`
+  responde `401` hasta que se añada la redirección `301` (ver «Para la
+  publicación»).
+* Escola (#96), texto en catalán en `escola.html`: el curso de iniciación al
+  agility es obligatorio para formar parte del club; son 10 sesiones en las que
+  se presentan los obstáculos al perro, se enseña al guía a conducirlo en pista
+  y a formar a su compañero con nuevos retos, con una parte básica de
+  obediencia; una o dos sesiones por semana según se convenga y adaptadas a cada
+  perro, en grupos reducidos; el perro puede empezar desde los 3 meses con las
+  vacunas al día, aunque se recomienda desde los 6 meses (ya hay vínculo con el
+  guía y los entrenamientos pueden alargarse). Los socios tienen clases de
+  niveles superiores, normalmente divididas entre perros que aún no han
+  competido y perros competidores. No se publican precios, fechas ni horarios.
+  Título «Escola d'agility»; el menú la llama «Formació».
+* Maquetación de Escola (#96): apertura igual que la de El club (título y
+  entradilla sobre fondo claro, con las mismas medidas); dos filas de texto con
+  foto, en dos columnas iguales desde 900 px (foto de 560x420 desde 1232 px); y
+  «Com començar» como bloque azul marino a todo el ancho del contenedor, con el
+  botón «Contacta'ns» a `/contacte`. En «Classes per nivells» el texto es corto
+  y bajo él queda un hueco de hasta unos 280 px junto a la foto; se acepta. Si
+  molesta, la solución es centrar el texto en vertical solo en esa fila.
+* Maquetación de Contacte (#97): apertura en banda azul marino (título y
+  entradilla) y, desde 900 px, dos columnas iguales: a la izquierda un bloque
+  azul marino con los datos (dirección, teléfono, correo) y, debajo, los dos
+  botones («Escriu-nos per WhatsApp» y «Com arribar»); a la derecha, la foto. Los
+  datos y botones van en el bloque oscuro porque el naranja solo se usa sobre
+  fondo oscuro. A 360x640 y a 1280x800 los datos caben enteros sin scroll.
+* WhatsApp (#97): enlace `https://wa.me/34600434201` con un mensaje prellenado
+  en catalán de cinco líneas: saludo, nombre, nombre del perro, cómo es el perro
+  (raza, edad, carácter) y qué busca en el club; los campos van entre corchetes
+  para que quien escribe los sustituya. Se abre en pestaña nueva y no carga nada
+  de terceros hasta pulsarlo. Solo se publican un teléfono (que es también el
+  de WhatsApp) y un correo del club.
+* Fondo del lienzo (#96/#97): `html { background: var(--marino) }`. En ventanas
+  más altas que una página corta (Contacte), la franja bajo el pie es marina en
+  lugar de clara, y el rebote del scroll en macOS e iOS se ve marino, como la
+  cabecera y el pie. No cambia ninguna maquetación (verificado en las cinco
+  páginas).
+* Verificado con la aplicación en marcha (#96 y #97): `/escola`, `/escola/`,
+  `/contacte` y `/contacte/` dan `200` con `GET` y `HEAD` y el mismo HTML; una
+  sola canónica sin barra; sin atributos `th:`; texto servido idéntico al de las
+  plantillas; ningún enlace del sitio a `/contactans` y todos los internos (y
+  las 44 rutas de recursos) dan `200`; sin desbordamiento horizontal de 360 a
+  2560 px; a 2x las fotos eligen la versión de 1200 px; navegación con Tab
+  completa con contorno visible (17,35:1) y sin transiciones con
+  `prefers-reduced-motion`. Alturas y entradillas de la portada, El club y
+  Agility, iguales que antes. Solo en Chrome; el WhatsApp se ha comprobado
+  decodificando el enlace, no abriéndolo en la app.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -159,7 +209,8 @@ de socios y sus perros (ver «Pendiente de decidir»).
   que el resultado es el mismo; conviene saberlo al depurar.
 * Catalán primero. Castellano después, con URLs `/es/...` y `hreflang`.
 * Sin fechas de eventos en la web (se quedan obsoletas).
-* Contacto como texto y enlaces (`mailto:` y `tel:`), sin formulario.
+* Contacto como texto y enlaces (`mailto:`, `tel:`, WhatsApp y mapa), sin
+  formulario.
 * Página 404 personalizada para navegadores.
 * Tipografías del sistema o alojadas en el propio proyecto, sin cargar fuentes
   desde servidores de terceros (privacidad y velocidad).
@@ -252,7 +303,8 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Correo: info@agilitymaresme.com
 * Teléfono: 600 434 201
 * Fundado el 4 de octubre de 1992 (en la web se presenta como «Des de 1992»)
-* Formación: curso de iniciación al agility
+* Formación: curso de iniciación al agility (10 sesiones, obligatorio para ser
+  socio) y clases de niveles superiores para los socios
 * Federado en la FCAG (participa en sus competiciones y organiza pruebas) y
   colaboración con la RSCE (participa y organiza pruebas de ambas entidades)
   Los datos están confirmados por el club. El código postal es el del municipio
@@ -278,6 +330,8 @@ imagen.
 | `grupo-club` (foto de grupo) | Incluye a una menor | Autorización del padre confirmada. Repetir la foto con más socios y sustituirla |
 | `9EB7979A` (selección, camiseta del presidente) | Sin firma vista | Uso aprobado por el club; autoría por confirmar |
 | `club-natural` y `club-artificial` (pista) | Hechas por Dani con iPhone; sin firma | Publicables. Se exportan sin EXIF ni GPS |
+| `escola-cadell-slalom` (cachorro border en un slalom de entrenamiento) | Firma «© JRC» abajo a la izquierda | La firma está recortada, con la aceptación del autor (recorte 4:3 que la deja fuera; comprobado a 1:1). Permiso de autor y de dueño confirmado. Perro distinto de los de otras páginas |
+| `escola-caniche-salt` y `contacte-sheltie-salt` (Escola y Contacte) | Sin firma de fotógrafo vista; los postes llevan la marca del fabricante del obstáculo, que no importa | Permiso de autores y dueños confirmado. Perros distintos de los de otras páginas (confirmado por el club). Sin crédito de momento |
 | Fotos de perros en acción (tesela de Agility de la portada, las de la página de Agility y la del Shetland) | Sin metadatos de autoría (llegaron por mensajería) | Permiso de los autores y de los dueños de los perros confirmado por el club. Sin crédito de momento (ver «Pendiente de decidir»). En las de Agility: perros distintos comprobados por el club; la guía de la apertura es la propietaria del perro; en la del túnel se ve de fondo a personas no reconocibles |
 | `caniche-pasarela`, `caniche-salto-valla`, `caniche-rosette`, `_DSC7092`, `IMG-20240630-WA0017`, `1141AAAA` | Sin firma vista en el tercio inferior | Autoría por confirmar. `caniche-rosette` conserva GPS en el original; se elimina al exportar |
 
@@ -311,8 +365,7 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   transparente, calidad a cualquier tamaño y el perro entero para la marca de
   agua. Sin él, vectorizar el perro por capas de color.
 * Selección de fotos para cada página, con la autoría y los permisos de
-  «Fotos: autoría, permisos y marcas». Hechas la portada, El club y Agility;
-  faltan Escola y Contacte. Más adelante,
+  «Fotos: autoría, permisos y marcas». Hechas las cinco páginas. Más adelante,
   fotos de la entrada, de iniciación y primeros planos de obstáculos.
 * Crédito de fotógrafos en la página (por ejemplo, en el pie): decidir
   formato y confirmar el permiso de cada autor antes de publicar. La foto del
@@ -326,9 +379,9 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 * Agility (#95): la foto de la empalissada solo tiene versión de 800 px (el
   original mide 1080x720) y en pantallas 2x se verá algo blanda. Sustituirla por
   una de mayor resolución cuando haya una.
-* `/escola` responde `401` en JSON hasta que exista su página (#96), y desde
-  Agility y el menú un visitante que pulse «Coneix l'escola» o «Formació» lo
-  vería. Priorizar #96 si tarda.
+* Comprobar en el móvil real el enlace de WhatsApp (que la app respete los
+  saltos de línea, los acentos y los corchetes del mensaje) y los de teléfono y
+  correo. Hasta ahora solo se ha comprobado el enlace decodificado.
 * El hover del botón «Com arribar» (contraste 9,56:1 según la maqueta) no se
   ha vuelto a medir en la página real. La página de El club solo se ha
   probado en Chrome (no en Firefox ni Safari).
@@ -374,8 +427,28 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   proxy use el host y el esquema originales (`server.forward-headers-strategy`).
   Sin esto, los enlaces y las redirecciones de la web pueden salir con
   `http` y con el puerto interno.
-* Redirecciones `301` de las URLs antiguas (`/horaris/`, `/competicio/`,
-  `/video-agility-maresme/`, `/lliga-interna/`) a la página más parecida.
+* Redirecciones `301` de las URLs antiguas a la página más parecida:
+  `/contactans` a `/contacte`, y `/horaris/`, `/competicio/`,
+  `/video-agility-maresme/` y `/lliga-interna/`. Mientras tanto, `/contactans`
+  responde `401` en JSON.
+* Primera versión solo con la web pública (sin base de datos real): la
+  aplicación necesita un `DataSource` para arrancar, así que sirve H2 en memoria
+  en el perfil de producción, sin datos de prueba (comprobar que no hay un
+  `data.sql` con usuarios y contraseñas conocidas). El servidor delantero solo
+  debe dejar pasar las rutas públicas (`/`, las cinco páginas con sus variantes
+  con barra, `/css`, `/img`, `/fonts` y `/favicon.ico`) y bloquear `/api/**`,
+  Swagger y la consola H2, que además se desactivan en producción.
+* Correo del dominio: el correo del club usa `agilitymaresme.com`. Al mover la
+  web, cambiar solo los registros que apuntan a ella (el dominio sin `www` y
+  `www`) y conservar los registros de correo (MX, SPF y DKIM si existen). Antes,
+  comprobar si los buzones están en el mismo alojamiento que la web actual; en
+  ese caso no se puede cancelar.
+* Despliegue en etapas: servidor pequeño, publicación primero en un subdominio
+  temporal (por ejemplo, `beta.agilitymaresme.com`) para que los compañeros
+  revisen con HTTPS real, y después cambio de los registros de la web, con el TTL
+  bajado unos días antes y los valores antiguos anotados para poder volver atrás.
+  Hay que saber quién gestiona el dominio y el DNS (hoy lo gestiona una
+  persona de contacto), dónde está alojada la web actual y cuándo caducan el
+  dominio y el alojamiento.
 * Alta del sitemap en Google Search Console y ficha de Google Business Profile.
 * Revisión del aviso legal.
- 
