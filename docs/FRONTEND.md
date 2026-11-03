@@ -198,6 +198,32 @@ de socios y sus perros (ver «Pendiente de decidir»).
   `prefers-reduced-motion`. Alturas y entradillas de la portada, El club y
   Agility, iguales que antes. Solo en Chrome; el WhatsApp se ha comprobado
   decodificando el enlace, no abriéndolo en la app.
+* Página 404 (#98): `templates/error/404.html`, sin Controller. Cuando una
+  petición con `Accept: text/html` acaba en un `404`, Spring Boot la reenvía a
+  `/error` y usa esa plantilla. Para que un visitante anónimo la vea,
+  `CustomAuthenticationEntryPoint` responde `404` (con `sendError`) a las rutas
+  que no empiezan por `/api/`, y `401` JSON a las de la API; `SecurityConfig` no
+  cambia (ver `DOMAIN_SEGURIDAD.md` y ADR-017). Texto en catalán: título
+  «Pàgina no trobada», una frase y el botón «Torna a l'inici» a `/`.
+* Maquetación y SEO de la 404 (#98): sin diseño nuevo (la apertura de El club,
+  la entradilla de Escola y el botón existente; 4 líneas de CSS con prefijo
+  `er-`). Cabecera con `header(null)`, de modo que ningún enlace lleva
+  `aria-current`. `<head>` propio, sin `<link rel="canonical">`, con
+  `<meta name="robots" content="noindex">` y `lang="ca"`. Todos los enlaces y
+  recursos son absolutos desde la raíz, porque la página se sirve en la URL
+  que escribió el visitante (por ejemplo, `/a/b/c`).
+* Verificado con la aplicación en marcha (#98): `/no-existe` con
+  `Accept: text/html`, sin token, con un `Bearer` inválido y con un usuario
+  autenticado da `404` con la página; en una ruta anidada, byte a byte igual y
+  con CSS, logo y fuentes cargados. `curl` sin `Accept` recibe el JSON de
+  Spring. `/api/no-existe` y `/api/persons` sin token dan `401` con
+  `ErrorResponseDTO`. `GET /error` directo da `404`. Las nueve rutas de las
+  cinco páginas siguen idénticas byte a byte. Sin `th:` sin resolver, un solo
+  `<h1>`, sin desbordamiento de 360 a 2560 px, Tab con contorno visible y
+  nada de terceros. Un recurso estático inexistente sin `Accept` devuelve el
+  JSON de Spring con `No static resource css/no-existe.css.` (la ruta que pidió
+  el visitante, no una interna); con `Accept: text/html`, la página 404. Solo en
+  Chrome.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -211,7 +237,7 @@ de socios y sus perros (ver «Pendiente de decidir»).
 * Sin fechas de eventos en la web (se quedan obsoletas).
 * Contacto como texto y enlaces (`mailto:`, `tel:`, WhatsApp y mapa), sin
   formulario.
-* Página 404 personalizada para navegadores.
+* Página 404 personalizada para navegadores (hecha en #98; ver más abajo).
 * Tipografías del sistema o alojadas en el propio proyecto, sin cargar fuentes
   desde servidores de terceros (privacidad y velocidad).
 * Tipografía elegida: Barlow Condensed para los titulares (peso 700 de partida)
@@ -339,13 +365,19 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 
 ## Pendiente de decidir
 
-* Rutas inexistentes sin token: reciben `401` en JSON, no `404`, porque la
-  seguridad actúa antes que Spring MVC. La página 404 personalizada (#98)
-  no se vería para un visitante anónimo. Decidir cómo combinarla con
-  `anyRequest().authenticated()`. Los recursos estáticos inexistentes
-  (por ejemplo `/css/no-existe.css`) sí responden `404`, pero con el JSON por
-  defecto de Spring Boot, no con `ErrorResponseDTO`, y el mensaje expone la
-  ruta interna del recurso.
+* Página 404 (#98), a revisar en #100: el botón «Torna a l'inici» es el
+  naranja sobre fondo claro (contraste del botón con el fondo 2,31:1), cuando
+  el naranja se usa solo sobre fondo oscuro. Si molesta, meter la frase y el
+  botón en un bloque marino como «Com començar». Más adelante, una imagen
+  divertida (sin decidir). Además, el `<head>` de `error/404.html` está
+  duplicado respecto al fragmento `head` (cambiar el CSS o el favicon obliga a
+  tocar los dos); la alternativa es `th:if="${ruta != null}"` en la canónica del
+  fragmento. Y los comentarios HTML de las plantillas se sirven al visitante;
+  pasarlos a comentarios de Thymeleaf (`<!--/* */-->`).
+* Backoffice y rutas fuera de `/api/` (#98): un anónimo que pida una ruta no
+  pública fuera de `/api/` recibe `404`, no `401`. Si el backoffice se sirve
+  con páginas fuera de `/api/`, decidir allí cómo se lleva al visitante al
+  login.
 * Experiencia del backoffice ante un token caducado (ir al login o al inicio).
   El backend ya lo trata como anónimo; con el token en cabecera no afecta a la
   web pública, pero cambiaría si se guardara en cookie.

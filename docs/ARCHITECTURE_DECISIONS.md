@@ -399,8 +399,6 @@ motivos de SEO, sin modificar la configuración de idioma de la API.
 * Las rutas de la web son rutas de Controller, no archivos. En Spring MVC
   actual `/escola` y `/escola/` ya no son la misma ruta por defecto. Cada página acepta las dos (mapeo y matcher con las dos rutas) y declara como canónica la versión sin barra con `<link rel="canonical">`. Una redirección `301` de una a otra, si se quiere, se hace en el servidor web delantero (ver`docs/FRONTEND.md`).
 * Si se migra a React o Angular, las plantillas se sustituyen; la API no se toca.
-* Una ruta inexistente sin token recibe `401` (la seguridad actúa antes que
-Spring MVC), no `404`. Afecta a la página 404 personalizada (ver
-`docs/FRONTEND.md`).
+* La seguridad actúa antes que Spring MVC, así que una ruta inexistente sin token no llega a MVC. Para que el visitante vea la página 404 sin abrir rutas con patrones amplios, `CustomAuthenticationEntryPoint` responde `401` en JSON solo a las rutas que empiezan por `/api/`; al resto responde `404` con`sendError`, que Spring reenvía a `/error` y resuelve con `templates/error/404.html`. Se mantiene `anyRequest().authenticated()`. Consecuencia: cualquier ruta no pública fuera de `/api/` responde `404` a un anónimo; si el backoffice se sirviera fuera de `/api/`, habría que decidir allí cómo se redirige al login (ver `docs/FRONTEND.md`).
 * Esto no decide el backoffice: su tecnología y el almacenamiento del token
   siguen pendientes.

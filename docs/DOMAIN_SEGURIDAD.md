@@ -38,10 +38,9 @@ aceptado de esta convención, no un error.
 - Toda alta de usuario se crea siempre con rol USER por defecto, independientemente de lo que se envíe en la petición de alta.
 - El cambio a otro rol (ADMIN o ENTRENADOR) es una operación distinta, restringida a usuarios con rol ADMIN.
 - El rol ADMIN solo podrá asignarse a personas cuyo MembershipType sea FULL_PARTNER
-
-*(Pendiente definir (backlog) — qué ocurre con el rol `ADMIN` de una persona si su `MembershipType` deja de ser `FULL_PARTNER` (por ejemplo, si deja la junta o cambia de tipo de membresía) — no
-se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva 
-automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
+  *(Pendiente definir (backlog) — qué ocurre con el rol `ADMIN` de una persona si su `MembershipType` deja de ser `FULL_PARTNER` (por ejemplo, si deja la junta o cambia de tipo de membresía) — no
+  se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva
+  automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
 
 ### Alta de usuario (credenciales)
 
@@ -69,16 +68,17 @@ Cualquier otra ruta exige un JWT válido en la cabecera `Authorization: Bearer <
 
 `JwtAuthenticationFilter` captura la excepción de un token inválido, caducado o con firma incorrecta, la registra y deja seguir la petición como anónima: en una ruta pública responde con normalidad y en una protegida responde `401`.
 
-Una petición sin autenticar a una ruta protegida responde `401` con el formato `ErrorResponseDTO` habitual de la API, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security.
+Una petición sin autenticar a una ruta protegida de la API (`/api/**`) responde `401` con el formato `ErrorResponseDTO` habitual, mediante un `CustomAuthenticationEntryPoint` propio (en el paquete `security`) registrado en `SecurityConfig` vía `.exceptionHandling(...)`, sustituyendo al `Http403ForbiddenEntryPoint` por defecto de Spring Security. Ese mismo punto de entrada, para cualquier ruta que no empiece por `/api/`, no escribe el JSON: llama a `response.sendError(404)` (ver «Web pública»).
 
 ### Web pública
 
-Implementado (Issues #91 a #97 del Sprint 6 — base Thymeleaf, portada, recursos estáticos y páginas El club, Agility, Escola y Contacte).
+Implementado (Issues #91 a #98 del Sprint 6 — base Thymeleaf, portada, recursos estáticos, páginas El club, Agility, Escola y Contacte, y página 404).
 
 Las páginas de la web (Controllers web, ADR-017) son públicas. Cada una tiene su propio matcher `permitAll`, en un bloque de `SecurityConfig` separado del de la API, sin verbo (cubre `GET` y `HEAD`) y sin patrones amplios. Hoy están abiertas la portada (`/`), El club (`/el-club`), Agility (`/agility`), Escola (`/escola`) y Contacte (`/contacte`); cualquier página nueva se añade con la suya (ver `docs/FRONTEND.md`). Cada página lista en su matcher las dos variantes de su ruta, con y sin barra final (por ejemplo, `/agility` y `/agility/`), porque Spring MVC las trata como rutas distintas: si solo se permitiera una, la otra caería en `anyRequest().authenticated()` y respondería `401`.
 
-Los recursos estáticos se abren por prefijo, en una línea propia: `/css/**`, `/img/**`, `/fonts/**` y `/favicon.ico`. No hay `/js/**` porque la web no lleva JavaScript. Todo lo que cuelga de esos prefijos es público, así que nada que no deba verse puede colocarse en `static/`. Un recurso estático inexistente responde `404` con el JSON por defecto de Spring Boot (no con `ErrorResponseDTO`), mientras que una página inexistente sin token responde `401`.
+Los recursos estáticos se abren por prefijo, en una línea propia: `/css/**`, `/img/**`, `/fonts/**` y `/favicon.ico`. No hay `/js/**` porque la web no lleva JavaScript. Todo lo que cuelga de esos prefijos es público, así que nada que no deba verse puede colocarse en `static/`. Un recurso estático inexistente responde `404` con el JSON por defecto de Spring Boot (no con `ErrorResponseDTO`), y una página inexistente sin token responde `404` con la página personalizada (ver más abajo).
 
+Una ruta inexistente o no pública fuera de `/api/` responde `404` a un anónimo, no `401`, y la web muestra `templates/error/404.html`. El mecanismo es el siguiente: `CustomAuthenticationEntryPoint` llama a `sendError(404)`, Tomcat reenvía la petición a `/error` (permitido por el matcher `DispatcherType.ERROR`) y Spring Boot elige la vista según la cabecera `Accept`: con `text/html` devuelve la plantilla y con otro valor (por ejemplo `curl` sin cabecera) el JSON por defecto. La página lleva `noindex` y no declara canónica. Un `GET /error` directo, sin error previo, también responde `404`. Con un token válido, una ruta inexistente llega a Spring MVC y responde el mismo `404`. Las rutas `/api/**` no cambian: sin token, `401` con `ErrorResponseDTO`; con token, un `404` JSON de Spring.
 
 ### Errores reenviados a `/error`
 
@@ -88,7 +88,7 @@ Los errores de entrada más habituales tienen `@ExceptionHandler` propio con `Er
 
 En todos los errores de validación (cuerpo, parámetros de la URL y elementos de una lista), el `message` contiene únicamente los textos de las restricciones incumplidas, unidos por un espacio, sin nombre de campo ni posición del elemento. Por eso cada restricción lleva un `message` propio en español, que nombra el dato afectado, con mayúscula inicial y punto final. El idioma de la aplicación está fijado a español (`spring.web.locale=es_ES` y `spring.web.locale-resolver=fixed`), así que no depende de la cabecera `Accept-Language` ni de la JVM del servidor. El orden de los textos cuando hay varios errores no está garantizado.
 
-El resto de errores sin handler (ruta inexistente, método o tipo de contenido no soportados, error de integridad de datos) devuelven su código correcto con el JSON por defecto de Spring Boot (ver `BACKLOG.md`). Sin token, una ruta inexistente responde `401` y no `404`, porque la seguridad actúa antes que Spring MVC (ver `docs/FRONTEND.md`).
+El resto de errores sin handler (ruta inexistente, método o tipo de contenido no soportados, error de integridad de datos) devuelven su código correcto con el JSON por defecto de Spring Boot (ver `BACKLOG.md`). Sin token, una ruta inexistente fuera de `/api/` responde `404` (la web muestra la página 404) y una de `/api/` responde `401`, porque la seguridad actúa antes que Spring MVC (ver «Web pública»).
 
 ## Autorización por rol
 
@@ -104,28 +104,25 @@ Implementado (Issue #59).
 
 - ADMIN: puede crear (`POST`) y modificar (`PUT`) organizaciones.
 - USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
-
-No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
+  No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
 
 - Verbo: la modificación es `PUT` (sustituye el recurso completo, como en Personas, Perros y Licencias) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría modificar organizaciones.
-
 ### Personas
 
 Implementado (Issue #84).
 
 - ADMIN: acceso completo — puede crear, ver, listar, buscar y modificar cualquier persona, y cambiar el estado de membresía (`PATCH /{id}/status`).
-- ENTRENADOR: puede crear (`POST`) personas únicamente con `MembershipType` de formación (`INITIATION_TRAINING` o `PERMANENT_TRAINING`); crear una persona con cualquier otro tipo de membresía está prohibido. Puede ver y modificar únicamente su propia persona (igual que USER). 
-- USER: no puede crear personas. Puede ver (`GET /{id}`) y modificar (`PUT /{id}`) únicamente su propia persona — comparando el `id` solicitado contra la persona asociada a su propio `AppUser`, no contra el rol en sí. 
-- USER y ENTRENADOR no pueden listar (`GET /api/persons`) ni buscar (`GET /api/persons/search`) personas — ambas operaciones quedan restringidas a ADMIN. 
-- Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo. 
-- Nadie, excepto ADMIN, puede cambiar el `MembershipStatus` de ninguna persona (`PATCH /{id}/status`), ni siquiera la propia. 
+- ENTRENADOR: puede crear (`POST`) personas únicamente con `MembershipType` de formación (`INITIATION_TRAINING` o `PERMANENT_TRAINING`); crear una persona con cualquier otro tipo de membresía está prohibido. Puede ver y modificar únicamente su propia persona (igual que USER).
+- USER: no puede crear personas. Puede ver (`GET /{id}`) y modificar (`PUT /{id}`) únicamente su propia persona — comparando el `id` solicitado contra la persona asociada a su propio `AppUser`, no contra el rol en sí.
+- USER y ENTRENADOR no pueden listar (`GET /api/persons`) ni buscar (`GET /api/persons/search`) personas — ambas operaciones quedan restringidas a ADMIN.
+- Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo.
+- Nadie, excepto ADMIN, puede cambiar el `MembershipStatus` de ninguna persona (`PATCH /{id}/status`), ni siquiera la propia.
 - La comprobación de "propios datos" (ownership) se hace antes de comprobar si el recurso existe: si el `id` solicitado no es el propio (y el rol no es ADMIN), se responde `403` sin revelar si esa persona existe o no.
-
-*(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
+  *(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
 
 ### Perros
 
-Implementado (Issue#85).
+Implementado (Issue #85).
 
 USER y ENTRENADOR tienen exactamente los mismos permisos sobre perros.
 
@@ -135,8 +132,7 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre perros.
 - La comprobación de "propios datos" se hace antes de revelar si el recurso existe: si el perro, la persona o el propietario indicado no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN. Esta precedencia se aplica a peticiones con cuerpo válido: la validación del cuerpo (`@Valid`) se ejecuta antes que el Service, así que un `PUT` con cuerpo inválido sobre un perro ajeno o inexistente responde `400` con los errores de validación, igual para cualquier id (no revela si el perro existe).
 - El propietario de un perro no se puede modificar mediante la actualización (ver `DOMAIN_PERROS.md`): el `ownerId` enviado en un `PUT` se ignora (aunque sigue siendo obligatorio en el cuerpo, porque comparte DTO con el alta). El traspaso entre propietarios será un caso de uso específico (pendiente, ver backlog).
 - La actualización (`PUT /{id}`) sustituye el recurso completo: los campos opcionales que no se envíen (`sex`, `breed`, `pedigreeNumber`) quedan sin valor.
-
-*(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
+  *(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
 
 ### Licencias — Issue #86
 
@@ -152,7 +148,6 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
 - La corrección (`PUT /{id}`) usa un DTO propio con solo `licenseNumber`, `startDate` y `endDate`: organización, persona y perro de una licencia no se pueden modificar (ver `DOMAIN_ORGANIZACIONES.md`); si se envían en el cuerpo, se ignoran. Solo la ejecuta ADMIN, por lo que no necesita comprobación de "propios datos" en el Service.
 - Verbo: la corrección es `PUT` (sustituye los campos corregibles completos, como en Personas y Perros) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría corregir licencias.
 - La visibilidad de las licencias es solo para ADMIN y la persona de la licencia (la propietaria actual del perro). El comportamiento tras una cesión (qué ve el propietario anterior) se decidirá al implementar la cesión (ver backlog).
-
 ### Recibos y líneas de recibo — Issue #88
 
 Implementado (Issue #88). Las reglas de negocio de recibos y líneas están en `DOMAIN_RECIBOS.md`.
@@ -164,7 +159,6 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre recibos y líneas
 - USER y ENTRENADOR no pueden generar, pagar ni devolver recibos, ni crear, modificar o borrar líneas, ni consultar la propuesta de preparación (`GET /api/receipt/proposal`), ni siquiera con datos propios. Esas operaciones se rechazan con `403` por rol en `SecurityConfig`, antes de llegar al Controller: un USER o ENTRENADOR recibe `403` incluso con cuerpo inválido o con un id inexistente. Un socio nunca marca nada como pagado, tampoco sus propios recibos.
 - La comprobación de "propios datos" se hace antes de revelar si el recibo o la persona existen: si el recibo o la persona indicados no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN. La conversión de parámetros se hace antes del Service: un `{id}` no numérico o un `status` inválido en las lecturas responde `400` aunque la persona sea ajena (no revela nada, porque la respuesta es la misma para cualquier persona).
 - Matchers de `SecurityConfig`: la restricción a ADMIN se aplica por verbo y prefijo (`POST` y `PATCH` sobre `/api/receipt/**`, `POST`, `PUT` y `DELETE` sobre `/api/receipt-lines/**`) y, para la propuesta, con un matcher sin verbo sobre `/api/receipt/proposal`, para que cubra también `HEAD` (un matcher con `HttpMethod.GET` no se aplica a `HEAD`). Las lecturas por id o por persona no tienen matcher de rol: pasan por `authenticated()` y se protegen en el Service. Un `GET` nuevo que se añada a estos controllers debe revisarse a propósito, porque quedaría accesible a cualquier usuario autenticado. Si se cambia el verbo o la ruta de un endpoint hay que cambiar también su matcher.
-
 ---
 
 ## Referencias cruzadas

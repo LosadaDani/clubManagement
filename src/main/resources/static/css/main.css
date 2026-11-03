@@ -565,3 +565,7 @@ a { color: var(--azul-vivo); }
    continua el peu (marí) en lloc de quedar clara. El body manté el seu
    fons clar. */
 html { background: var(--marino); }
+
+/* ---------- Pàgina 404 (templates/error/404.html), prefix er- ----------
+   Separació entre l'entradeta i el botó «Torna a l'inici». */
+.er-accio { margin-top: 32px; }
