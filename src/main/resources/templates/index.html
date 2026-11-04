@@ -63,7 +63,7 @@
     </section>
 
     <section class="banda fosc" aria-label="El club">
-        <!-- A partir de 900 px, el retall d'escriptori; per sota, el de mòbil. -->
+        <!--/* A partir de 900 px, el retall d'escriptori; per sota, el de mòbil. */-->
         <picture>
             <source media="(min-width: 900px)"
                     th:srcset="@{/img/banda-escritorio-960.webp} + ' 960w, ' + @{/img/banda-escritorio-1920.webp} + ' 1920w'"
@@ -73,10 +73,8 @@
                  sizes="100vw" width="1920" height="800" loading="lazy"
                  alt="La pista de gespa artificial del club de nit, amb focus encesos, tanques vermelles i túnels de colors">
         </picture>
-        <!-- Per sota de 900 px la marca s'amaga (CSS) i aquest GIF buit de 1 px evita descarregar-la. -->
         <picture class="marca-aigua" aria-hidden="true">
-            <source media="(max-width: 899px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-            <img th:src="@{/img/marca-perro.webp}" width="570" height="292" loading="lazy" alt="">
+            <img th:src="@{/img/marca-perro.webp}" width="570" height="292" alt="">
         </picture>
         <div class="contenidor">
             <p class="frase">Club d'Agility Maresme, <span>des de 1992.</span></p>

@@ -213,14 +213,17 @@ a { color: var(--azul-vivo); }
 .banda .frase span { color: var(--naranja); white-space: nowrap; }   /* «des de 1992.» no es parteix */
 /* Marca: per sobre del vel (z-index 1, però va després de ::before a l'HTML) i
    per sota del text (z-index 2). Per sota de 900 px quedaria darrere de la frase:
-   s'amaga, i el <source> buit de l'HTML evita que es descarregui. */
+   s'amaga. El fitxer es descarrega igualment, perquè és el mateix de la marca del hero. */
 .banda .marca-aigua { display: none; z-index: 1; }
 .banda .marca-aigua img { position: static; height: auto; }   /* anul·la .banda img (la foto de fons) */
 
 /* ---------- Peu ---------- */
 .peu { background: var(--marino); color: var(--azul-niebla); padding: 40px 0 32px; }
 .peu .contenidor { display: grid; gap: 24px; }
-.peu h2 { margin: 0 0 8px; color: var(--blanco); font-size: 1.125rem; }
+.peu-titol {
+  margin: 0 0 8px; color: var(--blanco); font-size: 1.125rem;
+  font-family: var(--fuente-titulos); font-weight: 700;
+}
 .peu address { font-style: normal; }
 .peu ul { list-style: none; margin: 0; padding: 0; }
 .peu li { margin: 0 0 6px; }
@@ -413,7 +416,7 @@ a { color: var(--azul-vivo); }
 }
 
 /* =====================================================================
-   Obertura sense foto (Escola i Contacte)
+   Obertura sense foto (Contacte)
    Títol i entradeta sobre marí, com l'obertura d'Agility sense la foto.
    Regles de docs/design/maqueta-escola.html i maqueta-contacte.html
    (.es-obertura i .co-obertura, iguals), unificades en una sola classe.
@@ -471,11 +474,10 @@ a { color: var(--azul-vivo); }
 
 @media (min-width: 900px) {
   .es-cos { padding-bottom: 96px; }
-  /* Text fins a 35rem a l'esquerra i foto fins a 22rem a la dreta,
-     alineada a dalt amb el títol (com .ag-fila). */
+  /* Text a l'esquerra i foto a la dreta, alineada a dalt amb el títol. Les dues
+     columnes iguals es defineixen més avall, a «Escola: ajustos». */
   .es-fila {
-    display: grid; grid-template-columns: minmax(0, 35rem) minmax(0, 22rem);
-    justify-content: space-between; column-gap: 3rem; align-items: start;
+    display: grid; column-gap: 3rem; align-items: start;
   }
   .es-fila > img { margin-top: 0; }
   /* Com començar: el bloc ocupa tot el contenidor; el text, a 35rem. */

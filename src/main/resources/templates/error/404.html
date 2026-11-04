@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<!-- Pàgina 404 per a navegadors (#98). Spring Boot la fa servir sola quan una petició amb
+<!--/* Pàgina 404 per a navegadors (#98). Spring Boot la fa servir sola quan una petició amb
      Accept: text/html acaba en 404 (reenviament intern a /error); no cal Controller.
      <head> propi en lloc del fragment head(titol, descripcio, ruta): aquí no hi ha canònica,
      perquè l'adreça pot ser qualsevol, i sí noindex. Charset, viewport, favicon i CSS, els
-     mateixos que el fragment. Rutes sempre des de l'arrel: la pàgina es pot servir a /a/b/c. -->
+     mateixos que el fragment. Rutes sempre des de l'arrel: la pàgina es pot servir a /a/b/c. */-->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,10 +16,10 @@
 </head>
 <body>
 
-<!-- null: no coincideix amb cap pàgina, i cap enllaç del menú porta aria-current. -->
+<!--/* null: no coincideix amb cap pàgina, i cap enllaç del menú porta aria-current. */-->
 <header th:replace="~{fragments/header :: header(null)}"></header>
 
-<!-- Obertura com la d'El club (.pagina i .pagina h1) amb l'entradeta d'Escola (.es-entradeta). -->
+<!--/* Obertura com la d'El club (.pagina i .pagina h1) amb l'entradeta d'Escola (.es-entradeta). */-->
 <main class="pagina">
     <div class="contenidor">
         <h1>Pàgina no trobada</h1>

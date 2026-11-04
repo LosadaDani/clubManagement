@@ -6,7 +6,7 @@
 
 <header th:replace="~{fragments/header :: header('el-club')}"></header>
 
-<!-- Disseny i mesures: docs/design/maqueta-club-v1f.html i docs/reviews/maqueta-club-v1f.md. -->
+<!--/* Disseny i mesures: docs/design/maqueta-club-v1f.html i docs/reviews/maqueta-club-v1f.md. */-->
 <main class="pagina">
     <div class="contenidor">
         <div class="text">
@@ -19,7 +19,7 @@
                     <p>Al Maresme l'agility es viu en equip. El club és de tots els socis, i el que més valorem és el companyerisme: ens ajudem, ens animem i gaudim junts de l'esport amb els nostres gossos.</p>
                 </div>
 
-                <!-- Des de 1100 px, la foto retallada en panoràmica; per sota, la sencera. -->
+                <!--/* Des de 1100 px, la foto retallada en panoràmica; per sota, la sencera. */-->
                 <picture>
                     <source media="(min-width: 1100px)"
                             th:srcset="@{/img/club-grup-pano-800.webp} + ' 800w, ' + @{/img/club-grup-pano-1477.webp} + ' 1477w'"
