@@ -7,25 +7,25 @@
 
 /* ---------- Fonts (allotjades al projecte, llicència OFL) ----------
    Una família per tipus de lletra i un @font-face per pes real del fitxer.
-   De moment són TTF: falta passar-les a WOFF2 amb subconjunt llatí
-   (veure docs/reviews/portada-thymeleaf.md). */
+   WOFF2 amb subconjunt llatí i totes les característiques de maquetació: la
+   «l·l» catalana en depèn. Procés a docs/reviews/issue-100-paso3.md. */
 @font-face {
   font-family: "Barlow Condensed";
-  src: url("../fonts/barlow-condensed/BarlowCondensed-Bold.ttf") format("truetype");
+  src: url("../fonts/barlow-condensed-700.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/inter/Inter_18pt-Regular.ttf") format("truetype");
+  src: url("../fonts/inter-400.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Inter";
-  src: url("../fonts/inter/Inter_18pt-SemiBold.ttf") format("truetype");
+  src: url("../fonts/inter-600.woff2") format("woff2");
   font-weight: 600;
   font-style: normal;
   font-display: swap;
@@ -418,8 +418,8 @@ a { color: var(--azul-vivo); }
 /* =====================================================================
    Obertura sense foto (Contacte)
    Títol i entradeta sobre marí, com l'obertura d'Agility sense la foto.
-   Regles de docs/design/maqueta-escola.html i maqueta-contacte.html
-   (.es-obertura i .co-obertura, iguals), unificades en una sola classe.
+   .ob-simple només es fa servir a /contacte (templates/contacte.html).
+   Escola té regles pròpies: .es-obertura, a «Escola: ajustos».
    ===================================================================== */
 .ob-simple { background: var(--marino); color: var(--blanco); }
 /* 32 px per sota de 900: a Contacte, perquè les dades càpiguen senceres
