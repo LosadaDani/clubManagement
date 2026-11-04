@@ -266,6 +266,108 @@ de socios y sus perros (ver «Pendiente de decidir»).
   comprobar la vista previa real en WhatsApp, Telegram ni Facebook (la web no
   está publicada y `og:image` apunta a producción) ni la validación del sitemap
   contra el esquema oficial. Solo en Chrome y con `curl`.
+* Marca de agua de la banda (#100): lo que se anotó como «una imagen de la
+  portada no termina de cargar a 360 y 768 px» no era un fallo ni un
+  `<source>` vacío. Por debajo de 900 px el CSS oculta la marca
+  (`display: none`) y su `<img>` llevaba `loading="lazy"`; como la caja mide
+  0x0 nunca se acerca a la pantalla y el navegador aplaza la carga para
+  siempre (`complete=false`, `currentSrc` vacío). Sin efecto visible. El GIF de
+  1 px no ahorraba nada, porque el hero usa el mismo `marca-perro.webp`.
+  Solución: la marca es un `<img>` sin `<source>` y sin `lazy`, dentro de su
+  `<picture class="marca-aigua" aria-hidden="true">`. Si el hero deja de usar ese
+  archivo, habrá que volver a valorar un `<source>` o el `lazy`.
+* Marca de agua de la banda en móvil (#100, pasos 4 y 5): por debajo de 900 px
+  la marca de la banda estaba oculta (`display: none`), mientras que la del hero
+  sí se veía. Se compararon varias posiciones en una maqueta
+  (`docs/design/maqueta-marca-movil.html`) y se elige la H, el mismo
+  tratamiento que el hero: la marca se muestra entre el vel y el texto
+  (`z-index: 1`), en la esquina inferior derecha (`right: -40px; bottom: -20px`)
+  y con `width: min(320px, 89vw)`. Se descartaron las variantes que desplazaban
+  el contenido de la banda (hasta 120 y 263 px). La frase no se solapa con la
+  marca en ningún ancho medido (360 a 899 px, y 320 y 340 px), así que el naranja
+  del texto conserva 4,98:1 (5,06-5,09:1 a 768 px) y el blanco 12,23:1, igual que
+  sin marca. El `89vw` solo actúa por debajo de 360 px, donde 320 px de marca
+  tocarían la frase. A partir de 900 px no cambia nada: la regla de escritorio
+  sigue igual (la marca pasa de 320 a 324 px y de `bottom: -20px` a `0`). La
+  altura de la banda y de la página no cambia. Hay un solo archivo
+  (`marca-perro.webp`, una petición).
+* Limpieza (#100): los 14 comentarios HTML explicativos de las plantillas
+  pasan a comentarios de Thymeleaf (`<!--/* ... */-->`), que no se sirven (el
+  HTML servido ya no enseña rutas internas como `docs/...`); quedan unas
+  líneas en blanco. Los comentarios de los fragmentos `head`, `header` y
+  `footer` ya estaban fuera del elemento con `th:fragment` y no se servían. Los
+  títulos del pie pasan de `<h2>` a `<p class="peu-titol">` (mismo aspecto:
+  0 de 479 propiedades de estilo distintas): el pie ya se identifica como
+  `contentinfo` y el menú del pie con `aria-label`, y así ningún `<h2>`
+  repite el `<h1>`. En CSS se quitan dos declaraciones de `.es-fila` que otra
+  regla pisaba y se corrigen comentarios. `<picture>` con un solo `<img>`, en las
+  marcas de agua, se deja como está.
+* Fuentes WOFF2 (#100): `static/fonts/inter-400.woff2`, `inter-600.woff2` y
+  `barlow-condensed-700.woff2` (99.868 bytes en total, frente a los 790.824 de
+  los TTF). Ningún `OFL.txt` declara «Reserved Font Name». Subconjunto con
+  `pyftsubset --flavor=woff2 --layout-features='*' --name-IDs='*'
+  --glyph-names --unicodes=U+0020-007E,U+00A0-00FF,U+0100-017F,U+2010-2015,
+  U+2018-201E,U+2022,U+2026,U+20AC,U+2192,U+2197`. Hay que conservar las
+  características de maquetación (`locl` con idioma `CAT` da la «l·l») y
+  `--glyph-names`: sin esa opción las capturas a 1x salían distintas en Chrome
+  de macOS (500.540 píxeles), y no se sabe por qué. `→` y `↗` se usan en los
+  botones. Una web con otro símbolo lo pintaría con una fuente del sistema; los
+  TTF originales y el comando están en `docs/design/assets/fonts/` (fuera de
+  Git). Sin los TTF en `static/`, y con las tres fuentes cargadas con
+  `font-display: swap`. Capturas idénticas antes y después (22 de 22).
+* Logo de la cabecera (#100): `static/img/logo-maresme-300.webp`, 300x155,
+  WebP de calidad 80 sin metadatos, 7.860 bytes (antes, 65.300 bytes de 480x248
+  sin pérdida). Se muestra a 112 px (menos de 900 px) o 140 px, así que cubre
+  pantallas 2x. Se eligió 300x155 y no 280 de ancho porque la altura del logo
+  marca la de la cabecera y 60:31 solo se mantiene con 300x155; 280x144 y
+  280x145 desplazaban toda la página. El fondo del logo ya no es exactamente
+  `#0F1839` (varía hasta 3 unidades por canal); si se nota en pantalla, subir
+  la calidad. El logo vectorial, cuando llegue, lo sustituirá.
+* `fetchpriority="high"` (#100): en la imagen del hero de El club, Agility,
+  Escola y Contacte (la portada ya lo tenía). Es la imagen LCP a 1280x800; a
+  360x640 el LCP es texto.
+* Lighthouse (#100), antes y después del paso de rendimiento (versión 12.8.2,
+  Chrome 156, una pasada por caso, simulado y en local): rendimiento móvil de
+  63-66 a 95-99 y escritorio de 94-97 a 100; accesibilidad, buenas prácticas
+  y SEO en 100 en las diez pasadas. Peso móvil de la portada de 1.389 a
+  658 KiB (fuentes de 774 a 99 KiB). Siguen avisos de entorno
+  (`uses-text-compression`, `bf-cache`, caché de estáticos) y avisos reales
+  menores (imágenes responsivas, CSS sin minificar). La medida que importa será
+  la del servidor real.
+* Verificado (#100, pasos 2 y 3): las 18 capturas del paso 2 (seis páginas por
+  360, 768 y 1280 px) idénticas píxel a píxel; en el paso 3, 22 de 22 idénticas
+  tras las fuentes, solo la caja del logo distinta tras el logo e idénticas
+  tras `fetchpriority`; el HTML servido solo cambia en lo previsto; 404, robots,
+  sitemap y las cinco páginas siguen igual. Solo en Chrome.
+* Verificado (#100, paso 5), con Chrome headless y la aplicación en marcha: tras
+  aplicar la marca de la banda, la portada a 900 y 1280 px y las otras cinco
+  páginas a 360, 768 y 1280 px (15 capturas) quedan con 0 píxeles distintos; la
+  banda a 360, 390, 414, 600, 768 y 899 px coincide píxel a píxel con la maqueta
+  H; el cambio queda dentro de la banda. A 1x y a 2x (360 y 768 px) ni las letras
+  ni el rectángulo de la frase tocan la marca ni su contorno. Margen mínimo
+  entre las letras y la marca a 360 px: 13,9 px (blanco) y 24,4-24,6 px
+  (naranja); a 320 px, 18,4 y 29,1 px; con la fuente de reserva a 320 px
+  (`system-ui` y Arial), de 9,2 a 14,9 px y naranja a 4,98:1 (antes del retoque
+  de `89vw`, 3,33 y 3,43:1). Alturas sin cambios, sin peticiones nuevas, sin
+  recursos rotos ni `th:` sin resolver. No comprobado: Firefox, texto ampliado
+  al 200 % a 320 px, anchos de menos de 320 px ni la fuente de reserva de Android
+  e iOS. Con DPR 2 el naranja a 768 px da 5,06:1 y no 5,09:1; sale igual sin
+  marca, así que no depende de ella (posiblemente por la versión de la foto que
+  se sirve; no comprobado).
+* Móvil real (#100): el enlace de WhatsApp (con el mensaje prellenado, saltos
+  de línea y acentos), el teléfono, el correo y la maquetación se probaron en
+  un iPhone con Safari y en un Android con Chrome, entrando por la red local.
+  Fue antes del paso de fuentes y logo. Después de la marca de la banda (paso 5)
+  se repitió la maquetación en un iPhone con Safari y en Safari de escritorio,
+  sin incidencias.
+* Idioma de la respuesta (#100): la web responde con `Content-Language: es-ES`
+  y `<html lang="ca">`. Se deja así. Google usa el `lang` del HTML. La solución
+  correcta es un `LocaleResolver` propio (un bean llamado `localeResolver`: `es_ES`
+  en `/api/**` y `ca` en el resto), pero se hará cuando llegue el castellano con
+  `/es/...`, para no hacerlo dos veces. Descartadas: `response.setLocale` en el
+  Controller (lo sobrescribe `DispatcherServlet`), `LocaleChangeInterceptor`
+  (no funciona con el resolver fijo), cambiar `spring.web.locale` a `ca`
+  (rompe los mensajes de la API) y un filtro con la cabecera a mano.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -287,7 +389,8 @@ de socios y sus perros (ver «Pendiente de decidir»).
   Se elige Inter para el texto porque es la única de las probadas en la que la
   «l·l» (col·laboració) se dibuja bien; en Barlow el punto queda pegado. En
   producción: archivos WOFF2 con subconjunto latino en `static/fonts/`, con su
-  `OFL.txt`. Pruebas en `docs/design/tipografias.html`.
+  `OFL.txt` (ver «Fuentes WOFF2» más abajo). Pruebas en
+  `docs/design/tipografias.html`.
 * Texto y SEO: una intención de búsqueda por página, un solo `<h1>`, `title` y
   `meta description` propios, `alt` en todas las imágenes. Longitudes de
   referencia: título hasta unos 60 caracteres y descripción hasta unos 155
@@ -311,7 +414,9 @@ de socios y sus perros (ver «Pendiente de decidir»).
   en los botones; se mantiene de momento y es revisable. Variable CSS para
   cambiarlo en un solo sitio. Sobre fondo claro el botón naranja sólido se distingue poco del
   fondo (2,31:1; el texto sí cumple): si molesta, borde más oscuro, sombra suave
-  o una banda de color detrás.
+  o una banda de color detrás. Decidido en #100: el botón de la página 404
+  («Torna a l'inici») se queda en naranja sobre fondo claro; es la única
+  excepción a la regla de usar el naranja solo sobre fondo oscuro.
 * Logo: hoy solo existe una imagen JPEG con fondo azul marino (`#0F1839`). La
   cabecera usa ese mismo color. Para la web se generará una versión recortada y
   optimizada en `static/img/`; el original no va en `static/`. Se buscará una
@@ -341,8 +446,7 @@ de socios y sus perros (ver «Pendiente de decidir»).
     foto de grupo, provisional hasta repetirla.
   * Tesela «Agility» con la foto de un border negro saltando una valla
     (`tesela-agility-border-800.webp`, recortada en píxeles a 4:3), que sustituye
-    a la anterior. `tesela-agility-800.webp` queda sin uso en `static/img/`;
-    decidir si se borra.
+    a la anterior. `tesela-agility-800.webp` se borró en #100.
   * Alineación del texto de la cabecera con el logo: se deja como está en la
     maqueta.
   * Textos de la maqueta en catalán revisados por Dani, que los da por
@@ -368,7 +472,17 @@ de socios y sus perros (ver «Pendiente de decidir»).
   cumple. Al pasarlo a plantillas hay que mantener el texto fuera de la marca
   (por ejemplo, con una máscara que deje limpia la zona del texto) y volver a
   medir si cambian la frase, el tamaño de letra o la opacidad. La marca solo
-  incluye la mitad delantera del perro, recortada del JPEG del logo.
+  incluye la mitad delantera del perro, recortada del JPEG del logo. Aclaración
+  (#100): el 4,36:1 y el 3,04:1 son el peor caso teórico, el de una letra
+  naranja que se solapara con el contorno blanco. En la página real no se
+  solapa en ningún ancho medido, y el naranja mide 4,98:1 o más. El margen más
+  ajustado es el de la banda a 360 px, con 13,9 px entre las letras blancas y la
+  marca; si se alarga «Club d'Agility Maresme, des de 1992.» o cambia su tamaño,
+  hay que volver a medir (el comentario de `main.css` lo recuerda). Caso límite
+  aceptado: con el texto ampliado al 200 % a 360 px, el naranja sobre el
+  contorno bajaría a 3,36:1 (medido en el paso 4).
+  Evitarlo exigiría bajar la opacidad hasta el 6,5 %, casi invisible para todos,
+  u ocultar la marca en móvil.
 ## Datos del club
 
 * Nombre: Club d'Agility Maresme
@@ -412,19 +526,23 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 
 ## Pendiente de decidir
 
-* Página 404 (#98), a revisar en #100: el botón «Torna a l'inici» es el
-  naranja sobre fondo claro (contraste del botón con el fondo 2,31:1), cuando
-  el naranja se usa solo sobre fondo oscuro. Si molesta, meter la frase y el
-  botón en un bloque marino como «Com començar». Más adelante, una imagen
-  divertida (sin decidir). Además, el `<head>` de `error/404.html` está
-  duplicado respecto al fragmento `head` (cambiar el CSS o el favicon obliga a
-  tocar los dos); la alternativa es `th:if="${ruta != null}"` en la canónica del
-  fragmento. Y los comentarios HTML de las plantillas se sirven al visitante;
-  pasarlos a comentarios de Thymeleaf (`<!--/* */-->`).
-* Footer y encabezados (#99, a revisar en #100): los tres `<h2>` del pie salen
-  en todas las páginas y dos coinciden con el `<h1>` de la página («Contacte»
-  en `/contacte` y «Club d'Agility Maresme» en la portada). No es un error,
-  pero conviene revisar la jerarquía de encabezados.
+* Página 404: una imagen divertida, más adelante (sin decidir). El `<head>` de
+  `error/404.html` está duplicado respecto al fragmento `head` (cambiar el CSS
+  o el favicon obliga a tocar los dos); se deja así. La alternativa es
+  `th:if="${ruta != null}"` en la canónica del fragmento.
+* Imágenes (#100): son el 80 % del peso de la portada. Las teselas se sirven a
+  800 px para mostrarse a 328-574 px y la banda de escritorio pesa mucho. Es la
+  siguiente mejora de peso; hay que cuidar las pantallas 2x.
+* Logo (#100): si a 2x el logo de 300x155 se ve blando, subir la calidad del
+  WebP (no cambia la maquetación mientras mida lo mismo).
+* Copia de seguridad: `docs/design/` y `docs/reviews/` están fuera de Git. Allí
+  están los originales de las fotos, el JPEG del logo, los TTF de las fuentes y
+  los scripts que generan las imágenes y los subconjuntos. Guardar una copia en
+  otro sitio (disco externo o nube).
+* Móvil real: tras el paso de fuentes, logo y marca de la banda se ha probado en
+  un iPhone con Safari y en Safari de escritorio. Falta repetirlo en Android con
+  Chrome (WhatsApp, teléfono, correo, texto con «l·l», logo y marca) y probar en
+  Firefox.
 * Backoffice y rutas fuera de `/api/` (#98): un anónimo que pida una ruta no
   pública fuera de `/api/` recibe `404`, no `401`. Si el backoffice se sirve
   con páginas fuera de `/api/`, decidir allí cómo se lleva al visitante al
@@ -441,8 +559,8 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 * Mecanismo del castellano (plantillas por idioma, o bundles con idioma
   explícito solo para la web). Ver ADR-017. La portada responde hoy con
   `Content-Language: es-ES` (por el idioma fijo de la aplicación) aunque la
-  plantilla declara `lang="ca"`; decidir cómo fija el idioma la web sin
-  cambiar el de la API.
+  plantilla declara `lang="ca"`. Ver «Idioma de la respuesta (#100)»: la
+  solución es un `LocaleResolver` propio por ruta, al añadir `/es/...`.
 * Logo con fondo transparente y versión para fondo claro. El logo vectorial
   original (SVG, PDF o AI) se está gestionando con el club. Daría fondo
   transparente, calidad a cualquier tamaño y el perro entero para la marca de
@@ -455,16 +573,9 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   atardecer ya es la definitiva de la portada y está recortada sin la firma.
   El permiso de Lucía Marín se está gestionando; de momento se sigue adelante
   con esa foto. De momento las páginas se publican sin crédito.
-* Portada, a revisar en #100: a 360 y 768 px una imagen no termina de cargar
-  (`currentSrc` vacío). Es de antes de #94; probablemente sea la marca de agua
-  de la banda, oculta a propósito con un `<source>` vacío, pero no está
-  comprobado.
 * Agility (#95): la foto de la empalissada solo tiene versión de 800 px (el
   original mide 1080x720) y en pantallas 2x se verá algo blanda. Sustituirla por
   una de mayor resolución cuando haya una.
-* Comprobar en el móvil real el enlace de WhatsApp (que la app respete los
-  saltos de línea, los acentos y los corchetes del mensaje) y los de teléfono y
-  correo. Hasta ahora solo se ha comprobado el enlace decodificado.
 * El hover del botón «Com arribar» (contraste 9,56:1 según la maqueta) no se
   ha vuelto a medir en la página real. La página de El club solo se ha
   probado en Chrome (no en Firefox ni Safari).
@@ -502,8 +613,11 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   en el servidor delantero.
 * Barra final: la aplicación sirve las dos variantes. Si se quiere, redirigir
   `/x/` a `/x` con un `301` en el servidor web delantero.
-* Fuentes: convertir los TTF de `static/fonts/` a WOFF2 con subconjunto latino
-  (requiere `fonttools` y `brotli`). Hoy suponen el 36 % del peso de `static/`.
+* Compresión: sin `server.compression` el HTML y el CSS viajan sin comprimir
+  (22-25 KiB de ahorro según Lighthouse y un FCP móvil algo mayor). Activarla
+  en la aplicación (`server.compression.enabled`, con los tipos `text/html`,
+  `text/css`, `application/xml` y `text/plain`) o en el servidor delantero;
+  uno solo.
 * Caché de los estáticos: en desarrollo salen con `Cache-Control: no-store`
   (por devtools, deducido). Al separar perfiles, fijar `spring.web.resources.cache.*`
   (caché larga, con versión en el nombre de los archivos) y comprobar las

@@ -212,9 +212,11 @@ a { color: var(--azul-vivo); }
 }
 .banda .frase span { color: var(--naranja); white-space: nowrap; }   /* «des de 1992.» no es parteix */
 /* Marca: per sobre del vel (z-index 1, però va després de ::before a l'HTML) i
-   per sota del text (z-index 2). Per sota de 900 px quedaria darrere de la frase:
-   s'amaga. El fitxer es descarrega igualment, perquè és el mateix de la marca del hero. */
-.banda .marca-aigua { display: none; z-index: 1; }
+   per sota del text (z-index 2). Per sota de 900 px, com la del hero. La frase no
+   s'hi pot solapar: el taronja sobre el contorn blanc no arriba a 4,5:1 (3,04:1 en
+   el pitjor cas). 89vw només actua per sota de 360 px, on la marca tocaria la frase.
+   Tornar a mesurar si canvia la frase, la mida de lletra o l'opacitat. */
+.banda .marca-aigua { z-index: 1; right: -40px; bottom: -20px; width: min(320px, 89vw); }
 .banda .marca-aigua img { position: static; height: auto; }   /* anul·la .banda img (la foto de fons) */
 
 /* ---------- Peu ---------- */
