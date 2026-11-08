@@ -3,6 +3,12 @@
 > Decisión técnica en `ARCHITECTURE_DECISIONS.md` (ADR-017). Este documento
 > recoge las decisiones de producto y diseño, y lo que queda por decidir. Se
 > actualiza al cerrar cada issue del Sprint 6.
+>
+> Hay dos cosas distintas: **el proyecto** (ManagementClub, con su web pública
+> en Thymeleaf, que describe este documento) y **la web publicada** en
+> agilitymaresme.com, que vive en un repositorio aparte (`agilitymaresme-web`,
+> HTML estático) con su propio README y su `docs/HOSTING.md`. Ver «Publicación
+> (#101, hecha)».
 
 ## Alcance de la primera versión (web pública)
 
@@ -368,6 +374,10 @@ de socios y sus perros (ver «Pendiente de decidir»).
   Controller (lo sobrescribe `DispatcherServlet`), `LocaleChangeInterceptor`
   (no funciona con el resolver fijo), cambiar `spring.web.locale` a `ca`
   (rompe los mensajes de la API) y un filtro con la cabecera a mano.
+* Publicación (#101): la web se publicó como sitio estático desde un repositorio
+  aparte. Ver la sección «Publicación (#101, hecha)». La web publicada no envía
+  `Content-Language`, así que el pendiente del idioma de la respuesta solo
+  afecta a la aplicación.
 * Con un `Authorization` inválido, caducado o de firma incorrecta,
   `JwtAuthenticationFilter` registra la excepción y trata la petición como
   anónima: una ruta pública responde `200` y una protegida `401`. Verificado
@@ -543,6 +553,12 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
   un iPhone con Safari y en Safari de escritorio. Falta repetirlo en Android con
   Chrome (WhatsApp, teléfono, correo, texto con «l·l», logo y marca) y probar en
   Firefox.
+* Dos proyectos (#101): un cambio en las plantillas de este proyecto no llega a
+  la web publicada. Hay que llevarlo al repositorio `agilitymaresme-web` (a mano,
+  o repitiendo la exportación) y subirlo al hosting. La exportación inicial se
+  hizo con scripts temporales que no están en Git: están en
+  `docs/reviews/capturas-web-estatica-paso1/scripts/` del repositorio de la web
+  (fuera de Git), así que conviene incluirlos en la copia de seguridad.
 * Backoffice y rutas fuera de `/api/` (#98): un anónimo que pida una ruta no
   pública fuera de `/api/` recibe `404`, no `401`. Si el backoffice se sirve
   con páginas fuera de `/api/`, decidir allí cómo se lleva al visitante al
@@ -590,78 +606,110 @@ Todas las imágenes web se exportan sin EXIF ni GPS.
 * Tecnología del backoffice.
 * Aviso legal.
 * Textos definitivos.
-## Para la publicación
+## Publicación (#101, hecha)
+
+La primera versión se publicó el 5 de noviembre de 2026 en
+https://agilitymaresme.com como **sitio estático**, desde un repositorio aparte
+(`agilitymaresme-web`, privado). Es la exportación del HTML que servía este
+proyecto en ese momento (idéntico byte a byte, comprobado con sha256, y con 0
+píxeles de diferencia en 18 capturas), más un `.htaccess`, un script de
+comprobación y su documentación. Desde entonces son dos proyectos:
+
+* **La web publicada** (`agilitymaresme-web`): es la fuente de verdad de lo que
+  ven los visitantes. HTML escrito a mano. Se actualiza subiendo `public/` al
+  hosting por FTPS con Cyberduck. Su README y `docs/HOSTING.md` cubren la rutina
+  de actualización, las comprobaciones y qué hacer si algo falla.
+* **El proyecto** (ManagementClub): su web pública con Thymeleaf (ADR-017) sigue
+  siendo parte del proyecto y puede evolucionar por separado.
+  Por qué estático: el hosting contratado (Dinahosting, hosting compartido Linux
+  con Apache) no ejecuta Java, y un VPS para la aplicación no se justifica de
+  momento para el club. La aplicación seguirá su camino y se desplegará cuando haya
+  un servidor propio.
+
+Lo que se verificó en el hosting real:
+
+* Hosting: Apache con `.htaccess`, carpeta web `www`, un único usuario FTP
+  (con FTPS; el plan no admite cuentas secundarias). No hay Java. Esa cuenta ve
+  también `Maildir` y el resto de la carpeta personal.
+* Correo: los dos buzones del club están en este mismo hosting, así que no se
+  puede cancelar. Registros que no se tocan: `A mail`, `MX`, SPF
+  (`v=spf1 a mx ~all`), DKIM (`default._domainkey`), `autoconfig` y
+  `autodiscover`.
+* DNS en Dinahosting. Los registros `A` del dominio y de `www` ya apuntaban al
+  hosting y no se cambiaron.
+* HTTPS: certificado de Let's Encrypt con renovación automática, que cubre el
+  dominio y `www`. El hosting redirige de HTTP a HTTPS por su cuenta y termina el
+  HTTPS en un proxy: Apache cree que la petición es `http`. Por eso las
+  redirecciones del `.htaccess` llevan la URL completa
+  (`https://agilitymaresme.com/...`) y no se mira `%{HTTPS}`; la redirección de
+  HTTP a HTTPS en el `.htaccess` haría un bucle y no se usa.
+* `www` se redirige al dominio sin `www` con `301` (`.htaccess`).
+* Redirecciones `301` de las URLs antiguas, con y sin barra final:
+  `/contactans` a `/contacte`, `/horaris` a `/escola`, `/competicio` a `/agility`
+  y `/lliga-interna` a `/el-club`. `/video-agility-maresme` queda en `404`.
+* Las páginas se sirven sin extensión y con las dos variantes (`/el-club` y
+  `/el-club/`) mediante una reescritura interna a `el-club.html`, sin redirigir.
+* Compresión y caché en el `.htaccess`: HTML con `no-cache`, CSS 1 hora,
+  imágenes y fuentes 30 días, favicon 7 días, `robots.txt` y `sitemap.xml` 1
+  hora. En el hosting la portada pasa de 7123 a 1853 bytes y el CSS de 25717 a
+  7223. Si una imagen cambia, hay que cambiar también su nombre.
+* Cabeceras: `X-Content-Type-Options`, `X-Frame-Options` y `Referrer-Policy`.
+  Sin HSTS ni CSP, y sin `Content-Language`.
+* Los directorios (`/img/`) responden `404` con la página propia: no hay listado.
+* `robots.txt` de la web publicada: `User-agent: *`, `Disallow:` vacío y la
+  línea `Sitemap:`; sin `/api/`, que no existe en el sitio estático.
+* Search Console: propiedad de prefijo `https://agilitymaresme.com/`, verificada
+  con un archivo HTML que está en `public/` y no se debe borrar. La gestionan la
+  cuenta del club y Dani como propietarios. Sitemap enviado y en estado
+  «Correcto».
+* No se usó entorno de pruebas (`beta.`): la web anterior estaba caída y no había
+  nada que proteger.
+* Sin CI/CD por ahora: subida manual. Se retomará cuando haya servidor propio.
+  Si se hace, sin acciones de terceros que reciban la contraseña (por ejemplo
+  `lftp`), sin borrado remoto, solo desde `main` y con la verificación en dos
+  pasos activada en GitHub. Primero conviene un workflow que solo ejecute
+  `scripts/check_site.py`, sin credenciales.
+* Fechas: el dominio vence el 9/6/2027; el hosting se renueva en un año (anotar la
+  fecha exacta del panel); el certificado caduca el 24/1/2027 y se renueva solo
+  (revisar a mediados de enero).
+## Para desplegar la aplicación (pendiente)
+
+Nada de esto afecta a la web publicada. Es lo que habrá que hacer el día que la
+aplicación se despliegue en un servidor propio.
 
 * Cerrar o restringir a ADMIN Swagger y la consola H2 en producción.
-* Externalizar clave de firma y expiración del JWT (ADR-016).
+* Externalizar clave de firma y expiración del JWT (ADR-016). La clave ya sale de
+  `${JWT_SECRET}`.
 * Perfiles de configuración: hoy todo está en un único `application.properties`.
-  Separar desarrollo y producción (por ejemplo `application-dev.properties` y
-  `application-prod.properties`). Lo que cambia entre ellos: `spring.thymeleaf.cache`
-  (`false` solo en desarrollo; `true` en producción), consola H2, `show-sql` y
-  `format_sql`, `ddl-auto` (`update` no es adecuado en producción) y la base de
-  datos (H2 en memoria a MySQL).
+  Separar desarrollo y producción. Propuesta: la base lleva los valores seguros
+  y el perfil `dev` activa las comodidades (consola H2, Swagger, `show-sql`,
+  `format_sql`, `spring.thymeleaf.cache=false`); así, si en el servidor se olvida
+  activar un perfil, arranca cerrado. `ddl-auto` y la base de datos (H2 en
+  memoria a MySQL) se revisan con MySQL. Comprobar que `DevDataInitializer` lleva
+  `@Profile("dev")` y si `SecurityConfig` desactiva `frameOptions` por la consola
+  H2.
 * Maven wrapper: `./mvnw` no funciona (falta
   `.mvn/wrapper/maven-wrapper.properties`). Regenerarlo o quitarlo antes de
-  cualquier despliegue o integración continua; sin él, solo se puede compilar
-  con un Maven instalado o desde el IDE.
-* Dominio en el código: si cambia el dominio, actualizar `https://agilitymaresme.com`
-  en tres archivos: `fragments/head.html` (variable `base`, que usan la
-  canónica y las `og:*`), `static/sitemap.xml` (las cinco `<loc>`) y
-  `static/robots.txt` (la línea `Sitemap:`). Un entorno de pruebas
-  (`beta.`) servirá canónicas y `og:image` de producción; para que no se
-  indexe, protegerlo con contraseña o con la cabecera `X-Robots-Tag: noindex`
-  en el servidor delantero.
-* Barra final: la aplicación sirve las dos variantes. Si se quiere, redirigir
-  `/x/` a `/x` con un `301` en el servidor web delantero.
-* Compresión: sin `server.compression` el HTML y el CSS viajan sin comprimir
-  (22-25 KiB de ahorro según Lighthouse y un FCP móvil algo mayor). Activarla
-  en la aplicación (`server.compression.enabled`, con los tipos `text/html`,
-  `text/css`, `application/xml` y `text/plain`) o en el servidor delantero;
-  uno solo.
-* Caché de los estáticos: en desarrollo salen con `Cache-Control: no-store`
-  (por devtools, deducido). Al separar perfiles, fijar `spring.web.resources.cache.*`
-  (caché larga, con versión en el nombre de los archivos) y comprobar las
-  cabeceras sin devtools, que no se han verificado.
-* Dominio `agilitymaresme.com`: registro DNS apuntando al servidor, servidor
-  web o proxy inverso delante de la aplicación (puertos 80 y 443), certificado
-  HTTPS, redirección de HTTP a HTTPS, y elegir una sola versión (con o sin
-  `www`) y redirigir la otra. Configurar la aplicación para que detrás del
-  proxy use el host y el esquema originales (`server.forward-headers-strategy`).
-  Sin esto, los enlaces y las redirecciones de la web pueden salir con
-  `http` y con el puerto interno.
-* Redirecciones `301` de las URLs antiguas, a decidir en esta issue: en la
-  aplicación o en el servidor delantero (un solo sitio, nunca los dos).
-  Decididas: `/contactans` a `/contacte`, `/horaris` a `/escola`,
-  `/competicio` a `/agility` y `/lliga-interna` a `/el-club`, cada una con y sin
-  barra final. `/video-agility-maresme/` desaparece y se deja en `404`: no se
-  redirige a una página sin relación (Google lo trata como un error) y a esta
-  escala no compensa un `410`. Mientras tanto, esas rutas responden `404` con
-  la página 404. En la aplicación se harían con métodos de
-  `PublicWebController` que devuelvan `ResponseEntity<Void>` con
-  `HttpStatus.MOVED_PERMANENTLY` y `Location` relativa (`"redirect:"` da `302`),
-  más un `permitAll` por ruta y variante en `SecurityConfig`. En el servidor
-  delantero, una línea por redirección. Los navegadores guardan los `301` en
-  caché casi para siempre: probar con `curl -i` o en una ventana privada.
-* Primera versión solo con la web pública (sin base de datos real): la
-  aplicación necesita un `DataSource` para arrancar, así que sirve H2 en memoria
-  en el perfil de producción, sin datos de prueba (comprobar que no hay un
-  `data.sql` con usuarios y contraseñas conocidas). El servidor delantero solo
-  debe dejar pasar las rutas públicas (`/`, las cinco páginas con sus variantes
-  con barra, `/css`, `/img`, `/fonts`, `/favicon.ico`, `/robots.txt` y
-  `/sitemap.xml`) y bloquear `/api/**`,
-  Swagger y la consola H2, que además se desactivan en producción.
-* Correo del dominio: el correo del club usa `agilitymaresme.com`. Al mover la
-  web, cambiar solo los registros que apuntan a ella (el dominio sin `www` y
-  `www`) y conservar los registros de correo (MX, SPF y DKIM si existen). Antes,
-  comprobar si los buzones están en el mismo alojamiento que la web actual; en
-  ese caso no se puede cancelar.
-* Despliegue en etapas: servidor pequeño, publicación primero en un subdominio
-  temporal (por ejemplo, `beta.agilitymaresme.com`) para que los compañeros
-  revisen con HTTPS real, y después cambio de los registros de la web, con el TTL
-  bajado unos días antes y los valores antiguos anotados para poder volver atrás.
-  Hay que saber quién gestiona el dominio y el DNS (hoy lo gestiona una
-  persona de contacto), dónde está alojada la web actual y cuándo caducan el
-  dominio y el alojamiento.
-* Alta del sitemap (`https://agilitymaresme.com/sitemap.xml`) en Google Search
-  Console y ficha de Google Business Profile.
+  cualquier despliegue o integración continua.
+* Compresión y caché de los estáticos: activar `server.compression.enabled` (los
+  tipos de texto habituales ya vienen por defecto) y fijar
+  `spring.web.resources.cache.*` con versión en el nombre de los archivos, o
+  hacerlo en el servidor delantero (uno solo).
+* Detrás de un proxy, `server.forward-headers-strategy` para que los enlaces y
+  las redirecciones usen el host y el esquema originales.
+* Dominio en el código: en este proyecto, `fragments/head.html` (variable `base`),
+  `static/sitemap.xml` y `static/robots.txt`. El `robots.txt` de este proyecto
+  todavía bloquea `/api/`, a diferencia del de la web publicada.
+* Si algún día la aplicación sirve la web pública, hay que reproducir lo que hoy
+  hace el `.htaccess`: redirecciones `301` (métodos de `PublicWebController` que
+  devuelvan `ResponseEntity<Void>` con `HttpStatus.MOVED_PERMANENTLY` y `Location`
+  relativa, más un `permitAll` por ruta y variante en `SecurityConfig`), `www` al
+  dominio sin `www`, compresión, caché y cabeceras. Los navegadores guardan los
+  `301` casi para siempre: probar con `curl -i`.
+* Primera versión con base de datos real: la aplicación necesita un `DataSource`
+  para arrancar; en producción, H2 en memoria sin datos de prueba (comprobar que
+  no hay un `data.sql` con usuarios y contraseñas conocidas). El servidor
+  delantero solo debe dejar pasar las rutas públicas y bloquear `/api/**`,
+  Swagger y la consola H2.
+* Ficha de Google Business Profile.
 * Revisión del aviso legal.
