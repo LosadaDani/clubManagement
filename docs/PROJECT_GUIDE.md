@@ -8,8 +8,7 @@ El proyecto tiene un doble propósito:
 
 * Resolver una necesidad real de gestión del club.
 * Servir como proyecto de aprendizaje para aplicar buenas prácticas de desarrollo backend.
-
-Durante el desarrollo se prioriza la comprensión del código, la mantenibilidad y la simplicidad frente al uso de herramientas que automaticen la implementación.
+  Durante el desarrollo se prioriza la comprensión del código, la mantenibilidad y la simplicidad frente al uso de herramientas que automaticen la implementación.
 
 ---
 
@@ -22,7 +21,6 @@ El proyecto persigue los siguientes objetivos:
 * Aplicar correctamente Spring Boot y Spring Data JPA.
 * Diseñar un modelo de dominio escalable.
 * Comprender el funcionamiento interno del framework antes de incorporar herramientas de automatización.
-
 ---
 
 # 3. Arquitectura
@@ -50,7 +48,7 @@ Entity
 ```
 
 Cada capa tiene una única responsabilidad.
-
+ 
 ---
 
 # 4. Tecnologías utilizadas
@@ -61,10 +59,9 @@ Cada capa tiene una única responsabilidad.
 * Spring Validation
 * Spring Security con JWT (autenticación stateless y autorización por rol; ver ADR-016 y `DOMAIN_SEGURIDAD.md`)
 * H2 Database
-* MySQL (futuro entorno de producción)
+* MySQL o PostgreSQL (futuro entorno de producción; se decide en el Sprint 8)
 * Swagger / OpenAPI
 * Thymeleaf (web pública; ver ADR-017)
-
 ---
 
 # 5. Filosofía del proyecto
@@ -75,8 +72,7 @@ Antes de incorporar una nueva tecnología o patrón de diseño se valoran los si
 * ¿Reduce la complejidad?
 * ¿Hace el código más mantenible?
 * ¿Está justificado para el tamaño del proyecto?
-
-Se evita introducir complejidad innecesaria.
+  Se evita introducir complejidad innecesaria.
 
 ---
 
@@ -92,8 +88,7 @@ Se evita introducir complejidad innecesaria.
 * Validaciones
 * Excepciones personalizadas
 * Swagger
-
-**Estado: Completado**
+  **Estado: Completado**
 
 ## Sprint 2 — Perros
 
@@ -105,15 +100,13 @@ Se evita introducir complejidad innecesaria.
 * Mapper
 * Excepciones personalizadas
 * Swagger
-
-**Estado: Completado**
+  **Estado: Completado**
 
 ## Sprint 3 — Organizaciones y competiciones
 
 * Gestión de Organizaciones
 * Gestión de licencias de competición
 * Relaciones entre:
-
   * Organización
   * Persona
   * Perro
@@ -128,8 +121,7 @@ Se evita introducir complejidad innecesaria.
 * Mapper
 * Excepciones personalizadas
 * Swagger
-
-**Estado: Completado**
+  **Estado: Completado**
 
 > El histórico funcional de licencias no requiere una entidad independiente de histórico. Las propias licencias, junto con sus periodos de vigencia y las consultas correspondientes, permiten conservar y consultar el historial de licencias de cada perro.
 
@@ -155,8 +147,7 @@ Se evita introducir complejidad innecesaria.
 * Mapper.
 * Excepciones personalizadas.
 * Swagger / OpenAPI.
-
-**Estado: Completado**
+  **Estado: Completado**
 
 > El sistema no implementará inicialmente una gestión contable de pagos ni una entidad independiente de Pago. El estado de pago se reflejará mediante los estados de Recibo y LíneaRecibo. El medio utilizado para realizar el pago no forma parte del modelo actual.
 
@@ -173,23 +164,43 @@ Se evita introducir complejidad innecesaria.
 * Protección de endpoints
 * Configuración de Spring Security
 * Gestión de errores de autenticación y autorización
+  **Estado: Completado**
 
-**Estado: Completado**
-
-## Sprint 6 — Frontend
-
-### Web pública (primera versión)
+## Sprint 6 — Web pública
 
 * Inicio, El club, Qué es el Agility, Formación y Contacto
 * Solo en catalán; castellano en una fase posterior
 * Diseño responsive y SEO técnico básico
 * Página 404 personalizada
+* Publicación en agilitymaresme.com
+  **Estado: Completado**
 
-**Estado: En curso**
+> Decisiones y pendientes en `docs/FRONTEND.md`. La primera versión usa plantillas Thymeleaf servidas desde la API (ADR-017).
+>
+> La web publicada en agilitymaresme.com es un sitio estático en un repositorio aparte (`agilitymaresme-web`), porque el hosting contratado no ejecuta Java. La web pública de este proyecto continúa por separado. Si el proyecto acaba sirviendo solo el backoffice, habrá que revisar la ADR-017.
+>
+> El backoffice, que formaba parte de este sprint, pasa a ser el Sprint 9.
 
-> Decisiones y pendientes en `docs/FRONTEND.md`. Tecnología: Thymeleaf (ADR-017).
+## Sprint 7 — Tests automáticos
 
-### Backoffice
+* Preparación: dependencias de test (`spring-boot-starter-test` y `spring-security-test`) y `DevDataInitializer` con `@Profile("dev")`
+* Tests unitarios de Services con Mockito (reglas de negocio)
+* Tests de integración con `@SpringBootTest` y MockMvc
+* Matriz de seguridad por roles (ADMIN, ENTRENADOR, USER y sin token) en todos los dominios
+* Cobertura de toda la aplicación
+* Convenciones de tests en `DEVELOPMENT_GUIDE.md`
+  **Estado: Pendiente**
+
+## Sprint 8 — Base de datos de producción y perfiles
+
+* Perfiles de configuración `dev` y `prod`
+* Elección de la base de datos de producción y migración. Opciones: MySQL (la prevista inicialmente) o PostgreSQL gestionado con Neon (a valorar)
+* Credenciales y clave de firma del JWT leídas de variables de entorno
+* Swagger y consola H2 cerrados en producción
+* Revisión de `ddl-auto` y de la zona horaria (`CURRENT_DATE` en las consultas de licencias)
+  **Estado: Pendiente**
+
+## Sprint 9 — Backoffice
 
 * Autenticación
 * Dashboard
@@ -201,16 +212,21 @@ Se evita introducir complejidad innecesaria.
 * Gestión de líneas de recibo
 * Gestión de usuarios
 * Consultas, filtros y navegación
+  **Estado: Pendiente**
 
-**Estado: Pendiente**
+> Interfaz de gestión privada para usuarios autorizados del sistema. Su tecnología y dónde se guarda el token se deciden al empezar el sprint. Hay que tener en cuenta que el Sprint 12 valora rehacer el frontend con React o Angular.
 
-> El frontend tendrá dos ámbitos diferenciados: una web pública orientada a visitantes y una interfaz de gestión privada para usuarios autorizados del sistema.
->
-> El objetivo inicial de este sprint será disponer de una web sencilla y publicable para el club.
->
-> La primera versión usa plantillas Thymeleaf servidas desde la API. El backoffice se decidirá después.
+## Sprint 10 — Dockerización y despliegue
 
-## Sprint 7 — Auditoría
+* `Dockerfile` de la aplicación
+* Docker Compose con la aplicación y la base de datos
+* Volúmenes y variables de entorno
+* Maven wrapper reparado
+* Ajustes de despliegue detrás de un proxy y de los estáticos
+* Valoración de dónde desplegar: Heroku, Vercel + Railway, Google Cloud o servidor propio
+  **Estado: Pendiente**
+
+## Sprint 11 — Auditoría
 
 * Auditoría transversal de las entidades
 * Registro de creación de entidades
@@ -223,14 +239,20 @@ Se evita introducir complejidad innecesaria.
 * Registro de valores anteriores y nuevos cuando corresponda
 * Consulta del historial de auditoría
 * Evaluación y elección de la estrategia técnica de auditoría:
-
   * Hibernate Envers
   * Sistema de auditoría propio
   * Otra alternativa adecuada
-
-**Estado: Pendiente**
+    **Estado: Pendiente**
 
 > La auditoría es independiente del histórico funcional de las entidades. Su objetivo es proporcionar trazabilidad sobre las operaciones realizadas por los usuarios y facilitar la investigación de errores o incidencias.
+
+## Sprint 12 — Mejora del frontend
+
+* Valoración de rehacer el frontend con React o Angular
+* Aplicable a la web pública y al backoffice
+  **Estado: Por valorar**
+
+> La API REST no cambia con esta decisión (ver ADR-017).
 
 
 ## Fase posterior — Mejoras y nuevas funcionalidades
@@ -249,11 +271,10 @@ Posibles líneas de trabajo:
 * Mejoras del dashboard
 * Automatizaciones administrativas
 * Nuevas funcionalidades derivadas del uso real de la aplicación
-
-**Estado: Por definir**
+  **Estado: Por definir**
 
 > Las funcionalidades de esta fase no forman parte de los sprints actuales. Se definirán y priorizarán después de completar el roadmap principal.
-
+ 
 ---
 
 # 7. Estado actual
@@ -267,11 +288,10 @@ Cada Sprint finaliza con:
 * Pruebas funcionales.
 * Actualización de Swagger.
 * Actualización de la documentación.
+  Actualmente se encuentran completados los Sprints 1, 2, 3, 4, 5 y 6.
 
-Actualmente se encuentran completados los Sprints 1, 2, 3, 4 y 5.
-
-El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/FRONTEND.md`).
-
+El siguiente es el Sprint 7 (tests automáticos). Después vienen la base de datos de producción y los perfiles (Sprint 8), el backoffice (Sprint 9) y la dockerización (Sprint 10).
+ 
 ---
 
 # 8. Sprint Review
@@ -286,7 +306,6 @@ El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/
 * Validaciones con Bean Validation.
 * Swagger / OpenAPI.
 * GlobalExceptionHandler.
-
 ## Sprint 2
 
 ### Funcionalidades implementadas
@@ -301,13 +320,11 @@ El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/
 * Excepciones personalizadas.
 * GlobalExceptionHandler.
 * Documentación de endpoints mediante Swagger / OpenAPI.
-
 ### Reglas de negocio
 
 * Un perro debe estar asociado a una persona existente.
 * Una persona puede tener varios perros.
 * La relación propietario-perro se valida desde la capa de Service.
-
 ## Sprint 3
 
 ### Funcionalidades implementadas
@@ -329,7 +346,6 @@ El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/
 * Excepciones personalizadas.
 * GlobalExceptionHandler.
 * Documentación de endpoints mediante Swagger / OpenAPI.
-
 ### Reglas de negocio
 
 * Una licencia debe estar asociada a una organización, una persona y un perro existentes.
@@ -338,12 +354,11 @@ El Sprint 6 (Frontend) está en curso, empezando por la web pública (ver `docs/
 * No pueden existir licencias incompatibles por solapamiento de periodos según las reglas definidas para el dominio.
 * Al actualizar una licencia, la comprobación de solapamiento excluye la propia licencia modificada.
 * Las licencias existentes se conservan para poder consultar el histórico de licencias de un perro.
-
 ### Decisiones de diseño
 
 El histórico funcional de las licencias no requiere una entidad independiente. Cada licencia representa un periodo de vigencia y permanece almacenada una vez finalizado dicho periodo, permitiendo consultar tanto todas las licencias de un perro como sus licencias vigentes.
 
-La auditoría de modificaciones de las entidades se ha separado del histórico funcional y se implementará posteriormente como un sistema transversal dentro del Sprint 7.
+La auditoría de modificaciones de las entidades se ha separado del histórico funcional y se implementará posteriormente como un sistema transversal dentro del Sprint 11.
 
 ## Sprint 4
 
@@ -364,7 +379,6 @@ Implementar la gestión de recibos del club, permitiendo acumular durante el mes
 * Gestión de estados de recibos y líneas de recibo.
 * Gestión de recibos devueltos mediante la generación de una nueva línea pendiente.
 * Operaciones transaccionales para las operaciones que impliquen múltiples modificaciones.
-
 ### Reglas de negocio
 
 Las reglas funcionales de Recibos y LíneaRecibo se encuentran definidas en `docs/DOMAIN_RECIBOS.md`.
@@ -397,7 +411,6 @@ Proteger la API: identificar a los usuarios del club, autenticarlos y limitar lo
 * Respuestas `401` (`CustomAuthenticationEntryPoint`) y `403` (`CustomAccessDeniedHandler`) con el formato `ErrorResponseDTO` de la API.
 * Autorización por rol y por propiedad de los datos en Organizaciones, Personas, Perros, Licencias y Recibos y líneas de recibo (`AccessDeniedException` lanzada desde los Services y resuelta en `GlobalExceptionHandler`).
 * Suites de Postman por dominio, con casos para ADMIN, USER, ENTRENADOR y peticiones sin autenticar.
-
 ### Reglas de negocio
 
 Las reglas de roles y permisos por entidad se encuentran definidas en `docs/DOMAIN_SEGURIDAD.md`.

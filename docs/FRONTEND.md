@@ -675,7 +675,10 @@ Lo que se verificó en el hosting real:
 ## Para desplegar la aplicación (pendiente)
 
 Nada de esto afecta a la web publicada. Es lo que habrá que hacer el día que la
-aplicación se despliegue en un servidor propio.
+aplicación se despliegue en un servidor. Estos puntos se reparten entre los
+sprints del roadmap (`PROJECT_OVERVIEW.md`): perfiles, Swagger y consola H2, JWT
+y base de datos en el Sprint 8; Maven wrapper, compresión y caché, y proxy en el
+Sprint 10.
 
 * Cerrar o restringir a ADMIN Swagger y la consola H2 en producción.
 * Externalizar clave de firma y expiración del JWT (ADR-016). La clave ya sale de
