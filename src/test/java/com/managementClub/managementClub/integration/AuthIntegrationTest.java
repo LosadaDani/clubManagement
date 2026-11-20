@@ -26,14 +26,14 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
         //Given: un usuario real en la BD, con la contraseña cifrada
         createUser();
 
-        LoginRequestDTO request =new LoginRequestDTO();
+        LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername(USER_ADMIN);
         request.setPassword(SECRET_123);
 
         //When + Then
         mockMvc.perform(post("/api/auth/login")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value(USER_ADMIN))
                 .andExpect(jsonPath("$.role").value("ROLE_ADMIN"))
@@ -45,7 +45,7 @@ class AuthIntegrationTest extends AbstractIntegrationTest {
         //Given: un usuario real en la BD, con la contraseña cifrada
         createUser();
 
-        LoginRequestDTO request =new LoginRequestDTO();
+        LoginRequestDTO request = new LoginRequestDTO();
         request.setUsername(USER_ADMIN);
         request.setPassword("passErronea");
 

@@ -57,7 +57,7 @@ class ReceiptLineServiceImplTest {
         assertThatThrownBy(() -> service.createReceiptLine(request))
                 .isInstanceOf(ResourceNotFoundException.class);
 
-        verify(receiptLineRepository, never()).save(any());
+        verifyNoInteractions(receiptLineRepository);
     }
 
     //2	createReceiptLine	Petición válida	La línea guardada tiene estado PENDING y el DTO devuelto refleja los datos.
@@ -145,7 +145,8 @@ class ReceiptLineServiceImplTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getConcept()).isEqualTo("Linea test");
 
-        verify(receiptLineRepository, never()).findByPersonAndStatusOrderByDateDesc(any(), any());
+        // any() sin tipar a propósito: aquí status es null y any(Clase.class) no acepta null
+        verify(receiptLineRepository, never()).findByPersonAndStatusOrderByDateDesc(any(Person.class), any());
     }
 
     //6	findByPerson	status informado	Usa findByPersonAndStatusOrderByDateDesc y nunca la otra
@@ -170,7 +171,7 @@ class ReceiptLineServiceImplTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getConcept()).isEqualTo("Linea test");
 
-        verify(receiptLineRepository, never()).findByPersonOrderByDateDesc(any());
+        verify(receiptLineRepository, never()).findByPersonOrderByDateDesc(any(Person.class));
     }
 
     //7	updateReceiptLine	Línea inexistente	Lanza ResourceNotFoundException
@@ -184,7 +185,7 @@ class ReceiptLineServiceImplTest {
                 .isInstanceOf(ResourceNotFoundException.class);
 
         // Y además: nunca se llegó a guardar nada
-        verify(receiptLineRepository, never()).save(any());
+        verify(receiptLineRepository, never()).save(any(ReceiptLine.class));
     }
 
     //8	updateReceiptLine	Línea ISSUED o PAID	Lanza InvalidBusinessRuleException y no se llama a save
@@ -201,12 +202,12 @@ class ReceiptLineServiceImplTest {
         assertThatThrownBy(() -> service.updateReceiptLine(LINE_ID, receiptLineRequest))
                 .isInstanceOf(InvalidBusinessRuleException.class);
 
-        verify(receiptLineRepository, never()).save(any());
+        verify(receiptLineRepository, never()).save(any(ReceiptLine.class));
     }
 
     //9	updateReceiptLine	Línea PENDING	Los campos (fecha, concepto, importe) cambian y se guarda
     @Test
-    void updateReceiptLine_whenPending_updateFields(){
+    void updateReceiptLine_whenPending_updatesFields(){
         Person person = new Person();
         person.setId(PERSON_ID);
 
@@ -246,7 +247,7 @@ class ReceiptLineServiceImplTest {
         assertThatThrownBy(() -> service.deleteReceiptLine(MISSING_ID))
                 .isInstanceOf(ResourceNotFoundException.class);
 
-        verify(receiptLineRepository, never()).delete(any());
+        verify(receiptLineRepository, never()).delete(any(ReceiptLine.class));
     }
 
     //11 deleteReceiptLine	Línea ISSUED o PAID	Lanza InvalidBusinessRuleException y no se llama a delete
@@ -261,7 +262,7 @@ class ReceiptLineServiceImplTest {
         assertThatThrownBy(() -> service.deleteReceiptLine(LINE_ID))
                 .isInstanceOf(InvalidBusinessRuleException.class);
 
-        verify(receiptLineRepository, never()).delete(any());
+        verify(receiptLineRepository, never()).delete(any(ReceiptLine.class));
     }
 
     //12 deleteReceiptLine	Línea PENDING	Se llama a delete con esa línea

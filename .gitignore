@@ -2,5 +2,7 @@ docs/ai_prompts.md
 docs/BACKLOG.md
 docs/reviews/
 docs/design/
+docs/.DS_Store
+.DS_Store
 CLAUDE.md
 target/
