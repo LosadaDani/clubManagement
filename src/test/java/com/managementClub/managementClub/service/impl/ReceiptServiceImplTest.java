@@ -6,6 +6,8 @@ import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.mapper.ReceiptMapper;
 import com.managementClub.managementClub.model.dto.GenerateReceiptRequestDTO;
 import com.managementClub.managementClub.model.dto.ReceiptDetailResponseDTO;
+import com.managementClub.managementClub.model.dto.ReceiptLineResponseDTO;
+import com.managementClub.managementClub.model.dto.ReceiptProposalResponseDTO;
 import com.managementClub.managementClub.model.dto.ReceiptResponseDTO;
 import com.managementClub.managementClub.model.entity.Person;
 import com.managementClub.managementClub.model.entity.Receipt;
@@ -64,6 +66,9 @@ class ReceiptServiceImplTest {
     private static final Long RECEIPT_LINE_ID = 1L;
     private static final Long OTHER_RECEIPT_LINE_ID = 2L;
     private static final Long MISSING_ID = 999L;
+    private static final Long THIRD_PERSON_ID = 7L;
+    private static final Long FOURTH_PERSON_ID = 8L;
+    private static final Long FIFTH_PERSON_ID = 9L;
 
     //A1 markAsPaid Recibo inexistente lanza ResourceNotFoundException y no se guarda nada
     @Test
@@ -612,10 +617,227 @@ class ReceiptServiceImplTest {
     }
 
     //D1 getReceiptProposal Persona INITIATION_TRAINING sin líneas pendientes	No aparece en la propuesta
+    @Test
+    void getReceiptProposal_whenInitiationTrainingWithoutPendingLines_isNotInProposal () {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(MembershipType.INITIATION_TRAINING);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).isEmpty();
+    }
+
     //D2 getReceiptProposal INITIATION_TRAINING con línea pendiente	Aparece, sin cuota (proposedQuota nulo)
-    //D3 getReceiptProposal FULL_PARTNER ACTIVE sin líneas	Aparece con cuota 15,00 y concepto "Cuota Mensual ..."
-    //D4 getReceiptProposal PERMANENT_TRAINING	Aparece con cuota mensual
+    @Test
+    void getReceiptProposal_whenInitiationTrainingWithPendingLine_isInProposalWithoutQuota () {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(MembershipType.INITIATION_TRAINING);
+
+        ReceiptLineResponseDTO pendingLine = new ReceiptLineResponseDTO();
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of(pendingLine));
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPerson().getId()).isEqualTo(PERSON_ID);
+        assertThat(result.get(0).getPendingLines()).hasSize(1);
+        assertThat(result.get(0).getPendingLines().get(0)).isSameAs(pendingLine);
+        assertThat(result.get(0).getProposedQuota()).isNull();
+        assertThat(result.get(0).getQuotaConcept()).isNull();
+    }
+
+    //D3 getReceiptProposal FULL_PARTNER y SUBSCRIBED_MEMBER ACTIVE sin líneas	Aparece con cuota 15,00 y concepto "Cuota Mensual junio"
+    @ParameterizedTest
+    @EnumSource(value = MembershipType.class, names = {"FULL_PARTNER", "SUBSCRIBED_MEMBER"})
+    void getReceiptProposal_whenMemberActiveWithoutLines_isInProposalWithMonthlyQuota (MembershipType type) {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(type);
+        person.setMembershipStatus(MembershipStatus.ACTIVE);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPerson().getId()).isEqualTo(PERSON_ID);
+        assertThat(result.get(0).getPendingLines()).isEmpty();
+        assertThat(result.get(0).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(0).getQuotaConcept()).isEqualTo("Cuota Mensual junio");
+    }
+
+    //D4 getReceiptProposal PERMANENT_TRAINING	Aparece con cuota mensual (calculateQuota no lee el estado en esta rama: no se informa)
+    @Test
+    void getReceiptProposal_whenPermanentTrainingWithoutLines_isInProposalWithMonthlyQuota () {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(MembershipType.PERMANENT_TRAINING);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPerson().getId()).isEqualTo(PERSON_ID);
+        assertThat(result.get(0).getPendingLines()).isEmpty();
+        assertThat(result.get(0).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(0).getQuotaConcept()).isEqualTo("Cuota Mensual junio");
+    }
+
+    //D4b getReceiptProposal PERMANENT_TRAINING con línea pendiente	Aparece con la línea y con la cuota mensual (la cuota no depende de las líneas)
+    @Test
+    void getReceiptProposal_whenPermanentTrainingWithPendingLine_isInProposalWithLineAndQuota () {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(MembershipType.PERMANENT_TRAINING);
+
+        ReceiptLineResponseDTO pendingLine = new ReceiptLineResponseDTO();
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of(pendingLine));
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPendingLines()).hasSize(1);
+        assertThat(result.get(0).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(0).getQuotaConcept()).isEqualTo("Cuota Mensual junio");
+    }
+
     //D5 getReceiptProposal INACTIVE fuera de enero sin líneas	No aparece
+    @ParameterizedTest
+    @EnumSource(value = MembershipType.class, names = {"FULL_PARTNER", "SUBSCRIBED_MEMBER"})
+    void getReceiptProposal_whenMemberInactiveOutsideJanuaryWithoutLines_isNotInProposal (MembershipType type) {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(type);
+        person.setMembershipStatus(MembershipStatus.INACTIVE);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).isEmpty();
+    }
+
     //D6 getReceiptProposal INACTIVE fuera de enero con línea pendiente	Aparece solo con la línea, sin cuota
-    //D7 getReceiptProposal INACTIVE en enero (solo con Clock)	Cuota anual con concepto "Cuota Anual " + año
+    @ParameterizedTest
+    @EnumSource(value = MembershipType.class, names = {"FULL_PARTNER", "SUBSCRIBED_MEMBER"})
+    void getReceiptProposal_whenMemberInactiveOutsideJanuaryWithPendingLine_isInProposalWithoutQuota (MembershipType type) {
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(type);
+        person.setMembershipStatus(MembershipStatus.INACTIVE);
+
+        ReceiptLineResponseDTO pendingLine = new ReceiptLineResponseDTO();
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of(pendingLine));
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPerson().getId()).isEqualTo(PERSON_ID);
+        assertThat(result.get(0).getPendingLines()).hasSize(1);
+        assertThat(result.get(0).getPendingLines().get(0)).isSameAs(pendingLine);
+        assertThat(result.get(0).getProposedQuota()).isNull();
+        assertThat(result.get(0).getQuotaConcept()).isNull();
+    }
+
+    //D7 getReceiptProposal INACTIVE en enero (Clock fijo en enero)	Cuota anual 15,00 con concepto "Cuota Anual " + año
+    @ParameterizedTest
+    @EnumSource(value = MembershipType.class, names = {"FULL_PARTNER", "SUBSCRIBED_MEMBER"})
+    void getReceiptProposal_whenMemberInactiveInJanuary_isInProposalWithAnnualQuota (MembershipType type) {
+        // El @InjectMocks usa el reloj de junio: aquí se construye el Service a mano con un reloj fijo en enero (año distinto al de junio)
+        Clock januaryClock = Clock.fixed(Instant.parse("2027-01-15T10:00:00Z"), ZoneId.of("Europe/Madrid"));
+        ReceiptServiceImpl januaryService = new ReceiptServiceImpl(personRepository, receiptLineService,
+                receiptLineRepository, receiptMapper, receiptRepository, receiptLineMapper,
+                currentUserProvider, januaryClock);
+
+        Person person = new Person();
+        person.setId(PERSON_ID);
+        person.setMembershipType(type);
+        person.setMembershipStatus(MembershipStatus.INACTIVE);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of(person));
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = januaryService.getReceiptProposal();
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getPerson().getId()).isEqualTo(PERSON_ID);
+        assertThat(result.get(0).getPendingLines()).isEmpty();
+        assertThat(result.get(0).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(0).getQuotaConcept()).isEqualTo("Cuota Anual 2027");
+    }
+
+    //D8 getReceiptProposal Pide al repositorio las personas con findByMembershipStatusNot(CANCELLED): el filtro lo hace el repositorio, no el Service
+    @Test
+    void getReceiptProposal_asksRepositoryForNonCancelledPeople () {
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).isEmpty();
+
+        verify(personRepository).findByMembershipStatusNot(MembershipStatus.CANCELLED);
+        verifyNoMoreInteractions(personRepository);
+        verifyNoInteractions(receiptLineService);
+    }
+
+    //D9 getReceiptProposal Varias personas	El orden de salida respeta el de las personas y solo entran las que cumplen la condición
+    @Test
+    void getReceiptProposal_whenSeveralPeople_keepsPeopleOrderAndOnlyIncludesEligible () {
+        // Orden de entrada deliberadamente no creciente por id, para detectar si el Service reordena
+        Person permanent = new Person();
+        permanent.setId(THIRD_PERSON_ID);
+        permanent.setMembershipType(MembershipType.PERMANENT_TRAINING);
+
+        Person activeMember = new Person();
+        activeMember.setId(PERSON_ID);
+        activeMember.setMembershipType(MembershipType.FULL_PARTNER);
+        activeMember.setMembershipStatus(MembershipStatus.ACTIVE);
+
+        Person initiationWithoutLines = new Person();
+        initiationWithoutLines.setId(OTHER_PERSON_ID);
+        initiationWithoutLines.setMembershipType(MembershipType.INITIATION_TRAINING);
+
+        Person inactiveWithLine = new Person();
+        inactiveWithLine.setId(FOURTH_PERSON_ID);
+        inactiveWithLine.setMembershipType(MembershipType.SUBSCRIBED_MEMBER);
+        inactiveWithLine.setMembershipStatus(MembershipStatus.INACTIVE);
+
+        Person inactiveWithoutLines = new Person();
+        inactiveWithoutLines.setId(FIFTH_PERSON_ID);
+        inactiveWithoutLines.setMembershipType(MembershipType.FULL_PARTNER);
+        inactiveWithoutLines.setMembershipStatus(MembershipStatus.INACTIVE);
+
+        when(personRepository.findByMembershipStatusNot(MembershipStatus.CANCELLED))
+                .thenReturn(List.of(permanent, activeMember, initiationWithoutLines, inactiveWithLine, inactiveWithoutLines));
+        when(receiptLineService.findByPerson(THIRD_PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+        when(receiptLineService.findByPerson(PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+        when(receiptLineService.findByPerson(OTHER_PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+        when(receiptLineService.findByPerson(FOURTH_PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of(new ReceiptLineResponseDTO()));
+        when(receiptLineService.findByPerson(FIFTH_PERSON_ID, ReceiptLineStatus.PENDING)).thenReturn(List.of());
+
+        List<ReceiptProposalResponseDTO> result = service.getReceiptProposal();
+
+        assertThat(result).extracting(proposal -> proposal.getPerson().getId())
+                .containsExactly(THIRD_PERSON_ID, PERSON_ID, FOURTH_PERSON_ID);
+
+        assertThat(result.get(0).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(1).getProposedQuota()).isEqualByComparingTo("15.00");
+        assertThat(result.get(2).getProposedQuota()).isNull();
+        assertThat(result.get(2).getPendingLines()).hasSize(1);
+    }
 }
