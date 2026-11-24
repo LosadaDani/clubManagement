@@ -19,6 +19,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -29,12 +30,14 @@ public class PersonServiceImpl implements PersonService {
     private final PersonMapper personMapper;
     private final ReceiptLineService receiptLineService;
     private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
 
-    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper, ReceiptLineService receiptLineService, CurrentUserProvider currentUserProvider) {
+    public PersonServiceImpl(PersonRepository personRepository, PersonMapper personMapper, ReceiptLineService receiptLineService, CurrentUserProvider currentUserProvider, Clock clock) {
         this.personRepository = personRepository;
         this.personMapper = personMapper;
         this.receiptLineService = receiptLineService;
         this.currentUserProvider = currentUserProvider;
+        this.clock = clock;
     }
 
     @Transactional
@@ -56,7 +59,7 @@ public class PersonServiceImpl implements PersonService {
         Person person = personMapper.toEntity(dto);
 
         if (person.getMemberSince() == null) {
-            person.setMemberSince(LocalDate.now());
+            person.setMemberSince(LocalDate.now(clock));
         }
 
         person.setMembershipStatus(MembershipStatus.ACTIVE);
