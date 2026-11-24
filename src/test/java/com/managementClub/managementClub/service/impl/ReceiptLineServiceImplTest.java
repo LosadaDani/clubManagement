@@ -23,7 +23,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +41,8 @@ class ReceiptLineServiceImplTest {
     @Mock private PersonRepository personRepository;
     @Mock private CurrentUserProvider currentUserProvider;
     @Spy private ReceiptLineMapper receiptLineMapper = new ReceiptLineMapper();
+    @Spy private Clock clock = Clock.fixed(
+            Instant.parse("2026-06-15T10:00:00Z"), ZoneId.of("Europe/Madrid"));
 
     @InjectMocks private ReceiptLineServiceImpl service;
 
@@ -63,12 +68,12 @@ class ReceiptLineServiceImplTest {
     //2	createReceiptLine	Petición válida	La línea guardada tiene estado PENDING y el DTO devuelto refleja los datos.
     @Test
     void createReceiptLine_whenValid_savesLinePending () {
-        LocalDate today = LocalDate.now();
+        LocalDate date = LocalDate.of(2026, 6, 15);
 
         ReceiptLineRequestDTO request = new ReceiptLineRequestDTO();
         request.setPersonId(PERSON_ID);
         request.setConcept("Prueba test create");
-        request.setDate(today);
+        request.setDate(date);
         request.setAmount(new BigDecimal("20.00"));
 
         Person person = new Person();
@@ -89,7 +94,7 @@ class ReceiptLineServiceImplTest {
         assertThat(result.getStatus()).isEqualTo(ReceiptLineStatus.PENDING);
         assertThat(result.getConcept()).isEqualTo("Prueba test create");
         assertThat(result.getAmount()).isEqualByComparingTo("20.00");
-        assertThat(result.getDate()).isEqualTo(today);
+        assertThat(result.getDate()).isEqualTo(date);
 
         //verificacion del save
         ReceiptLine receiptLine = captor.getValue();
@@ -97,7 +102,7 @@ class ReceiptLineServiceImplTest {
         assertThat(receiptLine.getStatus()).isEqualTo(ReceiptLineStatus.PENDING);
         assertThat(receiptLine.getAmount()).isEqualByComparingTo("20.00");
         assertThat(receiptLine.getConcept()).isEqualTo("Prueba test create");
-        assertThat(receiptLine.getDate()).isEqualTo(today);
+        assertThat(receiptLine.getDate()).isEqualTo(date);
     }
 
     //3	findByPerson	Ni admin ni propietario	Lanza AccessDeniedException y no hay interacciones con personRepository
@@ -284,8 +289,6 @@ class ReceiptLineServiceImplTest {
         Person person = new Person();
         ArgumentCaptor<ReceiptLine> captor = ArgumentCaptor.forClass(ReceiptLine.class);
 
-        LocalDate today = LocalDate.now();
-
         service.createInitiationLines(person);
 
         verify(receiptLineRepository, times(2)).save(captor.capture());
@@ -299,13 +302,13 @@ class ReceiptLineServiceImplTest {
         assertThat(first.getStatus()).isEqualTo(ReceiptLineStatus.PENDING);
         assertThat(first.getAmount()).isEqualByComparingTo("150.00");
         assertThat(first.getConcept()).isEqualTo("1ª cuota Iniciación");
-        assertThat(first.getDate()).isEqualTo(today);
+        assertThat(first.getDate()).isEqualTo(LocalDate.of(2026, 6, 15));
 
         // Línea 2: saved.get(1) → persona, estado PENDING, importe 100, concepto "2ª cuota Iniciación", fecha hoy + 1 mes
         assertThat(second.getPerson()).isSameAs(person);
         assertThat(second.getStatus()).isEqualTo(ReceiptLineStatus.PENDING);
         assertThat(second.getAmount()).isEqualByComparingTo("100.00");
         assertThat(second.getConcept()).isEqualTo("2ª cuota Iniciación");
-        assertThat(second.getDate()).isEqualTo(today.plusMonths(1));
+        assertThat(second.getDate()).isEqualTo(LocalDate.of(2026, 6, 15).plusMonths(1));
     }
 }

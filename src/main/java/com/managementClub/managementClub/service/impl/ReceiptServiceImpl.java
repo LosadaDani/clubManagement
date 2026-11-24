@@ -5,8 +5,13 @@ import com.managementClub.managementClub.exception.ResourceNotFoundException;
 import com.managementClub.managementClub.mapper.ReceiptLineMapper;
 import com.managementClub.managementClub.mapper.ReceiptMapper;
 import com.managementClub.managementClub.model.dto.*;
-import com.managementClub.managementClub.model.entity.*;
-import com.managementClub.managementClub.model.enums.*;
+import com.managementClub.managementClub.model.entity.Person;
+import com.managementClub.managementClub.model.entity.Receipt;
+import com.managementClub.managementClub.model.entity.ReceiptLine;
+import com.managementClub.managementClub.model.enums.MembershipStatus;
+import com.managementClub.managementClub.model.enums.MembershipType;
+import com.managementClub.managementClub.model.enums.ReceiptLineStatus;
+import com.managementClub.managementClub.model.enums.ReceiptStatus;
 import com.managementClub.managementClub.repository.PersonRepository;
 import com.managementClub.managementClub.repository.ReceiptLineRepository;
 import com.managementClub.managementClub.repository.ReceiptRepository;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
@@ -36,6 +42,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     private final ReceiptRepository receiptRepository;
     private final ReceiptLineMapper receiptLineMapper;
     private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
 
     private static final BigDecimal MONTHLY_QUOTA_MEMBER = new BigDecimal("15.00");
     private static final BigDecimal ANNUAL_QUOTA_MEMBER = new BigDecimal("15.00");
@@ -44,7 +51,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     private record QuotaCalculation(BigDecimal amount, String concept) {}
 
-    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider) {
+    public ReceiptServiceImpl(PersonRepository personRepository, ReceiptLineService receiptLineService, ReceiptLineRepository receiptLineRepository, ReceiptMapper receiptMapper, ReceiptRepository receiptRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider, Clock clock) {
         this.personRepository = personRepository;
         this.receiptLineService = receiptLineService;
         this.receiptLineRepository = receiptLineRepository;
@@ -52,6 +59,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         this.receiptRepository = receiptRepository;
         this.receiptLineMapper = receiptLineMapper;
         this.currentUserProvider = currentUserProvider;
+        this.clock = clock;
     }
 
     @Override
@@ -98,7 +106,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         Receipt receipt = new Receipt();
         receipt.setPerson(person);
         receipt.setStatus(ReceiptStatus.ISSUED);
-        receipt.setIssueDate(LocalDate.now());
+        receipt.setIssueDate(LocalDate.now(clock));
         receipt.setTotal(totalAmount);
         Receipt savedReceipt = receiptRepository.save(receipt);
 
@@ -133,7 +141,7 @@ public class ReceiptServiceImpl implements ReceiptService {
                 receiptLine.setAmount(quotaCalculation.amount);
                 receiptLine.setConcept(quotaCalculation.concept);
                 receiptLine.setStatus(ReceiptLineStatus.ISSUED);
-                receiptLine.setDate(LocalDate.now());
+                receiptLine.setDate(LocalDate.now(clock));
                 receiptLine.setReceipt(savedReceipt);
                 receiptLineRepository.save(receiptLine);
                 totalAmount = totalAmount.add(receiptLine.getAmount());
@@ -233,7 +241,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         Receipt savedReceipt = receiptRepository.save(receipt);
 
         ReceiptLine lineReturn = new ReceiptLine();
-        lineReturn.setDate(LocalDate.now());
+        lineReturn.setDate(LocalDate.now(clock));
         lineReturn.setConcept("Devolución recibo " + receiptId);
         lineReturn.setStatus(ReceiptLineStatus.PENDING);
         BigDecimal amountPenalty = savedReceipt.getTotal().add(RETURN_PENALTY);
@@ -251,17 +259,17 @@ public class ReceiptServiceImpl implements ReceiptService {
         return switch (person.getMembershipType()) {
             case PERMANENT_TRAINING -> new QuotaCalculation(
                     MONTHLY_QUOTA_PERMANENT_TRAINING,
-                    "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
+                    "Cuota Mensual " + LocalDate.now(clock).getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
 
             case FULL_PARTNER, SUBSCRIBED_MEMBER -> {
                 if (person.getMembershipStatus() == MembershipStatus.ACTIVE) {
                     yield new QuotaCalculation(
                             MONTHLY_QUOTA_MEMBER,
-                            "Cuota Mensual " + LocalDate.now().getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
-                } else if (person.getMembershipStatus() == MembershipStatus.INACTIVE && LocalDate.now().getMonthValue() == 1) {
+                            "Cuota Mensual " + LocalDate.now(clock).getMonth().getDisplayName(TextStyle.FULL, Locale.of("es", "ES")));
+                } else if (person.getMembershipStatus() == MembershipStatus.INACTIVE && LocalDate.now(clock).getMonthValue() == 1) {
                     yield new QuotaCalculation(
                             ANNUAL_QUOTA_MEMBER,
-                            "Cuota Anual " + LocalDate.now().getYear());
+                            "Cuota Anual " + LocalDate.now(clock).getYear());
                 }
                 yield null;
             }

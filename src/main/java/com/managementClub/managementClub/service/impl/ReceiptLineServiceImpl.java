@@ -16,6 +16,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -26,15 +27,17 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
     private final PersonRepository personRepository;
     private final ReceiptLineMapper receiptLineMapper;
     private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
 
     private final static BigDecimal FIRST_INITIATION_PRICE = new BigDecimal("150");
     private final static BigDecimal SECOND_INITIATION_PRICE = new BigDecimal("100");
 
-    public ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, PersonRepository personRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider) {
+    public ReceiptLineServiceImpl(ReceiptLineRepository receiptLineRepository, PersonRepository personRepository, ReceiptLineMapper receiptLineMapper, CurrentUserProvider currentUserProvider, Clock clock) {
         this.receiptLineRepository = receiptLineRepository;
         this.personRepository = personRepository;
         this.receiptLineMapper = receiptLineMapper;
         this.currentUserProvider = currentUserProvider;
+        this.clock = clock;
     }
 
     @Override
@@ -111,7 +114,7 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
         receiptLineFirst.setAmount(FIRST_INITIATION_PRICE);
         receiptLineFirst.setStatus(ReceiptLineStatus.PENDING);
         receiptLineFirst.setConcept("1ª cuota Iniciación");
-        receiptLineFirst.setDate(LocalDate.now());
+        receiptLineFirst.setDate(LocalDate.now(clock));
         receiptLineRepository.save(receiptLineFirst);
 
         ReceiptLine receiptLineSecond = new ReceiptLine();
@@ -119,7 +122,7 @@ public class ReceiptLineServiceImpl implements ReceiptLineService {
         receiptLineSecond.setAmount(SECOND_INITIATION_PRICE);
         receiptLineSecond.setStatus(ReceiptLineStatus.PENDING);
         receiptLineSecond.setConcept("2ª cuota Iniciación");
-        receiptLineSecond.setDate(LocalDate.now().plusMonths(1));
+        receiptLineSecond.setDate(LocalDate.now(clock).plusMonths(1));
         receiptLineRepository.save(receiptLineSecond);
     }
 

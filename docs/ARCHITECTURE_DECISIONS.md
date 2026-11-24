@@ -21,6 +21,7 @@ Este documento recoge las principales decisiones de arquitectura adoptadas duran
 | ADR-015 | Fetch type explícito LAZY en relaciones @ManyToOne                            |
 | ADR-016 | Autenticación stateless con JWT                                               |
 | ADR-017 | Frontend con Thymeleaf servido desde la API                                   |
+| ADR-018 | Reloj inyectable (`Clock`) en Services con lógica de fecha                    |
 
 
 ---
@@ -402,3 +403,46 @@ motivos de SEO, sin modificar la configuración de idioma de la API.
 * La seguridad actúa antes que Spring MVC, así que una ruta inexistente sin token no llega a MVC. Para que el visitante vea la página 404 sin abrir rutas con patrones amplios, `CustomAuthenticationEntryPoint` responde `401` en JSON solo a las rutas que empiezan por `/api/`; al resto responde `404` con`sendError`, que Spring reenvía a `/error` y resuelve con `templates/error/404.html`. Se mantiene `anyRequest().authenticated()`. Consecuencia: cualquier ruta no pública fuera de `/api/` responde `404` a un anónimo; si el backoffice se sirviera fuera de `/api/`, habría que decidir allí cómo se redirige al login (ver `docs/FRONTEND.md`).
 * Esto no decide el backoffice: su tecnología y el almacenamiento del token
   siguen pendientes.
+
+---
+
+## ADR-018 — Reloj inyectable (`Clock`) en Services con lógica de fecha
+
+### Estado
+
+Decisión tomada e implementada (Sprint 7).
+
+### Contexto
+
+Algunas reglas de negocio dependen de la fecha actual. La más importante es la cuota de `ReceiptServiceImpl.calculateQuota`: una persona inactiva (`FULL_PARTNER` o `SUBSCRIBED_MEMBER`) solo genera cuota anual si el mes actual es enero, y el concepto de la cuota mensual incluye el nombre del mes.
+
+Con `LocalDate.now()` dentro del Service, la fecha sale del reloj del sistema y un test no puede fijarla. Eso tiene dos consecuencias:
+
+* La cuota anual de enero no se puede probar de forma determinista: el test solo pasaría ejecutándolo en enero.
+* Los tests que comparan fechas (por ejemplo, las dos cuotas de iniciación de`createInitiationLines`) dependen del día de ejecución y tienen un riesgo, muy pequeño, de fallar al ejecutarse a medianoche.
+
+### Decisión
+
+Los Services con lógica que depende de la fecha reciben un `java.time.Clock` por constructor (ADR-005) y usan `LocalDate.now(clock)` en lugar de `LocalDate.now()`.
+
+* Un bean `Clock` en `config/ClockConfig`, con `Clock.systemDefaultZone()`.
+En producción el comportamiento es el mismo que antes.
+* Afecta a `ReceiptServiceImpl` y a `ReceiptLineServiceImpl`.
+* En los tests unitarios, cada clase declara un `@Spy Clock` fijo (`Clock.fixed(Instant.parse("2026-06-15T10:00:00Z"), ZoneId.of("Europe/Madrid"))`).
+Los casos que necesitan otra fecha (por ejemplo, enero) usan un reloj distinto.
+
+### Motivo
+
+Es una regla de negocio con dinero de por medio que no se puede probar de otra forma. El cambio es pequeño y no añade librerías ni patrones nuevos: `Clock` es una clase de `java.time` y se inyecta como cualquier otra dependencia.
+
+### Alternativas descartadas
+
+* **Dejar `LocalDate.now()` y no probar la cuota anual.** Cero cambios en producción, pero la regla de enero queda sin cobertura.
+* **Un test que solo se ejecute en enero** (`Assumptions` o `@EnabledIf`). Casi nunca se ejecutaría, así que no protege nada.
+
+### Consecuencias
+
+* Un Service nuevo con lógica dependiente de la fecha debe recibir el `Clock` y no llamar a `LocalDate.now()` sin él.
+* Los tests de esos Services declaran un `@Spy Clock` fijo. Sin él, `@InjectMocks`pasa `null` al constructor y los tests que llegan a una línea con fecha fallan con `NullPointerException`.
+* `Clock.systemDefaultZone()` usa la zona horaria de la JVM. Cuando se decida la base de datos de producción y el despliegue (Sprint 8), conviene fijar la zona de forma explícita, relacionado con el pendiente de `CURRENT_DATE` en las consultas de licencias (ver `BACKLOG.md`).
+* `DevDataInitializer` y las consultas JPQL con `CURRENT_DATE` no usan el `Clock`. No se han tocado en este cambio.
