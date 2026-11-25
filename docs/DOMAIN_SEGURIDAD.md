@@ -38,9 +38,10 @@ aceptado de esta convención, no un error.
 - Toda alta de usuario se crea siempre con rol USER por defecto, independientemente de lo que se envíe en la petición de alta.
 - El cambio a otro rol (ADMIN o ENTRENADOR) es una operación distinta, restringida a usuarios con rol ADMIN.
 - El rol ADMIN solo podrá asignarse a personas cuyo MembershipType sea FULL_PARTNER
-  *(Pendiente definir (backlog) — qué ocurre con el rol `ADMIN` de una persona si su `MembershipType` deja de ser `FULL_PARTNER` (por ejemplo, si deja la junta o cambia de tipo de membresía) — no
-  se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva
-  automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
+
+*(Pendiente definir (backlog) — qué ocurre con el rol `ADMIN` de una persona si su `MembershipType` deja de ser `FULL_PARTNER` (por ejemplo, si deja la junta o cambia de tipo de membresía) — no
+se contempla ninguna transición automática de rol por este motivo, queda fuera del alcance actual. El resto del mapeo entre roles y `MembershipType` (`USER`/`ENTRENADOR`) tampoco se deriva
+automáticamente; el rol se asigna de forma explícita al dar de alta o modificar las credenciales de la persona.*
 
 ### Alta de usuario (credenciales)
 
@@ -61,6 +62,8 @@ Autorización: solo `ADMIN` puede dar de alta usuarios (`POST /api/app-users`), 
 Implementado (Issues #56-#59 del Sprint 5 — login, generación de JWT, validación de JWT, protección de endpoints).
 
 Login: `POST /api/auth/login`, público, recibe `username`/`password` y devuelve `username`, `role`, un resumen de la persona asociada y un token JWT (ver ADR-016 para el detalle técnico de generación y validación).
+
+Un login con la contraseña incorrecta responde `401` con el formato `ErrorResponseDTO` habitual y el mensaje «Credenciales erróneas». Ese texto no es propio del proyecto: lo genera Spring Security y lo traduce según el idioma de la aplicación (fijado a español, ver más abajo), así que podría cambiar si se actualiza la versión del framework. Lo fija un test de integración (Issue #109). Es la excepción que lanza el login (`BadCredentialsException`), que `GlobalExceptionHandler` convierte en `401`; sin ese handler, el `401` seguiría saliendo, pero por el punto de entrada de la seguridad y con otro mensaje («No autenticado. Se requiere un token válido.»), que no es correcto para un login fallido.
 
 Rutas públicas (sin token): `/api/auth/login`, Swagger UI (`/swagger-ui/**`, `/swagger-ui.html`, `/v3/api-docs/**`), la consola H2 (`/h2-console/**`, solo entorno de desarrollo) y las páginas de la web pública con sus recursos estáticos (ver "Web pública" más abajo).
 
@@ -98,15 +101,19 @@ Regla común a todas las entidades: un rechazo por rol (`hasRole`/`hasAnyRole` e
 
 Los matchers de `SecurityConfig` se escriben por verbo. Un matcher `GET` no se aplica a `HEAD`, así que cada `GET` restringido a un rol lleva un `HEAD` con las mismas rutas (en `/api/receipt/proposal`, que solo tiene `GET`, basta un matcher sin verbo).
 
+Las restricciones por rol viven **solo en `SecurityConfig`**: los Services no las comprueban, y las pruebas unitarias de los Services (Sprint 7) no pueden verlas. Las verifica la matriz de roles de los tests de integración (Issues #115 a #119 del Sprint 7). Las restricciones de «propios datos», en cambio, sí están en el Service y las cubren sus tests unitarios.
+
 ### Organizaciones
 
 Implementado (Issue #59).
 
 - ADMIN: puede crear (`POST`) y modificar (`PUT`) organizaciones.
 - USER y ENTRENADOR: no pueden crear ni modificar organizaciones.
-  No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
+
+No hay restricción de "propios datos" aquí — una organización no pertenece a ningún socio.
 
 - Verbo: la modificación es `PUT` (sustituye el recurso completo, como en Personas, Perros y Licencias) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría modificar organizaciones.
+
 ### Personas
 
 Implementado (Issue #84).
@@ -115,10 +122,12 @@ Implementado (Issue #84).
 - ENTRENADOR: puede crear (`POST`) personas únicamente con `MembershipType` de formación (`INITIATION_TRAINING` o `PERMANENT_TRAINING`); crear una persona con cualquier otro tipo de membresía está prohibido. Puede ver y modificar únicamente su propia persona (igual que USER).
 - USER: no puede crear personas. Puede ver (`GET /{id}`) y modificar (`PUT /{id}`) únicamente su propia persona — comparando el `id` solicitado contra la persona asociada a su propio `AppUser`, no contra el rol en sí.
 - USER y ENTRENADOR no pueden listar (`GET /api/persons`) ni buscar (`GET /api/persons/search`) personas — ambas operaciones quedan restringidas a ADMIN.
-- Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo.
+- Cambiar el `MembershipType` de la propia persona (vía `PUT /{id}`) está prohibido para USER y ENTRENADOR, igual que cambiar el `MembershipStatus` — ambos campos se consideran decisiones administrativas, no datos que el socio controle sobre sí mismo. El `MembershipType` lo rechaza el Service (`403`); el `MembershipStatus` no es modificable por `PUT` para nadie, porque la petición no lo incluye.
 - Nadie, excepto ADMIN, puede cambiar el `MembershipStatus` de ninguna persona (`PATCH /{id}/status`), ni siquiera la propia.
 - La comprobación de "propios datos" (ownership) se hace antes de comprobar si el recurso existe: si el `id` solicitado no es el propio (y el rol no es ADMIN), se responde `403` sin revelar si esa persona existe o no.
-  *(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
+- Dónde se aplica cada restricción: «USER no puede crear personas», «solo ADMIN lista y busca» y «solo ADMIN cambia el estado» están solo en `SecurityConfig` (el Service no las comprueba). En cambio, «ENTRENADOR solo crea personas de formación», «cambiar el `MembershipType` solo lo hace ADMIN» y la comprobación de «propios datos» están en `PersonServiceImpl`.
+
+*(Pendiente valorar (backlog): que ENTRENADOR pueda ver/listar personas en formación iniciación, más allá de su propio registro — por ahora fuera de alcance.)*
 
 ### Perros
 
@@ -132,7 +141,8 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre perros.
 - La comprobación de "propios datos" se hace antes de revelar si el recurso existe: si el perro, la persona o el propietario indicado no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN. Esta precedencia se aplica a peticiones con cuerpo válido: la validación del cuerpo (`@Valid`) se ejecuta antes que el Service, así que un `PUT` con cuerpo inválido sobre un perro ajeno o inexistente responde `400` con los errores de validación, igual para cualquier id (no revela si el perro existe).
 - El propietario de un perro no se puede modificar mediante la actualización (ver `DOMAIN_PERROS.md`): el `ownerId` enviado en un `PUT` se ignora (aunque sigue siendo obligatorio en el cuerpo, porque comparte DTO con el alta). El traspaso entre propietarios será un caso de uso específico (pendiente, ver backlog).
 - La actualización (`PUT /{id}`) sustituye el recurso completo: los campos opcionales que no se envíen (`sex`, `breed`, `pedigreeNumber`) quedan sin valor.
-  *(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
+
+*(Riesgo asumido: al dar de alta o modificar un perro propio, USER y ENTRENADOR pueden deducir por la respuesta `409` si un microchip o número de pedigree ya está registrado en el club, aunque no puedan buscar por microchip. Solo se revela que existe, no a qué perro ni a qué propietario pertenece. Es inherente a la regla de unicidad: no se puede rechazar un duplicado sin indicar que lo es.)*
 
 ### Licencias — Issue #86
 
@@ -148,6 +158,7 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre licencias.
 - La corrección (`PUT /{id}`) usa un DTO propio con solo `licenseNumber`, `startDate` y `endDate`: organización, persona y perro de una licencia no se pueden modificar (ver `DOMAIN_ORGANIZACIONES.md`); si se envían en el cuerpo, se ignoran. Solo la ejecuta ADMIN, por lo que no necesita comprobación de "propios datos" en el Service.
 - Verbo: la corrección es `PUT` (sustituye los campos corregibles completos, como en Personas y Perros) y el matcher de `SecurityConfig` usa el mismo verbo. Si se cambia el verbo o la ruta del endpoint hay que cambiar también el matcher: de lo contrario la ruta cae en `anyRequest().authenticated()` y cualquier usuario autenticado podría corregir licencias.
 - La visibilidad de las licencias es solo para ADMIN y la persona de la licencia (la propietaria actual del perro). El comportamiento tras una cesión (qué ve el propietario anterior) se decidirá al implementar la cesión (ver backlog).
+
 ### Recibos y líneas de recibo — Issue #88
 
 Implementado (Issue #88). Las reglas de negocio de recibos y líneas están en `DOMAIN_RECIBOS.md`.
@@ -158,7 +169,9 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre recibos y líneas
 - USER y ENTRENADOR: solo lectura de sus propios datos. Pueden consultar un recibo (`GET /api/receipt/{id}`) únicamente si la persona del recibo es la suya, y los recibos y líneas de una persona (`GET /api/receipt/by-person/{id}` y `GET /api/receipt-lines/by-person/{id}`) únicamente si es su propia persona. Ven todas sus líneas, en cualquier estado (`PENDING`, `ISSUED`, `PAID`) y también las de importe negativo (abonos). El detalle de un recibo incluye sus líneas, así que la regla de propiedad del recibo cubre también las líneas que se ven a través de él. La propiedad se determina por la persona (`Person`) del recibo o de la línea, no por el usuario (`AppUser`).
 - USER y ENTRENADOR no pueden generar, pagar ni devolver recibos, ni crear, modificar o borrar líneas, ni consultar la propuesta de preparación (`GET /api/receipt/proposal`), ni siquiera con datos propios. Esas operaciones se rechazan con `403` por rol en `SecurityConfig`, antes de llegar al Controller: un USER o ENTRENADOR recibe `403` incluso con cuerpo inválido o con un id inexistente. Un socio nunca marca nada como pagado, tampoco sus propios recibos.
 - La comprobación de "propios datos" se hace antes de revelar si el recibo o la persona existen: si el recibo o la persona indicados no son propios (y el rol no es ADMIN), se responde `403` tanto si existen como si no. El `404` solo lo recibe ADMIN. La conversión de parámetros se hace antes del Service: un `{id}` no numérico o un `status` inválido en las lecturas responde `400` aunque la persona sea ajena (no revela nada, porque la respuesta es la misma para cualquier persona).
+- Mecanismo en el detalle de un recibo (`GET /{id}`): como la comprobación va antes que la existencia, cuando el recibo no existe el Service no tiene propietario al que comparar y trata el caso como «no es propio» para cualquier usuario que no sea ADMIN. Por eso un USER o ENTRENADOR recibe `403` con un id inexistente, y solo ADMIN recibe `404`. Lo fijan los tests unitarios de la Issue #110.
 - Matchers de `SecurityConfig`: la restricción a ADMIN se aplica por verbo y prefijo (`POST` y `PATCH` sobre `/api/receipt/**`, `POST`, `PUT` y `DELETE` sobre `/api/receipt-lines/**`) y, para la propuesta, con un matcher sin verbo sobre `/api/receipt/proposal`, para que cubra también `HEAD` (un matcher con `HttpMethod.GET` no se aplica a `HEAD`). Las lecturas por id o por persona no tienen matcher de rol: pasan por `authenticated()` y se protegen en el Service. Un `GET` nuevo que se añada a estos controllers debe revisarse a propósito, porque quedaría accesible a cualquier usuario autenticado. Si se cambia el verbo o la ruta de un endpoint hay que cambiar también su matcher.
+
 ---
 
 ## Referencias cruzadas
@@ -167,3 +180,4 @@ USER y ENTRENADOR tienen exactamente los mismos permisos sobre recibos y líneas
   (ADR-016).
 - La relación entre roles y `MembershipType` de `Person` se documenta, cuando se
   decida, con referencia cruzada a `DOMAIN_PERSONAS.md`.
+- Las reglas de personas que fijan los tests del Sprint 7 (estado inicial, email único, cambio de estado, búsqueda) están en `DOMAIN_PERSONAS.md`.

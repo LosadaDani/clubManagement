@@ -40,6 +40,14 @@ Actualmente el sistema no registrará el medio mediante el cual se ha realizado 
 
 Las líneas que no sean incluidas en un recibo durante su preparación permanecerán en estado `PENDING` y podrán incluirse en un recibo posterior.
 
+#### Creación y modificación de líneas
+
+Implementado (comportamiento fijado por los tests de la Issue #108).
+
+- **Creación:** la persona indicada debe existir (`404` si no). La línea se crea siempre en estado `PENDING`, sin recibo asociado.
+- **Modificación:** solo se pueden cambiar la fecha, el concepto y el importe. La persona de una línea no se puede cambiar: si la petición trae otro `personId`, se ignora. Una línea inexistente responde `404`, y una línea que no está en `PENDING` responde `400`.
+- **Borrado:** una línea inexistente responde `404`, y una línea que no está en `PENDING` responde `400`.
+
 ### Recibo
 
 Un recibo representa un conjunto de importes emitidos conjuntamente para una persona.
@@ -63,6 +71,16 @@ Actualmente no se contempla el pago parcial de un recibo.
 Cuando un recibo se marque como `PAID`, las líneas asociadas al recibo pasarán a estado `PAID`.
 
 Cuando un recibo sea marcado como `RETURNED`, las líneas asociadas mantendrán su estado `ISSUED`.
+
+#### Pago de un recibo
+
+Implementado (comportamiento fijado por los tests de la Issue #110).
+
+Un recibo solo puede marcarse como `PAID` si está en estado `ISSUED`; en cualquier otro estado (`PAID` o `RETURNED`) se responde `400`. Un recibo inexistente responde `404`. Al pagarlo, el recibo y **todas** sus líneas pasan a `PAID`.
+
+### Fechas y reloj
+
+Las fechas que asigna el sistema (fecha de emisión del recibo, fecha de la línea de cuota, fecha de la línea de devolución, y el mes y el año del concepto de la cuota) se toman de un `Clock` inyectado, no del reloj del sistema directamente (ver ADR-018). En producción equivale a la fecha actual; en los tests se fija una fecha concreta, lo que permite probar la cuota anual de enero.
 
 ### Relación entre recibos y líneas de recibo
 
@@ -116,6 +134,18 @@ Al generar el recibo:
 - Las líneas seleccionadas pasarán de estado `PENDING` a `ISSUED`.
 - El importe total del recibo se calculará a partir de las líneas incluidas.
 
+#### Reglas de la generación
+
+Implementado (comportamiento fijado por los tests de la Issue #110).
+
+- La persona debe existir (`404` si no).
+- Debe haber al menos una línea seleccionada o la cuota incluida; si no, se responde `400`. Se rechaza antes de crear nada.
+- Cada línea seleccionada debe existir (`404`), pertenecer a la persona del recibo y estar en `PENDING` (`400` si no lo está).
+- Una línea que pertenece a **otra persona** responde `404`, no `403` ni `400`. Es el comportamiento actual.
+- El total del recibo es la suma de los importes de las líneas seleccionadas más la cuota, si se incluye y procede. Los abonos (importes negativos) restan.
+- Si la cuota se incluye para una persona que no genera cuota (por ejemplo `INITIATION_TRAINING`), se ignora en silencio: el recibo se genera solo con las líneas seleccionadas. Si no hay líneas, se responde `400` con el error genérico de recibo vacío. *(Pendiente de decidir, ver `BACKLOG.md`.)*
+- Si una línea falla durante la generación, el recibo ya se había guardado, pero la operación es transaccional (ADR-013) y se deshace completa: no queda ningún recibo ni línea modificada. Esto no se puede comprobar con tests unitarios; lo cubre la integración.
+
 ### Cuotas — periodicidad según tipo de membresía y estado
 
 El campo `MembershipType` de `Person` (ver `docs/DOMAIN_PERSONAS.md`) determina si una
@@ -128,9 +158,11 @@ persona genera cuota periódica en la propuesta de recibos, y con qué frecuenci
 | `SUBSCRIBED_MEMBER`    | Sí                         | Mensual si activa / anual (enero) si inactiva |
 | `FULL_PARTNER`         | Sí                         | Mensual si activa / anual (enero) si inactiva |
 
-> Nota: `PERMANENT_TRAINING` no puede tener `MembershipStatus` inactivo — es una
-> restricción propia de `Person` (ver `docs/DOMAIN_PERSONAS.md`), no de este documento.
-> Por tanto, en la práctica solo aplica la frecuencia mensual para este tipo.
+> Nota: se ha dado por hecho que `PERMANENT_TRAINING` no puede tener
+> `MembershipStatus` inactivo, pero esa restricción **no está definida en
+> `DOMAIN_PERSONAS.md` ni implementada** en el cambio de estado. Está pendiente de
+> decidir (ver `BACKLOG.md`, prioridad alta, punto 7). En el código actual, la
+> cuota de `PERMANENT_TRAINING` es siempre mensual, sin mirar su estado.
 
 La frecuencia depende del `MembershipStatus` de la persona (ver `docs/DOMAIN_PERSONAS.md`):
 
@@ -146,6 +178,13 @@ la existencia de importes pendientes previos.
 `SUBSCRIBED_MEMBER` y `FULL_PARTNER` generan la misma cuota (mismo importe); la
 distinción entre ambos es administrativa (los primeros 6 meses de socio) y no afecta
 al cálculo del importe en ADR-014.
+
+Concepto de la línea de cuota (implementado, fijado por los tests de la Issue #110):
+
+- Cuota mensual: `"Cuota Mensual <mes en español>"` (por ejemplo, `"Cuota Mensual junio"`).
+- Cuota anual (personas inactivas, solo en enero): `"Cuota Anual <año>"` (por ejemplo, `"Cuota Anual 2027"`).
+
+El mes y el año salen del `Clock` inyectado (ver «Fechas y reloj»).
 
 #### `INITIATION_TRAINING` — caso especial, sin cuota periódica
 
@@ -163,6 +202,15 @@ pasado a otro `MembershipType`, deja de aparecer en futuras propuestas.
 > Pendiente de definir (backlog): gestión de aplazamiento de cuotas — qué ocurre cuando
 > una persona con cuota periódica no la genera o no la cobra en el mes/año que
 > correspondía. No forma parte del alcance actual.
+
+#### Propuesta de recibos
+
+Implementado (comportamiento fijado por los tests de la Issue #110).
+
+- Las personas con estado `CANCELLED` no aparecen en la propuesta.
+- Una persona aparece si tiene cuota que proponer o líneas `PENDING`; las de `INITIATION_TRAINING`, solo si tienen líneas `PENDING`.
+- Una persona inactiva fuera de enero, sin líneas `PENDING`, no aparece. Con líneas `PENDING` aparece solo con ellas, sin cuota.
+- Las personas salen en el mismo orden en que las devuelve la consulta.
 
 ### Devolución de recibos
 
@@ -190,6 +238,17 @@ que se devuelve un recibo con importe > 0, sin excepciones contempladas.
 > del sistema — ver DOMAIN_RECIBOS.md backlog / docs/BACKLOG.md (prioridad
 > Alta: "Recibo con importe ≤ 0...").
 
+#### Reglas de la devolución
+
+Implementado (comportamiento fijado por los tests de la Issue #110).
+
+- Un recibo inexistente responde `404`.
+- Solo se puede devolver un recibo en estado `ISSUED`; en cualquier otro estado se responde `400`.
+- Un recibo con importe total menor o igual que 0 responde `400`.
+- La línea de devolución es `PENDING`, de la persona del recibo, con importe igual al total del recibo más la penalización (por ejemplo, 15,00 + 2,48 = 17,48), y con concepto `"Devolución recibo <id>"`, con la fecha del `Clock`. Se crea exactamente una línea.
+- Las líneas del recibo original no se modifican.
+
+> El concepto de la línea de devolución es hoy el único enlace con el recibo original (ver `BACKLOG.md`, prioridad alta, punto 3). Es una solución provisional: el texto no debe cambiarse sin sustituir antes ese enlace por un campo propio.
 
 ### Histórico
 
@@ -200,6 +259,15 @@ Cada recibo conservará históricamente las líneas que fueron emitidas con él.
 En caso de devolución, el recibo original y las líneas asociadas se mantendrán para conservar el histórico.
 
 Los nuevos intentos de cobro derivados de una devolución se representarán mediante nuevas líneas de recibo y, posteriormente, nuevos recibos.
+
+### Consultas
+
+Implementado.
+
+- Los recibos de una persona se devuelven ordenados por fecha de emisión descendente y, a igualdad de fecha, por identificador descendente.
+- Las líneas de una persona se devuelven ordenadas por fecha descendente.
+- El detalle de un recibo incluye sus líneas.
+- La comprobación de propiedad se hace antes que la de existencia: un usuario que no es ADMIN ni propietario recibe `403` tanto si el recibo o la persona existen como si no (ver `DOMAIN_SEGURIDAD.md`).
 
 ### Endpoints actuales
 
@@ -229,3 +297,4 @@ Las reglas de quién puede invocar cada operación están en `DOMAIN_SEGURIDAD.m
 - Cada línea de recibo y cada recibo están asociados obligatoriamente a una persona. Las reglas de la entidad Person se documentan en `docs/DOMAIN_PERSONAS.md`.
 - La cuota propuesta durante la preparación de recibos depende del tipo de membresía de la persona (MembershipType); ver `docs/DOMAIN_PERSONAS.md`.
 - Las reglas de autorización por rol de los recibos y las líneas están en `DOMAIN_SEGURIDAD.md` (sección "Recibos y líneas de recibo — Issue #88").
+- La inyección del reloj en los Services con lógica de fecha se decide en `ARCHITECTURE_DECISIONS.md` (ADR-018).

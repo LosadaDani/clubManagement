@@ -427,7 +427,7 @@ Los Services con lógica que depende de la fecha reciben un `java.time.Clock` po
 
 * Un bean `Clock` en `config/ClockConfig`, con `Clock.systemDefaultZone()`.
 En producción el comportamiento es el mismo que antes.
-* Afecta a `ReceiptServiceImpl` y a `ReceiptLineServiceImpl`.
+* Afecta a `ReceiptServiceImpl`, `ReceiptLineServiceImpl` y a `PersonServiceImpl`.
 * En los tests unitarios, cada clase declara un `@Spy Clock` fijo (`Clock.fixed(Instant.parse("2026-06-15T10:00:00Z"), ZoneId.of("Europe/Madrid"))`).
 Los casos que necesitan otra fecha (por ejemplo, enero) usan un reloj distinto.
 
